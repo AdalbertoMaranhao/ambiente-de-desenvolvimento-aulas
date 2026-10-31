@@ -1,0 +1,37 @@
+# Pacotes compilados de distribuição (~1,5 GB a 4 GB)
+dist/
+
+# Cache local de downloads e catálogos da montagem (~2 GB)
+preparacao/
+
+# Estado runtime do laboratório (senhas, PID, sockets, logs)
+estado/
+backups/
+kit-mac/estado/
+kit-mac/backups/
+*.pid
+*.log
+*.sock
+*.part
+inicio.lock
+credenciais.json
+
+# Cache e arquivos de sistema
+.cache/
+.DS_Store
+Thumbs.db
+desktop.ini
+.junie/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+*.egg
+.eggs/
+*.whl
+
+# Manifestos e configurações locais
+linux-executaveis.json
+.vscode/settings.json

@@ -1,0 +1,804 @@
+{
+  "components": [
+    {
+      "name": "python-windows-x64",
+      "version": "cpython-3.13.18",
+      "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20261026/cpython-3.13.18%2B20261026-x86_64-pc-windows-msvc-install_only_stripped.tar.gz",
+      "target": "tools/windows-x64/python",
+      "kind": "tar",
+      "sha256": "7369f7a35f261222a6ac8b3a87c1c88eeebee8af945d85346202591a64038dd3",
+      "prefix": "python/",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "jdk-windows-x64",
+      "version": "25.0.5+8.0.LTS",
+      "url": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jdk_x64_windows_hotspot_25.0.5_8.zip",
+      "target": "tools/windows-x64/jdk",
+      "kind": "zip-root",
+      "sha256": "636bdc13dc649ddc7d5921c5c7d23cca6e44fd19d662b45cc9c02135a6c96c42",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "vscode-windows-x64",
+      "version": "1.144.0",
+      "url": "https://vscode.download.prss.microsoft.com/dbazure/download/stable/2c33b50b16c472efe58357d1d2a8a5414bc23fbf/VSCode-win32-x64-1.144.0.zip",
+      "target": "tools/windows-x64/vscode",
+      "kind": "zip",
+      "sha256": "055722269e3c9531af0c50a8b757c14e8062a0d02fc973b038863d9732c567ea",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "python-linux-x64",
+      "version": "cpython-3.13.18",
+      "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20261026/cpython-3.13.18%2B20261026-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+      "target": "tools/linux-x64/python",
+      "kind": "tar",
+      "sha256": "df15fe60d3ff55bf9dcf25824b5572756bb8816ff93865a273d3301d7066a8b7",
+      "prefix": "python/",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "jdk-linux-x64",
+      "version": "25.0.5+8.0.LTS",
+      "url": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jdk_x64_linux_hotspot_25.0.5_8.tar.gz",
+      "target": "tools/linux-x64/jdk",
+      "kind": "tar-root",
+      "sha256": "68982529869257d0ee6b824ec5aa270ff8b118bb438670da0b97ebdab178d7fb",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "vscode-linux-x64",
+      "version": "1.144.0",
+      "url": "https://vscode.download.prss.microsoft.com/dbazure/download/stable/2c33b50b16c472efe58357d1d2a8a5414bc23fbf/code-stable-x64-1793133762.tar.gz",
+      "target": "tools/linux-x64/vscode",
+      "kind": "tar",
+      "sha256": "17b72a7e6f40a5b5dce9850f10eea13ce734a63052b67fa021cc01e715ad4cf1",
+      "prefix": "VSCode-linux-x64/",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "php-windows-x64",
+      "version": "8.5.12-1",
+      "url": "https://windows.php.net/downloads/releases/php-8.5.12-1-nts-Win32-vs17-x64.zip",
+      "target": "tools/windows-x64/php",
+      "kind": "zip",
+      "sha256": "2a36a2edcb7a5b9252f638fd5e4cf84d7f6e066092654220dc0b63e5cf4e9723",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "php-linux-x64",
+      "version": "v1.13.4",
+      "url": "https://github.com/php/frankenphp/releases/download/v1.13.4/frankenphp-linux-x86_64",
+      "target": "tools/linux-x64/php/frankenphp",
+      "kind": "file",
+      "sha256": "1484f6951c5a0f4e447dad6869805646ff12891810ebb746b4fb3116a757b44d",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "mariadb-windows-x64",
+      "version": "11.4.13",
+      "url": "https://downloads.mariadb.org/rest-api/mariadb/11.4.13/mariadb-11.4.13-winx64.zip",
+      "target": "tools/windows-x64/mariadb",
+      "kind": "zip-root",
+      "sha256": "d62986d433eeebfde218560b276103831604a61e929e87f1a17f5aebd80257e2",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "mariadb-linux-x64",
+      "version": "11.4.13",
+      "url": "https://downloads.mariadb.org/rest-api/mariadb/11.4.13/mariadb-11.4.13-linux-systemd-x86_64.tar.gz",
+      "target": "tools/linux-x64/mariadb",
+      "kind": "tar-root",
+      "sha256": "3cebf63914df3154b7cb6d548337eb2be42c773aeb641110446b72e2746cfed7",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "git-windows-x64",
+      "version": "v2.56.0.windows.4",
+      "url": "https://github.com/git-for-windows/git/releases/download/v2.56.0.windows.4/MinGit-2.56.0.4-64-bit.zip",
+      "target": "tools/windows-x64/git",
+      "kind": "zip",
+      "sha256": "e3bf78351fe777fba47ddee5950082f8a98bb0f02604fdc7ba3ee2cb68ffa877",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-base-files",
+      "version": "12ubuntu4.7",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/b/base-files/base-files_12ubuntu4.7_amd64.deb",
+      "target": "tools/linux-x64/sysroot/usr/share/common-licenses",
+      "kind": "deb",
+      "sha256": "543f50e12da693710e1d606af61029fa599cde7eb0eaee2c0e34fa47848f4533",
+      "prefix": "usr/share/common-licenses/",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-git",
+      "version": "1:2.34.1-1ubuntu1.18",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/g/git/git_2.34.1-1ubuntu1.18_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "9551f894b8acd4a748ecec4a63678e359b9f05d2bbe7227584e2b9e8bb42ef88",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libaio1",
+      "version": "0.3.112-13build1",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/liba/libaio/libaio1_0.3.112-13build1_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "2dcfe0b49d7cccfbf1bd6a3f627cf44bea9f51fb32f7e0e552a0df75698e0d27",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-liburing2",
+      "version": "2.1-2build1",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/libu/liburing/liburing2_2.1-2build1_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "f6e9bdf50c9683cd9a74ad92d51dde085f40baf0a5fcd8a56fc68425c1bd3c5f",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libncurses6",
+      "version": "6.3-2ubuntu0.3",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libncurses6_6.3-2ubuntu0.3_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "38f97a45931ab6f296be017344afc45e5ccbf83f24896f79625318691a9bebf8",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libtinfo6",
+      "version": "6.3-2ubuntu0.3",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libtinfo6_6.3-2ubuntu0.3_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "3b8dff43a31168f5020928f2ab9a97324c5b47ae708311781f6bd01306c96214",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libssl3",
+      "version": "3.0.2-0ubuntu1.30",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl3_3.0.2-0ubuntu1.30_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "d1b4636e32ac6d3b95d583ac05ac548b1aa248414bae1c51b14f54be0f8fd7bc",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libsystemd0",
+      "version": "249.11-0ubuntu3.23",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/s/systemd/libsystemd0_249.11-0ubuntu3.23_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "ff02a85ba73f850cf7958d2867b34947c67a1072e2b2d1c108a8c6e23715624d",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libcrypt1",
+      "version": "1:4.4.27-1",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/libx/libxcrypt/libcrypt1_4.4.27-1_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "3fa566e9f861a08736cbc5a97562d9d6e4f0c00450fbeafcb6d7583423b04a98",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libstdc++6",
+      "version": "12.3.0-1ubuntu1~22.04.3",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/g/gcc-12/libstdc++6_12.3.0-1ubuntu1~22.04.3_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "29ef3d289b272704b75141906c8f683db0f2bdb0942061366691333bfb289bdc",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libgcc-s1",
+      "version": "12.3.0-1ubuntu1~22.04.3",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/g/gcc-12/libgcc-s1_12.3.0-1ubuntu1~22.04.3_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "d383e642d83263147f7b4b69fb92cf1036e5246c6be3accf10b77f986684589a",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libcurl3-gnutls",
+      "version": "7.81.0-1ubuntu1.30",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/c/curl/libcurl3-gnutls_7.81.0-1ubuntu1.30_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "e3e731484718b90118b576f8d186d20a37ef9f9eff7dcc83d6f4e1976398f923",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libexpat1",
+      "version": "2.4.7-1ubuntu0.9",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/e/expat/libexpat1_2.4.7-1ubuntu0.9_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "0ee31596316d2275ab351d11290c63e7547fff0ecd7f431e56855cb7c5f18588",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libpcre2-8-0",
+      "version": "10.39-3ubuntu0.1",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/p/pcre2/libpcre2-8-0_10.39-3ubuntu0.1_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "01a5a74f3d305cad32fffffdc200c2a92fd8e5a01bff97de76ac598fb444d53e",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-zlib1g",
+      "version": "1:1.2.11.dfsg-2ubuntu9.2",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/z/zlib/zlib1g_1.2.11.dfsg-2ubuntu9.2_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "9dc17e51a1be2d9ed63b7b84ef0e4e29c5abe6f1bc62cb03e7181483cce8a2f2",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-liberror-perl",
+      "version": "0.17029-1",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/libe/liberror-perl/liberror-perl_0.17029-1_all.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "13c044def376282cd2a6a4b21e5ec829a6ac8aecd745183df22570e320cec08e",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libcap2",
+      "version": "1:2.44-1ubuntu0.22.04.3",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/libc/libcap2/libcap2_2.44-1ubuntu0.22.04.3_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "c497efb7fa3cd19a7ff297d95c7c5d678063c80c9fc230c9d034a8ee02ca8446",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libgcrypt20",
+      "version": "1.9.4-3ubuntu3.3",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/libg/libgcrypt20/libgcrypt20_1.9.4-3ubuntu3.3_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "8f16329a0aabf4900271a3687890721bbef307e60983acae5b92eeff12e799b3",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-liblz4-1",
+      "version": "1.9.3-2build2",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/l/lz4/liblz4-1_1.9.3-2build2_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "ac9b54d0feb840345060c74fb687675c5e1eb2b195effafae38c5f9991041e98",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-liblzma5",
+      "version": "5.2.5-2ubuntu1.2",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/x/xz-utils/liblzma5_5.2.5-2ubuntu1.2_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "a88fca7506963c443c42a578db6c35424336ae28abcdaa60c89f06d30aeb625b",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libzstd1",
+      "version": "1.4.8+dfsg-3build1",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/libz/libzstd/libzstd1_1.4.8+dfsg-3build1_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "ae7db00ce8b093e50c994518b90203544e063b4bc574836a048bb142b950b2c9",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-gcc-12-base",
+      "version": "12.3.0-1ubuntu1~22.04.3",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/g/gcc-12/gcc-12-base_12.3.0-1ubuntu1~22.04.3_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "7f9253b7e0976f0526fc21346c73ee006e185a7b2f2f865048ea78a2af55bc8d",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libbrotli1",
+      "version": "1.0.9-2ubuntu0.1",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/b/brotli/libbrotli1_1.0.9-2ubuntu0.1_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "908295e77a65219a62114c3c79690a3c99712274d1317c3ba47ffa2f8ea52ca5",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libgnutls30",
+      "version": "3.7.3-4ubuntu1.9",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/g/gnutls28/libgnutls30_3.7.3-4ubuntu1.9_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "65e08f0b5d1e620cc5cc9478cd1035f83ea752a6fae23141afd2d111a8f6c555",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libgssapi-krb5-2",
+      "version": "1.19.2-2ubuntu0.10",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/k/krb5/libgssapi-krb5-2_1.19.2-2ubuntu0.10_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "08e98a3dc74361cdb13c0d68bc73e0352552490546c1ad3ce5bff5426f6a2dfe",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libidn2-0",
+      "version": "2.3.2-2build1",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/libi/libidn2/libidn2-0_2.3.2-2build1_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "bc935e1871aa4a75d3f4ff549af32b7316aecfbea2200d85055878767b8398c8",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libldap-2.5-0",
+      "version": "2.5.20+dfsg-0ubuntu0.22.04.1",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/o/openldap/libldap-2.5-0_2.5.20+dfsg-0ubuntu0.22.04.1_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "a3ee4ac116a2c50c9ddfe9de91c0781a50704244771474334340cdce02f5cd4f",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libnettle8",
+      "version": "3.7.3-1build2",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/n/nettle/libnettle8_3.7.3-1build2_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "6da09e685e5587f8873f662b007de45f75424fb33d2c4a51837380e683d33c7e",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libnghttp2-14",
+      "version": "1.43.0-1ubuntu0.4",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/n/nghttp2/libnghttp2-14_1.43.0-1ubuntu0.4_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "6e968d1ed7abb3635a3b0707ebfa20cd368ce784f83cc567b11c0723217a6de4",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libpsl5",
+      "version": "0.21.0-1.2build2",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/libp/libpsl/libpsl5_0.21.0-1.2build2_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "cd29dee0eac2bdf3f944f47b3926993827dc6b3710251df76006fab2fd09f7e1",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-librtmp1",
+      "version": "2.4+20151223.gitfa8646d.1-2build4",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/r/rtmpdump/librtmp1_2.4+20151223.gitfa8646d.1-2build4_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "c8bdaa1e777d08888914e922f8f76441c26ee36438d3aa59161ecccc2421f77e",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libssh-4",
+      "version": "0.9.6-2ubuntu0.22.04.8",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/libs/libssh/libssh-4_0.9.6-2ubuntu0.22.04.8_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "ebeff6b7c3777c5ae0a2fd4200c3a946f3e866d102d7c56d46c997af8ebc2138",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libgpg-error0",
+      "version": "1.43-3",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/libg/libgpg-error/libgpg-error0_1.43-3_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "1fbacdf9bd1e431cee874a697b339f6f925182bc79bba5a112b53669b33265c5",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libgmp10",
+      "version": "2:6.2.1+dfsg-3ubuntu1",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/g/gmp/libgmp10_6.2.1+dfsg-3ubuntu1_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "d199a77e11701d4d620dd4f62e05740e3072dce893856ea3bbaa6ae9fa19fef1",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libhogweed6",
+      "version": "3.7.3-1build2",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/n/nettle/libhogweed6_3.7.3-1build2_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "2402ac51ebc760799b01f3fd4933126c5eb446e5b043832601fb589f5e50c363",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libp11-kit0",
+      "version": "0.24.0-6ubuntu0.1",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/p/p11-kit/libp11-kit0_0.24.0-6ubuntu0.1_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "9d949950970a062a81051a78ec4075b8dba608f063afaa5c8752a612d139a9b5",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libtasn1-6",
+      "version": "4.18.0-4ubuntu0.2",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/libt/libtasn1-6/libtasn1-6_4.18.0-4ubuntu0.2_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "a0903b4fae3ac2548a22d8822382e6d23586e42196d83ff67e82df36cd39fc6c",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libunistring2",
+      "version": "1.0-1",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/libu/libunistring/libunistring2_1.0-1_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "988fb59de6a0a313844277e8a6e45d3dc16f5ea75a603a46b16b936426f0ac65",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libcom-err2",
+      "version": "1.46.5-2ubuntu1.2",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/e/e2fsprogs/libcom-err2_1.46.5-2ubuntu1.2_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "552bc8169451cfdcf174a8da845b13ced0a55777149af5cf47491193161ed791",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libk5crypto3",
+      "version": "1.19.2-2ubuntu0.10",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/k/krb5/libk5crypto3_1.19.2-2ubuntu0.10_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "40429c0099678fbc35045f0c63a10bc3490251d80cf1006095eaa0272c8d5e27",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libkrb5-3",
+      "version": "1.19.2-2ubuntu0.10",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/k/krb5/libkrb5-3_1.19.2-2ubuntu0.10_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "0da3e0df7d6314615160a42f65ff345986783be02cd65a6ce797cfbacc7bcb0d",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libkrb5support0",
+      "version": "1.19.2-2ubuntu0.10",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/k/krb5/libkrb5support0_1.19.2-2ubuntu0.10_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "0406052ac2d267f05088ada6d36df61aaa338cbe8d5e13fb1d7f79da560817ed",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libsasl2-2",
+      "version": "2.1.27+dfsg2-3ubuntu1.2",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/c/cyrus-sasl2/libsasl2-2_2.1.27+dfsg2-3ubuntu1.2_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "391cb48d7e601d5bb590da8d426750acf6c987241ba280a36227873b94f20cee",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libffi8",
+      "version": "3.4.2-4",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/libf/libffi/libffi8_3.4.2-4_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "b4f88c91fa6f4c942097be6abfc365fb133c5e147640168cbb7704fd855eac10",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libkeyutils1",
+      "version": "1.6.1-2ubuntu3",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/k/keyutils/libkeyutils1_1.6.1-2ubuntu3_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "940daf78ee0229549b4eabc92ffd79dd038ed96a44e2e912305a23540cf22a0a",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libsasl2-modules-db",
+      "version": "2.1.27+dfsg2-3ubuntu1.2",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/c/cyrus-sasl2/libsasl2-modules-db_2.1.27+dfsg2-3ubuntu1.2_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "0e222c26d70c2cfd132c8de035bcf9673067b6cbfea0a7421dced7b6256ae774",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "linux-deb-libdb5.3",
+      "version": "5.3.28+dfsg1-0.8ubuntu3",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/d/db5.3/libdb5.3_5.3.28+dfsg1-0.8ubuntu3_amd64.deb",
+      "target": "tools/linux-x64/sysroot",
+      "kind": "deb",
+      "sha256": "ce60e446c9cb0e94bb4b4d0fe4f969e772edec250deb186bacf955e4d196548b",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "composer",
+      "version": "2.10.3",
+      "url": "https://getcomposer.org/download/2.10.3/composer.phar",
+      "target": "dependencias/composer/composer.phar",
+      "kind": "file",
+      "sha256": "7a2d379d5b8ffdaa028580ef26494c36d2feef4b178d3dd1473a4dbc5e17c8d6",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "pymysql",
+      "version": "1.2.3",
+      "url": "https://files.pythonhosted.org/packages/a9/4b/0a906d8184f011ff8dbd4722743783867589b33269d2c5fff238d636fdcb/pymysql-1.2.3-py3-none-any.whl",
+      "target": "dependencias/python/pymysql-1.2.3-py3-none-any.whl",
+      "kind": "file",
+      "sha256": "14f1c68e2ed859243ae5ca41ffbe677027fc46bc136a9f0be8a4e928e5e7415a",
+      "prefix": "",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "jdbc",
+      "version": "3.5.11",
+      "url": "https://repo.maven.apache.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.5.11/mariadb-java-client-3.5.11.jar",
+      "target": "dependencias/java/mariadb-java-client.jar",
+      "kind": "file",
+      "sha256": "42604178b9e57ec08ee0035079961516f086e455d0141f0b22c6eff29fb2fff4",
+      "prefix": "",
+      "hash_origin": "HTTPS-primeiro-download"
+    },
+    {
+      "name": "redhat.java-windows-x64",
+      "version": "1.58.0",
+      "url": "https://redhat.gallerycdn.vsassets.io/extensions/redhat/java/1.58.0/1792413314207/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/windows-x64/vscode/data/extensions/redhat.java-1.58.0",
+      "kind": "vsix",
+      "sha256": "d0118ef167d598343808bccf3ea54e248d2a1ab297dc02e00b26e7ebec9d0cc4",
+      "prefix": "extension/",
+      "hash_origin": "HTTPS-primeiro-download"
+    },
+    {
+      "name": "redhat.java-linux-x64",
+      "version": "1.58.0",
+      "url": "https://redhat.gallerycdn.vsassets.io/extensions/redhat/java/1.58.0/1792413314207/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/linux-x64/vscode/data/extensions/redhat.java-1.58.0",
+      "kind": "vsix",
+      "sha256": "d0118ef167d598343808bccf3ea54e248d2a1ab297dc02e00b26e7ebec9d0cc4",
+      "prefix": "extension/",
+      "hash_origin": "HTTPS-primeiro-download"
+    },
+    {
+      "name": "vscjava.vscode-java-debug-windows-x64",
+      "version": "0.60.0",
+      "url": "https://vscjava.gallerycdn.vsassets.io/extensions/vscjava/vscode-java-debug/0.60.0/1791977071441/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/windows-x64/vscode/data/extensions/vscjava.vscode-java-debug-0.60.0",
+      "kind": "vsix",
+      "sha256": "cc567d5ee8992ac34c2514c93c26bf009b72fb8fa65dbc00e42a4fe876c54b01",
+      "prefix": "extension/",
+      "hash_origin": "HTTPS-primeiro-download"
+    },
+    {
+      "name": "vscjava.vscode-java-debug-linux-x64",
+      "version": "0.60.0",
+      "url": "https://vscjava.gallerycdn.vsassets.io/extensions/vscjava/vscode-java-debug/0.60.0/1791977071441/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/linux-x64/vscode/data/extensions/vscjava.vscode-java-debug-0.60.0",
+      "kind": "vsix",
+      "sha256": "cc567d5ee8992ac34c2514c93c26bf009b72fb8fa65dbc00e42a4fe876c54b01",
+      "prefix": "extension/",
+      "hash_origin": "HTTPS-primeiro-download"
+    },
+    {
+      "name": "ms-python.python-windows-x64",
+      "version": "2026.10.0",
+      "url": "https://ms-python.gallerycdn.vsassets.io/extensions/ms-python/python/2026.10.0/1792013847058/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/windows-x64/vscode/data/extensions/ms-python.python-2026.10.0",
+      "kind": "vsix",
+      "sha256": "ab1c1bf0f5ab273118ca3218e62934a4030203cce2e4b24bb86f0f416de05768",
+      "prefix": "extension/",
+      "hash_origin": "HTTPS-primeiro-download"
+    },
+    {
+      "name": "ms-python.python-linux-x64",
+      "version": "2026.10.0",
+      "url": "https://ms-python.gallerycdn.vsassets.io/extensions/ms-python/python/2026.10.0/1792013795961/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/linux-x64/vscode/data/extensions/ms-python.python-2026.10.0",
+      "kind": "vsix",
+      "sha256": "9a84de731b622ee440e0bd979965f6a7577afa48bea6c3d4257d8865efc74780",
+      "prefix": "extension/",
+      "hash_origin": "HTTPS-primeiro-download"
+    },
+    {
+      "name": "ms-python.vscode-pylance-windows-x64",
+      "version": "2026.4.1",
+      "url": "https://ms-python.gallerycdn.vsassets.io/extensions/ms-python/vscode-pylance/2026.4.1/1790193667864/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/windows-x64/vscode/data/extensions/ms-python.vscode-pylance-2026.4.1",
+      "kind": "vsix",
+      "sha256": "3e6c9d0ba0c6680e6ef28d1af5c6e13844e39a871e5404cbfaaaedb5cd0d8cfb",
+      "prefix": "extension/",
+      "hash_origin": "HTTPS-primeiro-download"
+    },
+    {
+      "name": "ms-python.vscode-pylance-linux-x64",
+      "version": "2026.4.1",
+      "url": "https://ms-python.gallerycdn.vsassets.io/extensions/ms-python/vscode-pylance/2026.4.1/1790193667864/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/linux-x64/vscode/data/extensions/ms-python.vscode-pylance-2026.4.1",
+      "kind": "vsix",
+      "sha256": "3e6c9d0ba0c6680e6ef28d1af5c6e13844e39a871e5404cbfaaaedb5cd0d8cfb",
+      "prefix": "extension/",
+      "hash_origin": "HTTPS-primeiro-download"
+    },
+    {
+      "name": "ms-python.debugpy-windows-x64",
+      "version": "2026.6.0",
+      "url": "https://ms-python.gallerycdn.vsassets.io/extensions/ms-python/debugpy/2026.6.0/1777574601242/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/windows-x64/vscode/data/extensions/ms-python.debugpy-2026.6.0",
+      "kind": "vsix",
+      "sha256": "f38c4fd6fe801274c0be4df5d3451607bca4d839aaebf66022aa0a6481f7686e",
+      "prefix": "extension/",
+      "hash_origin": "HTTPS-primeiro-download"
+    },
+    {
+      "name": "ms-python.debugpy-linux-x64",
+      "version": "2026.6.0",
+      "url": "https://ms-python.gallerycdn.vsassets.io/extensions/ms-python/debugpy/2026.6.0/1777574573357/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/linux-x64/vscode/data/extensions/ms-python.debugpy-2026.6.0",
+      "kind": "vsix",
+      "sha256": "3ae417f78bce17992b9e0efba160a43a85a8b695bd387e150d4df24e366c7b01",
+      "prefix": "extension/",
+      "hash_origin": "HTTPS-primeiro-download"
+    },
+    {
+      "name": "ms-python.vscode-python-envs-windows-x64",
+      "version": "1.40.0",
+      "url": "https://ms-python.gallerycdn.vsassets.io/extensions/ms-python/vscode-python-envs/1.40.0/1792013777208/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/windows-x64/vscode/data/extensions/ms-python.vscode-python-envs-1.40.0",
+      "kind": "vsix",
+      "sha256": "bd9ebdb339a336c532c3a2ecfbad8a53c98c148531d914fadaadd609581dddf0",
+      "prefix": "extension/",
+      "hash_origin": "HTTPS-primeiro-download"
+    },
+    {
+      "name": "ms-python.vscode-python-envs-linux-x64",
+      "version": "1.40.0",
+      "url": "https://ms-python.gallerycdn.vsassets.io/extensions/ms-python/vscode-python-envs/1.40.0/1792013727143/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/linux-x64/vscode/data/extensions/ms-python.vscode-python-envs-1.40.0",
+      "kind": "vsix",
+      "sha256": "7063f179ee29a6a2a639d44b921601897bfa6023fb21c11f2ae02ba1f38f4f78",
+      "prefix": "extension/",
+      "hash_origin": "HTTPS-primeiro-download"
+    },
+    {
+      "name": "frankenphp-license",
+      "version": "v1.13.4",
+      "url": "https://raw.githubusercontent.com/php/frankenphp/v1.13.4/LICENSE",
+      "target": "tools/linux-x64/php/LICENSE.txt",
+      "kind": "file",
+      "sha256": "96e04afcae74c52f02e43e693c97b5ba0c64694ba44c1c642d7f242cfe21d18c",
+      "hash_origin": "HTTPS-primeiro-download",
+      "prefix": ""
+    },
+    {
+      "name": "bmewburn.vscode-intelephense-client-windows-x64",
+      "version": "1.18.5",
+      "url": "https://bmewburn.gallerycdn.vsassets.io/extensions/bmewburn/vscode-intelephense-client/1.18.5/1782002746717/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/windows-x64/vscode/data/extensions/bmewburn.vscode-intelephense-client-1.18.5",
+      "kind": "vsix",
+      "sha256": "c8ba7b9415a3747f8ab415259232d6cf93a602f11058914854256c06df414de1",
+      "prefix": "extension/",
+      "hash_origin": "HTTPS-primeiro-download"
+    },
+    {
+      "name": "bmewburn.vscode-intelephense-client-linux-x64",
+      "version": "1.18.5",
+      "url": "https://bmewburn.gallerycdn.vsassets.io/extensions/bmewburn/vscode-intelephense-client/1.18.5/1782002746717/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/linux-x64/vscode/data/extensions/bmewburn.vscode-intelephense-client-1.18.5",
+      "kind": "vsix",
+      "sha256": "c8ba7b9415a3747f8ab415259232d6cf93a602f11058914854256c06df414de1",
+      "prefix": "extension/",
+      "hash_origin": "HTTPS-primeiro-download"
+    },
+    {
+      "name": "mtxr.sqltools-windows-x64",
+      "version": "0.28.6",
+      "url": "https://mtxr.gallerycdn.vsassets.io/extensions/mtxr/sqltools/0.28.6/1783357234287/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/windows-x64/vscode/data/extensions/mtxr.sqltools-0.28.6",
+      "kind": "vsix",
+      "sha256": "4a95451fe41ff6da67366e09e73ddf3a15b3cd83f42e49c3366f3c2473319085",
+      "prefix": "extension/",
+      "hash_origin": "HTTPS-primeiro-download"
+    },
+    {
+      "name": "mtxr.sqltools-linux-x64",
+      "version": "0.28.6",
+      "url": "https://mtxr.gallerycdn.vsassets.io/extensions/mtxr/sqltools/0.28.6/1783357234287/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/linux-x64/vscode/data/extensions/mtxr.sqltools-0.28.6",
+      "kind": "vsix",
+      "sha256": "4a95451fe41ff6da67366e09e73ddf3a15b3cd83f42e49c3366f3c2473319085",
+      "prefix": "extension/",
+      "hash_origin": "HTTPS-primeiro-download"
+    },
+    {
+      "name": "mtxr.sqltools-driver-mysql-windows-x64",
+      "version": "0.6.7",
+      "url": "https://mtxr.gallerycdn.vsassets.io/extensions/mtxr/sqltools-driver-mysql/0.6.7/1783357259690/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/windows-x64/vscode/data/extensions/mtxr.sqltools-driver-mysql-0.6.7",
+      "kind": "vsix",
+      "sha256": "62134cbf8eb1b65d56ba75c14be65739782496b6034c52c27bf0e860e65cd5a8",
+      "prefix": "extension/",
+      "hash_origin": "HTTPS-primeiro-download"
+    },
+    {
+      "name": "mtxr.sqltools-driver-mysql-linux-x64",
+      "version": "0.6.7",
+      "url": "https://mtxr.gallerycdn.vsassets.io/extensions/mtxr/sqltools-driver-mysql/0.6.7/1783357259690/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/linux-x64/vscode/data/extensions/mtxr.sqltools-driver-mysql-0.6.7",
+      "kind": "vsix",
+      "sha256": "62134cbf8eb1b65d56ba75c14be65739782496b6034c52c27bf0e860e65cd5a8",
+      "prefix": "extension/",
+      "hash_origin": "HTTPS-primeiro-download"
+    }
+  ]
+}
