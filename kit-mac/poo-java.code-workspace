@@ -1,0 +1,54 @@
+{
+  "folders": [
+    {
+      "name": "POO com Java (Adoptium JDK 25 & MariaDB)",
+      "path": "projetos/java"
+    }
+  ],
+  "settings": {
+    "update.mode": "none",
+    "extensions.autoUpdate": false,
+    "extensions.autoCheckUpdates": false,
+    "telemetry.telemetryLevel": "off",
+    "git.autofetch": false,
+    "editor.inlineSuggest.enabled": false,
+    "github.copilot.enable": {
+      "*": false
+    },
+    "chat.commandCenter.enabled": false,
+    "java.jdt.ls.java.home": "/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home",
+    "java.configuration.runtimes": [
+      {
+        "name": "JavaSE-25",
+        "path": "/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home",
+        "default": true
+      }
+    ],
+    "java.project.referencedLibraries": [
+      "dependencias/java/*.jar"
+    ],
+    "sqltools.useNodeRuntime": true,
+    "sqltools.connections": [
+      {
+        "name": "Laboratório (MariaDB)",
+        "dialect": "MySQL",
+        "server": "127.0.0.1",
+        "port": 3307,
+        "database": "aulas",
+        "username": "aluno",
+        "password": "aluno",
+        "connectString": "mysql://aluno:aluno@127.0.0.1:3307/aulas",
+        "isActive": true
+      }
+    ],
+    "terminal.integrated.env.osx": {
+      "PATH": "/opt/homebrew/opt/openjdk@25/bin:/opt/homebrew/opt/mariadb@11.4/bin:${env:PATH}",
+      "JAVA_HOME": "/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home",
+      "DB_HOST": "127.0.0.1",
+      "DB_PORT": "3307",
+      "DB_NAME": "aulas",
+      "DB_USER": "aluno",
+      "DB_PASSWORD": "aluno"
+    }
+  }
+}

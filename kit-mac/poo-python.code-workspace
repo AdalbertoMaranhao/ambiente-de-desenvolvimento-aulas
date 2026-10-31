@@ -1,0 +1,44 @@
+{
+  "folders": [
+    {
+      "name": "POO com Python (MariaDB)",
+      "path": "projetos/python"
+    }
+  ],
+  "settings": {
+    "update.mode": "none",
+    "extensions.autoUpdate": false,
+    "extensions.autoCheckUpdates": false,
+    "telemetry.telemetryLevel": "off",
+    "git.autofetch": false,
+    "editor.inlineSuggest.enabled": false,
+    "github.copilot.enable": {
+      "*": false
+    },
+    "chat.commandCenter.enabled": false,
+    "python.defaultInterpreterPath": "/opt/homebrew/opt/python@3.13/bin/python3.13",
+    "python.terminal.activateEnvironment": true,
+    "sqltools.useNodeRuntime": true,
+    "sqltools.connections": [
+      {
+        "name": "Laboratório (MariaDB)",
+        "dialect": "MySQL",
+        "server": "127.0.0.1",
+        "port": 3307,
+        "database": "aulas",
+        "username": "aluno",
+        "password": "aluno",
+        "connectString": "mysql://aluno:aluno@127.0.0.1:3307/aulas",
+        "isActive": true
+      }
+    ],
+    "terminal.integrated.env.osx": {
+      "PATH": "/opt/homebrew/opt/python@3.13/bin:/opt/homebrew/opt/mariadb@11.4/bin:${env:PATH}",
+      "DB_HOST": "127.0.0.1",
+      "DB_PORT": "3307",
+      "DB_NAME": "aulas",
+      "DB_USER": "aluno",
+      "DB_PASSWORD": "aluno"
+    }
+  }
+}

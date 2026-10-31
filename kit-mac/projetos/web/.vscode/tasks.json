@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "🌐 Iniciar Servidor Web PHP",
+      "type": "shell",
+      "command": "php -S 127.0.0.1:8080 -t .",
+      "isBackground": true,
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "focus": false
+      }
+    }
+  ]
+}
