@@ -1,0 +1,51 @@
+{
+  "name": "☕ POO Java (Adoptium JDK & MariaDB)",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "redhat.java",
+        "vscjava.vscode-java-debug",
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-mysql"
+      ],
+      "settings": {
+        "editor.inlineSuggest.enabled": false,
+        "github.copilot.enable": {
+          "*": false
+        },
+        "chat.commandCenter.enabled": false,
+        "java.project.referencedLibraries": [
+          "/opt/jdbc/*.jar",
+          "dependencias/java/*.jar"
+        ],
+        "sqltools.useNodeRuntime": true,
+        "sqltools.connections": [
+          {
+            "name": "Laboratório (MariaDB)",
+            "dialect": "MySQL",
+            "server": "127.0.0.1",
+            "port": 3307,
+            "database": "aulas",
+            "username": "aluno",
+            "password": "aluno",
+            "connectString": "mysql://aluno:aluno@127.0.0.1:3307/aulas",
+            "isActive": true
+          }
+        ]
+      }
+    }
+  },
+  "remoteEnv": {
+    "DB_HOST": "127.0.0.1",
+    "DB_PORT": "3307",
+    "DB_NAME": "aulas",
+    "DB_USER": "aluno",
+    "DB_PASSWORD": "aluno"
+  },
+  "forwardPorts": [3307],
+  "postStartCommand": "/usr/local/bin/init-db.sh",
+  "containerUser": "root"
+}
