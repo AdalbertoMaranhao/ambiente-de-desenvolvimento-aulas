@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Laboratório de Programação
+Comment=Abrir o laboratório offline de programação
+Exec=sh %d/iniciar-linux.sh
+Icon=utilities-terminal
+Terminal=true
+Categories=Education;Development;
+StartupNotify=false
