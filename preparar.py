@@ -388,6 +388,15 @@ def filter_items_for_profile(items, perfil, osname):
     return selected
 
 
+def get_needed_items(items, target_profiles, target_sos):
+    needed_names = set()
+    for p in target_profiles:
+        for s in target_sos:
+            for item in filter_items_for_profile(items, p, OS_TARGETS[s]):
+                needed_names.add(item["name"])
+    return [item for item in items if item["name"] in needed_names]
+
+
 def assemble_single_kit(perfil, os_key, items, item_paths):
     osname = OS_TARGETS[os_key]
     cfg = PROFILES[perfil]
@@ -401,10 +410,12 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
     DEFERRED_LINKS.clear()
 
     selected_items = filter_items_for_profile(items, perfil, osname)
-    paths_dict = {item["name"]: path for item, path in zip(items, item_paths)}
+    paths_dict = item_paths if isinstance(item_paths, dict) else {item["name"]: path for item, path in zip(items, item_paths)}
 
     for item in selected_items:
-        path = paths_dict[item["name"]]
+        path = paths_dict.get(item["name"])
+        if path is None:
+            path = acquire(item)
         target = kit_dir / item["target"]
         marker = kit_dir / ".preparacao" / (item["name"] + ".sha256")
         if item["kind"] != "deb" and marker.exists() and marker.read_text() == item["sha256"] and target.exists():
@@ -610,12 +621,13 @@ def interactive_menu():
 ║     [1] Montar kits (extrair e configurar pastas)            ║
 ║     [2] Compactar kits (gerar .zip ou .tar.gz)               ║
 ║     [3] Montar E Compactar tudo                              ║
+║     [4] Baixar apenas (cache de componentes)                 ║
 ║     [0] Sair                                                 ║
 ╚══════════════════════════════════════════════════════════════╝""")
-    acao_choice = input("👉 Escolha a ação (1-3): ").strip()
+    acao_choice = input("👉 Escolha a ação (1-4): ").strip()
     if acao_choice == "0":
         sys.exit(0)
-    acao_map = {"1": "montar", "2": "zip", "3": "tudo"}
+    acao_map = {"1": "montar", "2": "zip", "3": "tudo", "4": "baixar"}
     acao = acao_map.get(acao_choice, "montar")
 
     print("""
@@ -651,13 +663,16 @@ def main():
     perfil = args.perfil
     so = args.so
 
-    if acao is None or acao == "menu" or (acao in ("montar", "zip", "tudo") and (perfil is None or so is None)):
+    if acao is None or acao == "menu" or (acao in ("montar", "zip", "tudo") and perfil is None and so is None):
         if sys.stdin.isatty():
             acao, perfil, so = interactive_menu()
         else:
             acao = acao or "montar"
             perfil = perfil or "todos"
             so = so or "ambos"
+    else:
+        perfil = perfil or "todos"
+        so = so or "ambos"
 
     if acao == "resolver":
         if LOCK.exists():
@@ -667,24 +682,26 @@ def main():
 
     items = json.loads(LOCK.read_text())["components"] if LOCK.exists() else resolve()
 
+    # Mapear perfis e SOs selecionados
+    target_profiles = list(PROFILES.keys()) if (perfil is None or perfil == "todos") else [perfil]
+    target_sos = list(OS_TARGETS.keys()) if (so is None or so == "ambos") else [so]
+    needed_items = get_needed_items(items, target_profiles, target_sos)
+
     if acao == "baixar":
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-            list(pool.map(acquire, items))
-        print("✅ Todos os componentes foram baixados e verificados com sucesso!")
+            list(pool.map(acquire, needed_items))
+        print(f"✅ Todos os componentes selecionados ({len(needed_items)}) foram baixados e verificados com sucesso!")
         return
-
-    # Mapear perfis e SOs selecionados
-    target_profiles = list(PROFILES.keys()) if perfil == "todos" else [perfil]
-    target_sos = list(OS_TARGETS.keys()) if so == "ambos" else [so]
 
     # Para montar ou tudo, certificar-se de ter os caminhos adquiridos
     if acao in ("montar", "tudo"):
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-            item_paths = list(pool.map(acquire, items))
+            downloaded_paths = list(pool.map(acquire, needed_items))
+        paths_dict = {item["name"]: path for item, path in zip(needed_items, downloaded_paths)}
 
         for p in target_profiles:
             for s in target_sos:
-                assemble_single_kit(p, s, items, item_paths)
+                assemble_single_kit(p, s, items, paths_dict)
 
     if acao in ("zip", "tudo"):
         for p in target_profiles:

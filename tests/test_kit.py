@@ -114,5 +114,34 @@ class RuntimeTests(unittest.TestCase):
         self.assertNotIn("password", self.lab.client.name)
 
 
+class ProfileFilterTests(unittest.TestCase):
+    def setUp(self):
+        self.lock_data = json.loads((BASE / "componentes.lock.json").read_text(encoding="utf-8"))
+        self.items = self.lock_data["components"]
+
+    def test_windows_filter_excludes_linux_artifacts(self):
+        needed = builder.get_needed_items(self.items, list(builder.PROFILES.keys()), ["windows"])
+        self.assertTrue(len(needed) > 0)
+        for item in needed:
+            name = item["name"]
+            self.assertFalse(name.startswith("linux-deb-"), f"Unexpected deb package in Windows: {name}")
+            self.assertFalse(name.endswith("linux-x64"), f"Unexpected linux target in Windows: {name}")
+            self.assertFalse(name == "frankenphp-license", f"FrankenPHP license should not be in Windows: {name}")
+
+    def test_linux_filter_excludes_windows_artifacts(self):
+        needed = builder.get_needed_items(self.items, list(builder.PROFILES.keys()), ["linux"])
+        self.assertTrue(len(needed) > 0)
+        for item in needed:
+            name = item["name"]
+            self.assertFalse(name.endswith("windows-x64"), f"Unexpected windows target in Linux: {name}")
+
+    def test_single_profile_selection(self):
+        web_win = builder.get_needed_items(self.items, ["web"], ["windows"])
+        names = {item["name"] for item in web_win}
+        self.assertIn("php-windows-x64", names)
+        self.assertNotIn("jdk-windows-x64", names)
+        self.assertNotIn("ms-python.python-windows-x64", names)
+
+
 if __name__ == "__main__":
     unittest.main()
