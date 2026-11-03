@@ -254,7 +254,8 @@ class Lab:
         settings.update({"update.mode": "none", "extensions.autoUpdate": False, "extensions.autoCheckUpdates": False,
                          "telemetry.telemetryLevel": "off", "workbench.enableExperiments": False,
                          "git.autofetch": False, "git.path": str(TOOLS / ("git/cmd/git.exe" if WINDOWS else "bin/git")),
-                         "editor.inlineSuggest.enabled": False, "github.copilot.enable": {"*": False}, "chat.commandCenter.enabled": False})
+                         "editor.inlineSuggest.enabled": False, "github.copilot.enable": {"*": False}, "chat.commandCenter.enabled": False,
+                         "chat.disableAIFeatures": True})
 
         # Pre-configuracao da conexao no SQLTools
         connections = settings.get("sqltools.connections", [])

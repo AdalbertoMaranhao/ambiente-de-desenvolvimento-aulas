@@ -528,6 +528,7 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         "editor.inlineSuggest.enabled": False,
         "github.copilot.enable": {"*": False},
         "chat.commandCenter.enabled": False,
+        "chat.disableAIFeatures": True,
         "sqltools.useNodeRuntime": False,
         "sqltools.connections": [
             {
@@ -576,6 +577,31 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
     print(f"✅ Kit '{kit_name}' montado com sucesso! Tamanho extraído: {size / 1e9:.2f} GB")
 
 
+def _list_entries(root):
+    entries = []
+    for base, dirs, files in os.walk(root):
+        for name in dirs + files:
+            entries.append(Path(base) / name)
+    return entries
+
+
+class _Progress:
+    def __init__(self, total):
+        self.total, self.done, self.last = max(total, 1), 0, -1
+
+    def add(self, n):
+        self.done += n
+        pct = min(100, self.done * 100 // self.total)
+        if pct != self.last:
+            self.last = pct
+            fill = pct * 30 // 100
+            print(f"\r   [{'█' * fill}{'░' * (30 - fill)}] {pct:3d}% ({self.done / 1e6:.0f}/{self.total / 1e6:.0f} MB)", end="", flush=True)
+
+    def finish(self):
+        self.add(self.total - self.done)
+        print(flush=True)
+
+
 def zip_single_kit(perfil, os_key):
     kit_name = f"kit-{perfil}-{os_key}"
     kit_dir = DIST / kit_name
@@ -585,14 +611,27 @@ def zip_single_kit(perfil, os_key):
         raise RuntimeError(f"O kit {kit_name} contém estado de uso anterior. Remova a pasta estado/ antes de empacotar.")
 
     print(f"\n📦 Compactando {kit_name}...", flush=True)
+    entries = _list_entries(kit_dir)
+    progress = _Progress(sum(p.stat().st_size for p in entries if p.is_file() and not p.is_symlink()))
     if os_key == "windows":
-        archive_name = DIST / kit_name
-        output = shutil.make_archive(str(archive_name), "zip", DIST, kit_name)
+        output = str(DIST / f"{kit_name}.zip")
+        with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as zf:
+            for path in entries:
+                arc = (Path(kit_name) / path.relative_to(kit_dir)).as_posix()
+                if path.is_dir():
+                    zf.write(path, arc + "/")
+                else:
+                    zf.write(path, arc)
+                    progress.add(path.stat().st_size)
     else:
-        archive_path = DIST / f"{kit_name}.tar.gz"
-        with tarfile.open(archive_path, "w:gz") as tar:
-            tar.add(kit_dir, arcname=kit_name)
-        output = str(archive_path)
+        output = str(DIST / f"{kit_name}.tar.gz")
+        with tarfile.open(output, "w:gz") as tar:
+            tar.add(kit_dir, arcname=kit_name, recursive=False)
+            for path in entries:
+                tar.add(path, arcname=(Path(kit_name) / path.relative_to(kit_dir)).as_posix(), recursive=False)
+                if path.is_file() and not path.is_symlink():
+                    progress.add(path.stat().st_size)
+    progress.finish()
 
     checksum = digest(output)
     Path(output + ".sha256").write_text(checksum + "  " + Path(output).name + "\n")
