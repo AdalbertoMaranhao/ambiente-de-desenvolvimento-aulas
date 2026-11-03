@@ -1,12 +1,24 @@
 #!/usr/bin/env python3
 """Inspeção estática dos pacotes modulares (ELF para Linux e PE para Windows)."""
 import json
+import os
 from pathlib import Path
 import re
 import struct
 import sys
 
 BASE = Path(__file__).resolve().parent
+
+
+def to_long_path(path):
+    if sys.platform != "win32":
+        return path
+    s = os.path.abspath(str(path))
+    if s.startswith("\\\\?\\"):
+        return Path(s)
+    if s.startswith("\\\\"):
+        return Path("\\\\?\\UNC\\" + s[2:])
+    return Path("\\\\?\\" + s)
 
 
 def elf_needed(path):
@@ -124,7 +136,7 @@ def inspect_kit(kit_path):
             if python.exists() and not list(python.glob("**/site-packages/pip/__init__.py")):
                 failures.append("pip ausente: " + target)
 
-    size = sum(p.stat().st_size for p in kit_path.rglob("*") if p.is_file())
+    size = sum(p.stat().st_size for p in to_long_path(kit_path).rglob("*") if p.is_file())
     if size > 4_000_000_000:
         failures.append(f"Tamanho de {size/1e9:.2f} GB excede o limite máximo recomendado de 4 GB para o kit modular.")
     print(f"  ✅ Tamanho extraído: {size / 1e9:.3f} GB (folga de {8.0 - (size/1e9):.2f} GB no pendrive de 8 GB)")

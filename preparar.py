@@ -69,6 +69,22 @@ OS_TARGETS = {
 }
 
 
+def to_long_path(path):
+    if sys.platform != "win32":
+        return path
+    s = os.path.abspath(str(path))
+    if s.startswith("\\\\?\\"):
+        return Path(s)
+    if s.startswith("\\\\"):
+        return Path("\\\\?\\UNC\\" + s[2:])
+    return Path("\\\\?\\" + s)
+
+
+def clean_path_str(path):
+    s = str(path)
+    return s.removeprefix("\\\\?\\UNC\\").removeprefix("\\\\?\\")
+
+
 def digest(path):
     h = hashlib.sha256()
     with open(path, "rb") as f:
@@ -233,6 +249,7 @@ def safe_name(name):
 
 
 def unpack(path, target, kind, prefix=""):
+    target = to_long_path(target)
     target.mkdir(parents=True, exist_ok=True)
     if kind in ("zip", "zip-root", "vsix"):
         with zipfile.ZipFile(path) as archive:
@@ -249,14 +266,17 @@ def unpack(path, target, kind, prefix=""):
                 name = name[len(prefix):] if prefix else name
                 if not name:
                     continue
-                out = target / name
+                out = to_long_path(target / name)
                 if info.is_dir():
                     out.mkdir(parents=True, exist_ok=True)
                 else:
                     out.parent.mkdir(parents=True, exist_ok=True)
                     with archive.open(info) as src, out.open("wb") as dst:
                         shutil.copyfileobj(src, dst)
-                    out.chmod(((info.external_attr >> 16) & 0o777) or 0o644)
+                    try:
+                        out.chmod(((info.external_attr >> 16) & 0o777) or 0o644)
+                    except OSError:
+                        pass
         return
     if kind == "deb":
         with open(path, "rb") as f:
@@ -401,7 +421,7 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
     osname = OS_TARGETS[os_key]
     cfg = PROFILES[perfil]
     kit_name = f"kit-{perfil}-{os_key}"
-    kit_dir = DIST / kit_name
+    kit_dir = to_long_path(DIST / kit_name)
     print(f"\n========================================================")
     print(f"📦 Montando {kit_name}: {cfg['title']} ({os_key.upper()})")
     print(f"========================================================")
@@ -416,8 +436,8 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         path = paths_dict.get(item["name"])
         if path is None:
             path = acquire(item)
-        target = kit_dir / item["target"]
-        marker = kit_dir / ".preparacao" / (item["name"] + ".sha256")
+        target = to_long_path(kit_dir / item["target"])
+        marker = to_long_path(kit_dir / ".preparacao" / (item["name"] + ".sha256"))
         if item["kind"] != "deb" and marker.exists() and marker.read_text() == item["sha256"] and target.exists():
             continue
         print("  -> Extraindo " + item["name"], flush=True)
@@ -535,7 +555,7 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         "telemetry.telemetryLevel": "off",
         "workbench.enableExperiments": False,
         "git.autofetch": False,
-        "git.path": str(tools / ("git/cmd/git.exe" if os_key == "windows" else "bin/git")),
+        "git.path": clean_path_str(tools / ("git/cmd/git.exe" if os_key == "windows" else "bin/git")),
         "editor.inlineSuggest.enabled": False,
         "github.copilot.enable": {"*": False},
         "chat.commandCenter.enabled": False,
@@ -555,18 +575,18 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         ]
     }
     if cfg["has_php"]:
-        settings["php.validate.executablePath"] = str(tools / ("php/php.exe" if os_key == "windows" else "bin/php"))
+        settings["php.validate.executablePath"] = clean_path_str(tools / ("php/php.exe" if os_key == "windows" else "bin/php"))
         settings["intelephense.environment.phpVersion"] = "8.4"
     if cfg["has_java"]:
-        settings["java.jdt.ls.java.home"] = str(tools / "jdk")
-        settings["java.configuration.runtimes"] = [{"name": "JavaSE-25", "path": str(tools / "jdk"), "default": True}]
+        settings["java.jdt.ls.java.home"] = clean_path_str(tools / "jdk")
+        settings["java.configuration.runtimes"] = [{"name": "JavaSE-25", "path": clean_path_str(tools / "jdk"), "default": True}]
         settings["java.import.maven.enabled"] = False
         settings["java.import.gradle.enabled"] = False
         settings["java.autobuild.enabled"] = False
         settings["java.jdt.ls.vmargs"] = "-Xmx512m -Xms64m"
     if cfg["has_python_dev"]:
-        settings["python.defaultInterpreterPath"] = str(tools / ("python/python.exe" if os_key == "windows" else "python/bin/python3"))
-        settings["python.analysis.extraPaths"] = [str(kit_dir / f"estado/{osname}/python-packages")]
+        settings["python.defaultInterpreterPath"] = clean_path_str(tools / ("python/python.exe" if os_key == "windows" else "python/bin/python3"))
+        settings["python.analysis.extraPaths"] = [clean_path_str(kit_dir / f"estado/{osname}/python-packages")]
         settings["python.terminal.activateEnvironment"] = False
         settings["python.experiments.enabled"] = False
 
@@ -589,7 +609,7 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
 
 def zip_single_kit(perfil, os_key):
     kit_name = f"kit-{perfil}-{os_key}"
-    kit_dir = DIST / kit_name
+    kit_dir = to_long_path(DIST / kit_name)
     if not (kit_dir / "PREPARACAO.json").exists():
         raise RuntimeError(f"O kit {kit_name} ainda não foi montado. Execute 'montar' primeiro.")
     if (kit_dir / "estado").exists() and any((kit_dir / "estado").iterdir()):
@@ -598,7 +618,7 @@ def zip_single_kit(perfil, os_key):
     print(f"\n📦 Compactando {kit_name}...", flush=True)
     if os_key == "windows":
         archive_name = DIST / kit_name
-        output = shutil.make_archive(str(archive_name), "zip", DIST, kit_name)
+        output = shutil.make_archive(clean_path_str(archive_name), "zip", to_long_path(DIST), kit_name)
     else:
         archive_path = DIST / f"{kit_name}.tar.gz"
         with tarfile.open(archive_path, "w:gz") as tar:

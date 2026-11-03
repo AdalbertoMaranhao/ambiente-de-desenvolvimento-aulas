@@ -143,5 +143,23 @@ class ProfileFilterTests(unittest.TestCase):
         self.assertNotIn("ms-python.python-windows-x64", names)
 
 
+class LongPathTests(unittest.TestCase):
+    def test_clean_path_str(self):
+        self.assertEqual(builder.clean_path_str(r"\\?\C:\project\path"), r"C:\project\path")
+        self.assertEqual(builder.clean_path_str(r"\\?\UNC\server\share"), r"server\share")
+        self.assertEqual(builder.clean_path_str(r"C:\normal\path"), r"C:\normal\path")
+
+    def test_to_long_path_non_windows(self):
+        with patch.object(builder.sys, "platform", "darwin"):
+            p = Path("/tmp/test")
+            self.assertEqual(builder.to_long_path(p), p)
+
+    def test_to_long_path_windows(self):
+        with patch.object(builder.sys, "platform", "win32"):
+            with patch.object(builder.os.path, "abspath", return_value=r"C:\project\deep\path"):
+                result = builder.to_long_path(Path("relative"))
+                self.assertTrue(str(result).startswith(r"\\?\C:\project\deep\path"))
+
+
 if __name__ == "__main__":
     unittest.main()
