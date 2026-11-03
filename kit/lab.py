@@ -271,7 +271,9 @@ class Lab:
                 "isActive": True
             })
             settings["sqltools.connections"] = connections
-            settings["sqltools.useNodeRuntime"] = True
+
+        # O kit nao inclui Node.js: o SQLTools deve usar o runtime do proprio VS Code
+        settings["sqltools.useNodeRuntime"] = False
 
         # Configuracoes especificas das linguagens presentes
         php_exe = TOOLS / ("php/php.exe" if WINDOWS else "bin/php")

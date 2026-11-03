@@ -528,7 +528,7 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         "editor.inlineSuggest.enabled": False,
         "github.copilot.enable": {"*": False},
         "chat.commandCenter.enabled": False,
-        "sqltools.useNodeRuntime": True,
+        "sqltools.useNodeRuntime": False,
         "sqltools.connections": [
             {
                 "name": "Laboratório (MariaDB)",
