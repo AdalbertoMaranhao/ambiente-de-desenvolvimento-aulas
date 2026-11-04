@@ -161,5 +161,38 @@ class LongPathTests(unittest.TestCase):
                 self.assertTrue(str(result).startswith(r"\\?\C:\project\deep\path"))
 
 
+class ProgressBarTests(unittest.TestCase):
+    def test_progress_bar_updates_and_finish(self):
+        out = io.StringIO()
+        with patch.object(builder.sys, "stdout", out):
+            bar = builder.ProgressBar(10, title="Teste", width=10)
+            bar.update(5, "metade")
+            self.assertEqual(bar.current, 5)
+            bar.finish("fim")
+            self.assertEqual(bar.current, 10)
+            output = out.getvalue()
+            self.assertIn("Teste", output)
+            self.assertIn("10/10", output)
+
+    def test_progress_bar_ascii_fallback(self):
+        out = io.StringIO()
+        with patch.object(builder.sys, "stdout", out):
+            bar = builder.ProgressBar(5, title="ASCII", width=10)
+            bar.unicode = False
+            bar.update(3, "teste")
+            output = out.getvalue()
+            self.assertIn("=", output)
+            self.assertIn("-", output)
+
+    def test_progress_bar_thread_safety(self):
+        import concurrent.futures
+        out = io.StringIO()
+        with patch.object(builder.sys, "stdout", out):
+            bar = builder.ProgressBar(100, title="ThreadSafe", width=10)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
+                list(pool.map(lambda _: bar.update(1), range(100)))
+            self.assertEqual(bar.current, 100)
+
+
 if __name__ == "__main__":
     unittest.main()

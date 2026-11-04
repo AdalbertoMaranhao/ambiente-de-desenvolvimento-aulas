@@ -14,6 +14,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import threading
 import zipfile
 import xml.etree.ElementTree as ET
 
@@ -83,6 +84,67 @@ def to_long_path(path):
 def clean_path_str(path):
     s = str(path)
     return s.removeprefix("\\\\?\\UNC\\").removeprefix("\\\\?\\")
+
+
+class ProgressBar:
+    """Barra de progresso sem dependências externas, compatível com UTF-8 e ASCII."""
+    def __init__(self, total, title="Progresso", width=25):
+        self.total = max(1, total)
+        self.current = 0
+        self.title = title
+        self.width = width
+        self.lock = threading.Lock()
+        self.is_tty = sys.stdout.isatty()
+        self.unicode = True
+        try:
+            "█░".encode(sys.stdout.encoding or "utf-8")
+        except (UnicodeEncodeError, LookupError):
+            self.unicode = False
+
+    def update(self, step=1, detail=""):
+        with self.lock:
+            self.current = min(self.total, self.current + step)
+            self._render(detail)
+
+    def set_current(self, current, detail=""):
+        with self.lock:
+            self.current = min(self.total, current)
+            self._render(detail)
+
+    def _render(self, detail=""):
+        fraction = self.current / self.total
+        percent = int(fraction * 100)
+        filled = int(fraction * self.width)
+        empty = self.width - filled
+
+        fill_char = "█" if self.unicode else "="
+        empty_char = "░" if self.unicode else "-"
+        bar = fill_char * filled + empty_char * empty
+
+        detail_str = f" - {detail}" if detail else ""
+        line = f"\r{self.title} [{bar}] {self.current}/{self.total} ({percent:3d}%){detail_str}"
+
+        try:
+            term_cols = shutil.get_terminal_size((80, 24)).columns
+            if len(line) > term_cols - 1:
+                line = line[:term_cols - 4] + "..."
+        except Exception:
+            pass
+
+        if self.is_tty:
+            sys.stdout.write(line + "\033[K")
+            sys.stdout.flush()
+        else:
+            if self.current == self.total or percent % 20 == 0:
+                sys.stdout.write(f"{self.title} [{bar}] {self.current}/{self.total} ({percent}%){detail_str}\n")
+                sys.stdout.flush()
+
+    def finish(self, message=""):
+        with self.lock:
+            self.current = self.total
+            self._render(message)
+            sys.stdout.write("\n")
+            sys.stdout.flush()
 
 
 def digest(path):
@@ -226,11 +288,12 @@ def resolve():
     return items
 
 
-def acquire(item):
+def acquire(item, verbose=False):
     extension = {"zip": ".zip", "zip-root": ".zip", "tar": ".tar.gz", "tar-root": ".tar.gz", "deb": ".deb", "vsix": ".vsix"}.get(item["kind"], ".bin")
     path = CACHE / (item["name"] + extension)
     if not path.exists():
-        print("Baixando " + item["name"], flush=True)
+        if verbose:
+            print("Baixando " + item["name"], flush=True)
         fetch(item["url"], path)
     actual = digest(path)
     if item.get("sha256") and item["sha256"] != actual:
@@ -432,15 +495,19 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
     selected_items = filter_items_for_profile(items, perfil, osname)
     paths_dict = item_paths if isinstance(item_paths, dict) else {item["name"]: path for item, path in zip(items, item_paths)}
 
-    for item in selected_items:
+    bar = ProgressBar(len(selected_items), title=f"📦 {kit_name}")
+    bar.set_current(0, "Iniciando...")
+
+    for idx, item in enumerate(selected_items, 1):
+        bar.set_current(idx - 1, f"Extraindo {item['name']}")
         path = paths_dict.get(item["name"])
         if path is None:
             path = acquire(item)
         target = to_long_path(kit_dir / item["target"])
         marker = to_long_path(kit_dir / ".preparacao" / (item["name"] + ".sha256"))
         if item["kind"] != "deb" and marker.exists() and marker.read_text() == item["sha256"] and target.exists():
+            bar.set_current(idx, f"Cache {item['name']}")
             continue
-        print("  -> Extraindo " + item["name"], flush=True)
         if item["kind"] == "file":
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(path, target)
@@ -448,6 +515,9 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
             unpack(path, target, item["kind"], item.get("prefix", ""))
         marker.parent.mkdir(parents=True, exist_ok=True)
         marker.write_text(item["sha256"])
+        bar.set_current(idx, f"OK {item['name']}")
+
+    bar.finish("Extração concluída!")
 
     materialize_links(DEFERRED_LINKS)
 
@@ -616,13 +686,35 @@ def zip_single_kit(perfil, os_key):
         raise RuntimeError(f"O kit {kit_name} contém estado de uso anterior. Remova a pasta estado/ antes de empacotar.")
 
     print(f"\n📦 Compactando {kit_name}...", flush=True)
+    files_to_pack = sorted(list(kit_dir.rglob("*")))
+    total_files = len(files_to_pack)
+
     if os_key == "windows":
-        archive_name = DIST / kit_name
-        output = shutil.make_archive(clean_path_str(archive_name), "zip", to_long_path(DIST), kit_name)
+        zip_path = DIST / f"{kit_name}.zip"
+        bar = ProgressBar(total_files, title=f"🗜️ {kit_name}.zip")
+        with zipfile.ZipFile(clean_path_str(zip_path), "w", zipfile.ZIP_DEFLATED) as zf:
+            for idx, p in enumerate(files_to_pack, 1):
+                rel_path = os.path.relpath(clean_path_str(p), clean_path_str(DIST))
+                arcname = rel_path.replace("\\", "/")
+                if p.is_dir():
+                    zinfo = zipfile.ZipInfo(arcname + "/")
+                    zf.writestr(zinfo, "")
+                else:
+                    zf.write(clean_path_str(p), arcname)
+                if idx % 25 == 0 or idx == total_files:
+                    bar.set_current(idx, p.name)
+        bar.finish("Concluído!")
+        output = str(zip_path)
     else:
         archive_path = DIST / f"{kit_name}.tar.gz"
+        bar = ProgressBar(total_files, title=f"🗜️ {kit_name}.tar.gz")
         with tarfile.open(archive_path, "w:gz") as tar:
-            tar.add(kit_dir, arcname=kit_name)
+            for idx, p in enumerate(files_to_pack, 1):
+                arcname = os.path.relpath(str(p), str(DIST))
+                tar.add(p, arcname=arcname, recursive=False)
+                if idx % 25 == 0 or idx == total_files:
+                    bar.set_current(idx, p.name)
+        bar.finish("Concluído!")
         output = str(archive_path)
 
     checksum = digest(output)
@@ -708,15 +800,33 @@ def main():
     needed_items = get_needed_items(items, target_profiles, target_sos)
 
     if acao == "baixar":
+        bar = ProgressBar(len(needed_items), title="📥 Downloads")
+        bar.set_current(0, "Iniciando...")
+
+        def _acquire_and_track(item):
+            res = acquire(item)
+            bar.update(1, item["name"])
+            return res
+
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-            list(pool.map(acquire, needed_items))
+            list(pool.map(_acquire_and_track, needed_items))
+        bar.finish("Concluído!")
         print(f"✅ Todos os componentes selecionados ({len(needed_items)}) foram baixados e verificados com sucesso!")
         return
 
     # Para montar ou tudo, certificar-se de ter os caminhos adquiridos
     if acao in ("montar", "tudo"):
+        bar = ProgressBar(len(needed_items), title="📥 Componentes")
+        bar.set_current(0, "Verificando...")
+
+        def _acquire_and_track(item):
+            res = acquire(item)
+            bar.update(1, item["name"])
+            return res
+
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-            downloaded_paths = list(pool.map(acquire, needed_items))
+            downloaded_paths = list(pool.map(_acquire_and_track, needed_items))
+        bar.finish("Prontos!")
         paths_dict = {item["name"]: path for item, path in zip(needed_items, downloaded_paths)}
 
         for p in target_profiles:
