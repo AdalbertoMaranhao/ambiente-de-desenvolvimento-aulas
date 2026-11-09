@@ -69,8 +69,10 @@ class RuntimeTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(prefix="aulas com espacos ")
         self.root = Path(self.tmp.name)
+        (self.root / "projetos").mkdir(parents=True, exist_ok=True)
+        (self.root / "projetos/teste.txt").write_text("conteudo")
         self.patches = [patch.object(runtime, "ROOT", self.root),
-                        patch.object(runtime, "STATE", self.root / "estado/linux-x64"),
+                        patch.object(runtime, "STATE", self.root / "configuracoes/linux-x64"),
                         patch.object(runtime, "TOOLS", self.root / "tools/linux-x64"),
                         patch.object(runtime, "WINDOWS", False),
                         patch.object(runtime.sys, "platform", "linux"),
@@ -84,25 +86,19 @@ class RuntimeTests(unittest.TestCase):
             p.stop()
         self.tmp.cleanup()
 
-    def test_never_shuts_down_foreign_database(self):
-        with patch.object(self.lab, "owns_server", return_value=False), patch.object(self.lab, "port_used", return_value=True), patch.object(runtime, "run") as execute:
-            with self.assertRaises(RuntimeError):
-                self.lab.stop()
-            execute.assert_not_called()
+    def test_backup_creates_zip_and_recovers_gracefully(self):
+        dest = self.lab.backup()
+        self.assertTrue(dest.exists())
+        self.assertTrue(dest.name.endswith(".zip"))
+        with zipfile.ZipFile(dest, "r") as zf:
+            self.assertIn("projetos/teste.txt", zf.namelist())
 
-    def test_busy_port_prevents_initialization_and_releases_lock(self):
-        with patch.object(self.lab, "owns_server", return_value=False), patch.object(self.lab, "port_used", return_value=True), patch.object(runtime, "run") as execute:
-            with self.assertRaises(RuntimeError):
-                self.lab.start()
-            execute.assert_not_called()
-        self.assertFalse(self.lab.data.exists())
-        self.assertFalse((runtime.STATE / "inicio.lock").exists())
-
-    def test_failed_export_leaves_no_completed_backup(self):
-        with patch.object(self.lab, "owns_server", return_value=True), patch.object(runtime, "run", side_effect=subprocess.CalledProcessError(1, "dump")):
-            with self.assertRaises(subprocess.CalledProcessError):
+    def test_failed_backup_leaves_no_completed_file(self):
+        with patch("zipfile.ZipFile", side_effect=OSError("disk error")):
+            with self.assertRaises(OSError):
                 self.lab.backup()
-        self.assertEqual(list((self.root / "backups").iterdir()), [])
+        backups = list((self.root / "backups").iterdir())
+        self.assertEqual(backups, [])
 
     def test_offline_paths_are_local_even_with_spaces(self):
         self.assertEqual(self.lab.env["PIP_NO_INDEX"], "1")
@@ -111,7 +107,6 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(Path(self.lab.env["PIP_FIND_LINKS"]), self.root / "dependencias/python")
         config = json.loads((runtime.STATE / "composer-home/config.json").read_text())
         self.assertFalse(config["repositories"]["packagist.org"])
-        self.assertNotIn("password", self.lab.client.name)
 
 
 class ProfileFilterTests(unittest.TestCase):

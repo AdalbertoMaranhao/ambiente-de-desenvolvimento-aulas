@@ -1,51 +1,58 @@
 <!doctype html>
 <html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Laboratório offline — guia do aluno</title>
-<style>body{font:17px/1.6 system-ui,sans-serif;max-width:900px;margin:40px auto;padding:0 24px;color:#182634;background:#f8fafc}h1,h2{line-height:1.2}h1{font-size:36px}h2{margin-top:40px}pre{background:#172838;color:#f1f5f9;padding:18px;border-radius:8px;overflow:auto}code{font-family:ui-monospace,monospace}table{border-collapse:collapse;width:100%}td,th{text-align:left;border-bottom:1px solid #cbd5e1;padding:10px}a{color:#075da8}.note{border-left:4px solid #248178;padding:12px 18px;background:#e8f4f1}</style>
-<h1>Seu laboratório offline</h1>
-<p>PHP, Java, Python, MariaDB, Git, Composer, pip e VS Code em uma pasta. Cada cópia pertence a um aluno. Ferramentas próprias para Windows 11 x64 e Linux Mint x64; a validação na versão exata do laboratório deve ser feita pelo professor.</p>
-<div class="note"><strong>Primeiro uso:</strong> copie a pasta inteira para um local onde você possa gravar. No Windows, prefira um caminho curto, como <code>C:\Users\seu-usuario\aulas</code>, para evitar o limite de caminhos de algumas ferramentas. Execute dali. O pendrive serve para transportar. Não compartilhe uma mesma cópia entre alunos simultaneamente.</div>
-<h2>1. Abrir</h2>
-<p><strong>Windows:</strong> abra <code>iniciar-windows.cmd</code>. Não precisa abrir como administrador.</p>
-<p><strong>Linux Mint:</strong> abra um terminal na pasta do kit e execute:</p>
-<pre>sh iniciar-linux.sh</pre>
-<p>Escolha <strong>1</strong> para abrir apenas o VS Code, sem iniciar o banco. Se a aula usa MariaDB, escolha <strong>2</strong> para abrir o VS Code e iniciar o banco, ou <strong>3</strong> para abrir o terminal do kit com o banco ativo. Use <code>exit</code> para voltar ao menu.</p>
-<p>Use a opção <strong>4</strong> para diagnosticar, <strong>5</strong> para exportar o banco e <strong>6</strong> para encerrá-lo.</p>
-<p>Se o editor pedir confiança, revise os arquivos e confirme somente para a cópia de materiais que recebeu do professor. A confiança não é desativada pelo kit.</p>
-<h2>2. Programar</h2>
-<table><tr><th>Pasta vazia para seu projeto</th><th>Ferramentas disponíveis</th></tr><tr><td><code>projetos/php</code></td><td>PHP e Composer</td></tr><tr><td><code>projetos/php-composer</code></td><td>PHP com Composer (opcional)</td></tr><tr><td><code>projetos/java</code></td><td>JDK e driver JDBC MariaDB</td></tr><tr><td><code>projetos/python</code></td><td>Python, pip e PyMySQL</td></tr></table>
-<p>As pastas de projeto estão limpas e prontas para você criar seus arquivos. Abra no VS Code a pasta da linguagem que vai usar. A pasta Java já inclui a configuração do editor para localizar o driver JDBC.</p>
-<p>Para acessar a página PHP pelo navegador, execute <code>lab web</code> e abra <code>http://127.0.0.1:8080</code>. Ctrl+C encerra o servidor web. No Linux, o kit usa o PHP incluído no FrankenPHP e fornece o comando <code>php</code> para scripts e Composer.</p>
-<h2>3. Banco de dados</h2>
-<p>Endereço <code>127.0.0.1</code>, porta <code>3307</code>, banco <code>aulas</code>, usuário <code>aluno</code>. A senha é gerada na primeira execução. No terminal do kit, as variáveis <code>DB_HOST</code>, <code>DB_PORT</code>, <code>DB_NAME</code>, <code>DB_USER</code> e <code>DB_PASSWORD</code> estão disponíveis para os projetos. Cada sistema guarda suas credenciais em <code>estado/&lt;sistema&gt;/credenciais.json</code>.</p>
-<p>Os dados do Windows e do Linux são separados. Para levar os dados de um sistema para o outro, exporte com a opção <strong>5</strong> ou <code>lab backup</code>. No outro sistema, importe o arquivo SQL:</p>
-<pre>lab importar "caminho/para/backup.sql"</pre>
-<p>A importação pede confirmação e exporta o banco atual antes de aplicar o SQL. Arquivos SQL podem substituir tabelas; use os seus backups ou os fornecidos pelo professor.</p>
-<h2>4. pip e Composer offline</h2>
-<p>O pip utiliza apenas a pasta <code>dependencias/python</code>, sem consultar o PyPI. Os pacotes instalados ficam dentro do kit, separados por sistema. Consulte a versão e os pacotes disponíveis com <code>pip --version</code> e <code>pip list</code>.</p>
-<p>O kit não depende de uma <code>.venv</code> copiada. Se criar uma venv para um projeto, recrie-a após mudar de pasta ou computador e instale as dependências locais.</p>
-<p>Composer está disponível como arquivo PHAR e usa o PHP do kit. O acesso ao Packagist está desativado para evitar downloads durante a aula. O professor precisa preparar cada dependência e as dependências dela em <code>dependencias/composer/pacotes</code> antes de distribuí-la. Para acrescentar pacotes Python, use os wheels de <code>dependencias/python</code>.</p>
-<h2>5. Git sem internet</h2>
-<p>No terminal do kit, configure sua identidade. A configuração global usada aqui fica nesta cópia do kit.</p>
-<pre>git config --global user.name "Seu Nome"
-git config --global user.email "seu-email@example.com"
-git init meu-projeto
-cd meu-projeto</pre>
-<p>Depois de criar arquivos:</p>
-<pre>git add .
-git commit -m "Primeira versão"
-git switch -c atividade
-git log --oneline</pre>
-<p>Para entregar o histórico após fazer commits, use <code>git bundle create entrega.bundle --all</code>. Para receber um projeto, use <code>git clone entrega.bundle projeto</code>. Bundle leva o histórico versionado: inclua as alterações em commits antes de gerar a entrega. Commit, branches e merges locais funcionam sem conta em serviços online.</p>
-<h2>6. Encerrar e transportar</h2>
-<p>Feche os servidores web, terminais e o VS Code. No menu escolha <strong>0</strong> para sair; o MariaDB deste kit será encerrado se estiver ativo. Também pode usar a opção <strong>6</strong> ou <code>lab parar</code>. Aguarde a confirmação e só então copie a pasta ou remova a unidade. Não mova o kit com processos ativos.</p>
-<p>Projetos ficam em <code>projetos</code>; exportações SQL em <code>backups</code>; banco, configurações e pacotes instalados em <code>estado</code>. Não apague <code>estado</code> para solucionar problemas sem preservar seus dados.</p>
-<h2>Quando algo não abrir</h2>
-<ul><li><strong>Linux: permissão negada:</strong> copie para uma pasta do usuário que permita execução e inicie com <code>sh iniciar-linux.sh</code>. O iniciador restaura as permissões dos executáveis. Uma unidade montada com <code>noexec</code> precisa ser substituída por uma pasta permitida.</li>
-<li><strong>VS Code e sandbox no Mint:</strong> algumas políticas de AppArmor/namespaces bloqueiam aplicativos Electron extraídos. O kit não usa <code>--no-sandbox</code>. Encaminhe o erro ao responsável pelo laboratório para disponibilizar um VS Code permitido; enquanto isso, o terminal e um editor já autorizado podem ser usados.</li>
-<li><strong>Porta 3307 ocupada:</strong> encerre a outra cópia pelo iniciador dela. O kit recusa encerrar um banco que não consegue identificar como seu.</li>
-<li><strong>Windows: DLL ou aplicativo bloqueado:</strong> execute o diagnóstico e informe o erro ao professor. O pacote leva DLLs do runtime junto aos aplicativos, mas políticas institucionais de execução precisam permitir esses programas.</li>
-<li><strong>Erro do banco:</strong> consulte <code>estado/&lt;sistema&gt;/mariadb.log</code> e <code>mariadb-console.log</code>. Preserve os arquivos de dados.</li>
-<li><strong>Extensão pedindo download:</strong> informe qual extensão ao professor. O kit inclui os componentes das extensões selecionadas, mas a ativação deve ser validada com a rede desligada.</li></ul>
-<p>As versões, origens e hashes dos downloads estão em <code>componentes.lock.json</code>; o tamanho e o estado de validação constam em <code>PREPARACAO.json</code>. As licenças dos componentes acompanham suas respectivas pastas, incluindo <code>legal</code> do JDK e os arquivos <code>copyright</code> do sysroot Linux.</p>
+<title>Laboratório Portátil Universal — Guia do Aluno</title>
+<style>
+  body{font:17px/1.6 system-ui,-apple-system,sans-serif;max-width:900px;margin:40px auto;padding:0 24px;color:#182634;background:#f8fafc}
+  h1,h2{line-height:1.2}
+  h1{font-size:36px;color:#0284c7}
+  h2{margin-top:36px;border-bottom:2px solid #e2e8f0;padding-bottom:8px}
+  pre{background:#172838;color:#f1f5f9;padding:16px;border-radius:8px;overflow:auto}
+  code{font-family:ui-monospace,monospace}
+  table{border-collapse:collapse;width:100%;margin:16px 0}
+  td,th{text-align:left;border-bottom:1px solid #cbd5e1;padding:12px}
+  th{background:#f1f5f9}
+  a{color:#0284c7}
+  .note{border-left:4px solid #0284c7;padding:14px 18px;background:#e0f2fe;border-radius:0 8px 8px 0;margin:18px 0}
+  .success{border-left:4px solid #16a34a;padding:14px 18px;background:#dcfce7;border-radius:0 8px 8px 0;margin:18px 0}
+  .badge{display:inline-block;background:#e2e8f0;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:0.9em}
+</style>
+<h1>🧪 Laboratório Portátil Universal (Dual-OS)</h1>
+<p>Ambiente portátil completo de desenvolvimento contendo VS Code, Git, interpretadores/compiladores e banco de dados SQLite. Funciona de forma 100% offline e independente do sistema operacional da máquina (Windows 11 ou Linux Mint x64).</p>
+
+<div class="success">
+  <strong>✓ Totalmente Interoperável:</strong> Você pode iniciar seus trabalhos no Windows, salvar, plugar o pendrive em um computador com Linux Mint e continuar de onde parou. Seus códigos, banco de dados (<code>banco.db</code>) e abas abertas no VS Code são sincronizados automaticamente!
+</div>
+
+<h2>1. Como Iniciar o Ambiente</h2>
+<p>Na raiz da pasta do seu kit (ou pendrive), basta acionar o atalho correspondente ao computador que você está usando:</p>
+<ul>
+  <li><strong>No Windows:</strong> Clique duas vezes em <code>Iniciar &lt;Disciplina&gt;.cmd</code>. Não requer direitos de administrador.</li>
+  <li><strong>No Linux Mint:</strong> Clique duas vezes no atalho <code>Iniciar &lt;Disciplina&gt;.desktop</code> (ou execute via terminal <code>./iniciar-linux.sh</code>).</li>
+</ul>
+<p>O VS Code abrirá automaticamente com seu projeto carregado, extensões ativadas e o banco de dados pronto para uso.</p>
+
+<h2>2. Banco de Dados (SQLite)</h2>
+<p>Para evitar conflitos de portas de rede e falhas de serviços em segundo plano, este laboratório utiliza <strong>SQLite</strong>:</p>
+<ul>
+  <li>O banco de dados é um arquivo físico chamado <code>banco.db</code> localizado dentro da sua pasta de projetos.</li>
+  <li>No VS Code, use a barra lateral <strong>SQLTools</strong> (ícone de banco de dados). A conexão <strong>"Banco de Aulas (SQLite)"</strong> já vem pré-configurada para você explorar tabelas e rodar scripts SQL.</li>
+  <li><strong>Sem transferências manuais:</strong> O arquivo <code>banco.db</code> é binário e idêntico em Windows e Linux.</li>
+</ul>
+
+<h2>3. Pastas de Projetos</h2>
+<table>
+  <tr><th>Disciplina / Kit</th><th>Pasta de Código</th><th>Como Testar</th></tr>
+  <tr><td>Desenvolvimento Web</td><td><code>projetos/web/</code></td><td>Pressione <code>Ctrl+Shift+B</code> no VS Code para iniciar o servidor PHP e acesse <code>http://127.0.0.1:8080/ola-mundo.php</code></td></tr>
+  <tr><td>POO com Python</td><td><code>projetos/python/</code></td><td>Abra o arquivo <code>ola-mundo.py</code> e pressione <code>F5</code></td></tr>
+  <tr><td>POO com Java</td><td><code>projetos/java/</code></td><td>Abra <code>OlaMundo.java</code> e clique no botão <code>Run</code> acima do método main</td></tr>
+</table>
+
+<h2>4. Salvando e Transportando seu Trabalho</h2>
+<p>Basta fechar o VS Code normalmente. Como o SQLite grava as alterações diretamente no arquivo <code>banco.db</code> e o VS Code salva suas preferências em <code>configuracoes/vscode</code>, basta ejetar com segurança o pendrive e você estará pronto para levar seus trabalhos para casa ou outro laboratório.</p>
+
+<h2>5. Solução de Dúvidas Comuns</h2>
+<ul>
+  <li><strong>O Linux Mint não deixa executar o arquivo:</strong> O iniciador <code>iniciar-linux.sh</code> restaura as permissões de execução dos binários automaticamente. Se o pendrive estiver montado com a opção restritiva <code>noexec</code>, copie a pasta para sua pasta pessoal (ex: <code>~/aulas</code>) e execute dali.</li>
+  <li><strong>Perdi meu código ou quero voltar uma versão:</strong> Use o Git localmente. O terminal integrado do VS Code já tem o comando <code>git</code> configurado sem depender de internet.</li>
+</ul>
 </html>

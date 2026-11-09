@@ -7,8 +7,9 @@ Como executar:
   Opção 2: No terminal do kit, execute:
     python ola-mundo.py
 
-Banco de Dados MariaDB:
-  Host: 127.0.0.1 (Porta: 3307)
-  Banco: aulas
-  Usuário: aluno | Senha: aluno
-  Biblioteca inclusa: PyMySQL (import pymysql)
+Banco de Dados SQLite:
+  Arquivo: banco.db (localizado nesta mesma pasta)
+  Conexão no VS Code: Já conectada automaticamente na barra lateral (ícone SQLTools)!
+  Conexão em Python:
+    import sqlite3
+    conn = sqlite3.connect("banco.db")

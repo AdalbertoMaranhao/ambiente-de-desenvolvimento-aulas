@@ -1,103 +1,95 @@
-# Laboratórios Portáteis Offline (Kits Modulares)
+# Laboratórios Portáteis Universais (Kits Híbridos Dual-OS)
 
-Kits modulares e portáteis para aulas práticas de **Desenvolvimento Web** (PHP 8.5) e **Programação Orientada a Objetos** (Python 3.13 ou Java 25), integrados com **MariaDB 11.4**, Git e VS Code (com **SQLTools** offline).
+Kits modulares e universais para aulas práticas de **Desenvolvimento Web** (PHP 8.5) e **Programação Orientada a Objetos** (Python 3.13 ou Java 25), integrados com **SQLite 3**, Git e VS Code (com extensão **SQLTools** offline).
 
-Projetados para rodar em computadores de laboratório com **Windows 11 x64** e **Linux Mint 21/22 x64**, direto de um pendrive ou pasta do usuário:
-* 🟢 **Sem instalação administrativa** (zero-admin).
-* 🟢 **Sem conexão com a internet** (100% offline).
-* 🟢 **Sem dependência de Docker, WSL ou serviços de sistema**.
+Projetados para rodar a partir do **mesmo pendrive** tanto em computadores com **Windows 11 x64** quanto com **Linux Mint 21/22 x64**, sem necessidade de reiniciar a máquina e sem transferências manuais de arquivos:
+* 🟢 **Zero Configuração & Zero Admin:** Funciona sem privilégios de administrador.
+* 🟢 **Zero Conflito de Portas:** O SQLite elimina 100% dos erros de serviços e portas de rede (`3307`).
+* 🟢 **Interoperabilidade Total:** Modificações no banco de dados (`banco.db`) e preferências do VS Code feitas no Windows são lidas instantaneamente no Linux e vice-versa.
+* 🟢 **100% Offline:** Sem dependência de internet, Docker ou WSL.
 
 ---
 
-## 1. Perfis Disponíveis
+## 1. Kits Universais Disponíveis
 
-Os kits são gerados de forma especializada e independente:
+Cada kit é especializado por disciplina e contém os binários de **ambos os sistemas operacionais** compartilhando uma única pasta `projetos/` e o mesmo `banco.db`:
 
-| Perfil | Linguagem & Ferramentas | Foco Pedagógico | Tamanho Extraído | Tamanho Compactado |
+| Kit Universal | Ferramentas Integradas (Win + Linux) | Foco Pedagógico | Tamanho Extraído | Tamanho do Pacote (.zip) |
 | :--- | :--- | :--- | :---: | :---: |
-| **`web`** | PHP 8.5 CLI/FrankenPHP, Composer 2.10, MariaDB 11.4, Git, VS Code + Intelephense + SQLTools | Aulas de Web, páginas dinâmicas e conexão com banco de dados | ~1,6 GB (Win) / ~3,7 GB (Lin) | ~550 MB (.zip) / ~600 MB (.tar.gz) |
-| **`poo-python`** | CPython 3.13, pip, PyMySQL, MariaDB 11.4, Git, VS Code + Pylance + Debugpy + SQLTools | Aulas de POO em Python e persistência relacional | ~1,7 GB (Win) / ~3,7 GB (Lin) | ~500 MB (.zip) / ~550 MB (.tar.gz) |
-| **`poo-java`** | Adoptium JDK 25 Hotspot, driver JDBC, MariaDB 11.4, Git, VS Code + Red Hat Java + Debugger + SQLTools | Aulas de POO em Java e conexão JDBC | ~1,9 GB (Win) / ~3,9 GB (Lin) | ~850 MB (.zip) / ~900 MB (.tar.gz) |
+| **`kit-web`** | PHP 8.5 (Win) / FrankenPHP (Lin), Composer, SQLite, Git, VS Code + Intelephense + SQLTools | Aulas de Web, páginas dinâmicas e persistência com PDO SQLite | ~3,4 GB | ~1,2 GB |
+| **`kit-poo-python`** | CPython 3.13, pip, SQLite nativo, Git, VS Code + Pylance + Debugpy + SQLTools | Aulas de POO em Python e persistência com `sqlite3` | ~3,4 GB | ~1,2 GB |
+| **`kit-poo-java`** | Adoptium JDK 25 Hotspot, driver SQLite JDBC, Git, VS Code + Red Hat Java + Debugger + SQLTools | Aulas de POO em Java e conexão JDBC | ~3,8 GB | ~1,5 GB |
 
 > [!NOTE]
-> Cada kit deixa entre **4 GB e 6 GB livres** em qualquer pendrive padrão de 8 GB.
+> Cada kit universal extraído deixa mais de **4 GB livres** em qualquer pendrive padrão de 8 GB.
 
 ---
 
-## 2. Como Usar o Pacote (Aluno)
+## 2. Como Usar o Kit (Aluno)
 
-1. Extraia o pacote (`.zip` no Windows ou `.tar.gz` no Linux) para uma pasta local do computador.
-2. Inicie o laboratório:
-   * **Windows:** dê duplo clique em `iniciar-windows.cmd`.
-   * **Linux Mint:** dê duplo clique em `laboratorio.desktop` ou execute no terminal: `sh iniciar-linux.sh`.
-3. Escolha uma opção no menu interativo:
-   * **Opção 1:** Abre apenas o VS Code (aulas sem banco).
-   * **Opção 2:** Abre o VS Code e inicia o MariaDB automaticamente (aulas com banco).
-   * **Opção 3:** Abre terminal isolado com todas as ferramentas no `PATH`.
-   * **Opção 4:** Diagnóstico e teste de funcionamento das ferramentas.
-   * **Opção 5:** Salvar cópia de segurança (backup SQL do banco).
-   * **Opção 6 / 0:** Parada segura do MariaDB (com backup automático preventivo).
+1. Extraia o arquivo `.zip` da sua disciplina diretamente no pendrive ou em uma pasta local do computador.
+2. Dê duplo clique no lançador correspondente ao sistema da máquina:
+   * **No Windows:** Abra `Iniciar <Disciplina>.cmd` (ex: `Iniciar Web.cmd`).
+   * **No Linux Mint:** Abra `Iniciar <Disciplina>.desktop` (ou execute `./iniciar-linux.sh`).
+3. O VS Code abrirá com seu projeto carregado, o banco de dados conectado e extensões prontas.
 
-### Credenciais Padrão do Banco de Dados
-* **Host:** `127.0.0.1` | **Porta:** `3307` | **Banco padrão:** `aulas`
-* **Usuário Comum:** `aluno` | **Senha:** `aluno`
-* **Usuário Administrador:** `root` | **Senha:** `root`
-* **Visualizador SQLTools no VS Code:** A conexão `Laboratório (MariaDB)` já vem pré-configurada na barra lateral do editor. Basta clicar para conectar e visualizar tabelas ou rodar queries.
+### Banco de Dados (SQLite)
+* O banco de dados é um arquivo único chamado `banco.db` dentro da pasta do seu projeto.
+* Já vem com a tabela `alunos` criada e registros de exemplo.
+* No VS Code, use o ícone de banco na barra lateral esquerda (**SQLTools**); a conexão **"Banco de Aulas (SQLite)"** já está ativa para visualizar tabelas e rodar queries.
 
-### Servidor Web PHP (Kit Web)
-* **No VS Code:** No menu superior, clique em `Terminal -> Run Task` (ou `Ctrl+Shift+B`) e selecione **"🌐 Iniciar Servidor Web PHP"**.
-* **Pelo Terminal:** Execute `php -S 127.0.0.1:8080 -t .` dentro de `projetos/web`.
-* Acesse no navegador: `http://127.0.0.1:8080/ola-mundo.php`.
+### Testando Códigos de Exemplo
+* **Web (PHP):** Pressione `Ctrl+Shift+B` (ou `Terminal -> Run Task`) e escolha **"🌐 Iniciar Servidor Web PHP"**. Acesse `http://127.0.0.1:8080/ola-mundo.php`.
+* **Python:** Abra `ola-mundo.py` e pressione `F5`.
+* **Java:** Abra `OlaMundo.java` e clique no botão `Run` acima de `main`.
 
 ---
 
-## 3. Gerar e Montar os Kits (Professor)
+## 3. Gerar os Pacotes Universais (Professor)
 
-O script mestre [`preparar.py`](file:///Users/adalberto/ambiente_de_desenvolvimento_portatil/preparar.py) orquestra a resolução, extração e compactação dos pacotes.
+O script [`preparar.py`](file:///Users/adalberto/ambiente_de_desenvolvimento_portatil/preparar.py) automatiza a montagem dos kits universais:
 
-### Modo Interativo (com Menu)
-Execute sem argumentos para abrir o assistente interativo:
 ```sh
-python3 preparar.py
+# Montar os 3 kits universais em dist/
+python3 preparar.py montar
+
+# Compactar os 3 kits em arquivos .zip universais
+python3 preparar.py zip
+
+# Ou fazer tudo em um comando só
+python3 preparar.py tudo
 ```
 
-### Linha de Comando (Automação)
-Você pode especificar diretamente a ação, perfil e sistema:
-```sh
-# Montar um kit específico
-python3 preparar.py montar --perfil web --so windows
-python3 preparar.py montar --perfil poo-python --so linux
-
-# Montar todos os 6 kits
-python3 preparar.py montar --perfil todos --so ambos
-
-# Compactar os kits (gera .zip para Windows e .tar.gz para Linux)
-python3 preparar.py zip --perfil web --so windows
-python3 preparar.py zip --perfil todos --so ambos
-```
-
-Os arquivos finais são gerados no diretório `dist/`:
-* `dist/kit-web-windows.zip`
-* `dist/kit-web-linux.tar.gz`
-* `dist/kit-poo-python-windows.zip`
-* `dist/kit-poo-python-linux.tar.gz`
-* `dist/kit-poo-java-windows.zip`
-* `dist/kit-poo-java-linux.tar.gz`
+Os pacotes gerados ficam na pasta `dist/`:
+* `dist/kit-web.zip`
+* `dist/kit-poo-python.zip`
+* `dist/kit-poo-java.zip`
 
 ---
 
-## 4. Validação e Testes
+## 4. Ambiente do Professor no macOS (`kit-mac`)
 
-Para auditar os pacotes montados e conferir dependências binárias (ELF / PE) e limites de tamanho:
+Para professores que utilizam macOS (Apple Silicon):
+1. Acesse a pasta `kit-mac/` e execute:
+   ```sh
+   sh configurar.sh
+   ```
+2. Abra os workspaces dedicados no VS Code:
+   * `code web.code-workspace`
+   * `code poo-python.code-workspace`
+   * `code poo-java.code-workspace`
+3. Ou utilize o painel: `python3 lab.py`.
+
+---
+
+## 5. Validação e Testes Automatizados
+
+Para auditar os binários PE (Windows) e ELF (Linux) e validar limites de tamanho:
 ```sh
-# Inspecionar todos os pacotes em dist/
 python3 verificar_pacote.py
-
-# Inspecionar um pacote específico
-python3 verificar_pacote.py dist/kit-web-windows
 ```
 
-Para rodar a suíte de testes unitários do runtime:
+Para executar os testes unitários do runtime e orquestrador:
 ```sh
-PYTHONPYCACHEPREFIX=/tmp/kit-aulas-pycache python3 -m unittest discover -s tests -v
+python3 -m unittest discover -s tests -v
 ```

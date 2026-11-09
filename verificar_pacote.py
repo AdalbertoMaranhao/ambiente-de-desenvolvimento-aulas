@@ -81,10 +81,14 @@ def inspect_kit(kit_path):
     print(f"\n🔍 Inspecionando pacote: {kit_path.name}")
     linux = kit_path / "tools/linux-x64"
     if linux.exists():
-        locations = [linux / "sysroot/usr/lib/x86_64-linux-gnu", linux / "sysroot/lib/x86_64-linux-gnu", linux / "mariadb/lib"]
+        locations = [linux / "sysroot/usr/lib/x86_64-linux-gnu", linux / "sysroot/lib/x86_64-linux-gnu"]
+        if (linux / "mariadb/lib").exists():
+            locations.append(linux / "mariadb/lib")
         available = {p.name: p for folder in locations for p in folder.glob("*.so*") if p.is_file()}
         host = {"libc.so.6", "libm.so.6", "libpthread.so.0", "libdl.so.2", "librt.so.1", "libresolv.so.2", "libutil.so.1", "ld-linux-x86-64.so.2"}
-        queue = [linux / "mariadb/bin" / name for name in ["mariadbd", "mariadb", "mariadb-admin", "mariadb-dump"]] + [linux / "sysroot/usr/bin/git"]
+        queue = [linux / "sysroot/usr/bin/git"]
+        if (linux / "mariadb/bin").exists():
+            queue.extend([linux / "mariadb/bin" / name for name in ["mariadbd", "mariadb", "mariadb-admin", "mariadb-dump"]])
         seen = set()
         while queue:
             file = queue.pop()

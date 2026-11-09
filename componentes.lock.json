@@ -81,26 +81,6 @@
       "hash_origin": "upstream"
     },
     {
-      "name": "mariadb-windows-x64",
-      "version": "11.4.13",
-      "url": "https://downloads.mariadb.org/rest-api/mariadb/11.4.13/mariadb-11.4.13-winx64.zip",
-      "target": "tools/windows-x64/mariadb",
-      "kind": "zip-root",
-      "sha256": "d62986d433eeebfde218560b276103831604a61e929e87f1a17f5aebd80257e2",
-      "prefix": "",
-      "hash_origin": "upstream"
-    },
-    {
-      "name": "mariadb-linux-x64",
-      "version": "11.4.13",
-      "url": "https://downloads.mariadb.org/rest-api/mariadb/11.4.13/mariadb-11.4.13-linux-systemd-x86_64.tar.gz",
-      "target": "tools/linux-x64/mariadb",
-      "kind": "tar-root",
-      "sha256": "3cebf63914df3154b7cb6d548337eb2be42c773aeb641110446b72e2746cfed7",
-      "prefix": "",
-      "hash_origin": "upstream"
-    },
-    {
       "name": "git-windows-x64",
       "version": "v2.56.0.windows.4",
       "url": "https://github.com/git-for-windows/git/releases/download/v2.56.0.windows.4/MinGit-2.56.0.4-64-bit.zip",
@@ -591,24 +571,14 @@
       "hash_origin": "upstream"
     },
     {
-      "name": "pymysql",
-      "version": "1.2.3",
-      "url": "https://files.pythonhosted.org/packages/a9/4b/0a906d8184f011ff8dbd4722743783867589b33269d2c5fff238d636fdcb/pymysql-1.2.3-py3-none-any.whl",
-      "target": "dependencias/python/pymysql-1.2.3-py3-none-any.whl",
+      "name": "jdbc",
+      "version": "3.54.1.0",
+      "url": "https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.54.1.0/sqlite-jdbc-3.54.1.0.jar",
+      "target": "dependencias/java/sqlite-jdbc.jar",
       "kind": "file",
-      "sha256": "14f1c68e2ed859243ae5ca41ffbe677027fc46bc136a9f0be8a4e928e5e7415a",
+      "sha256": "f8dce420a6016278497f4f0560f65602b9db858de141b541cf91a4644ebe4639",
       "prefix": "",
       "hash_origin": "upstream"
-    },
-    {
-      "name": "jdbc",
-      "version": "3.5.11",
-      "url": "https://repo.maven.apache.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.5.11/mariadb-java-client-3.5.11.jar",
-      "target": "dependencias/java/mariadb-java-client.jar",
-      "kind": "file",
-      "sha256": "42604178b9e57ec08ee0035079961516f086e455d0141f0b22c6eff29fb2fff4",
-      "prefix": "",
-      "hash_origin": "HTTPS-primeiro-download"
     },
     {
       "name": "redhat.java-windows-x64",
@@ -781,24 +751,24 @@
       "hash_origin": "HTTPS-primeiro-download"
     },
     {
-      "name": "mtxr.sqltools-driver-mysql-windows-x64",
-      "version": "0.6.7",
-      "url": "https://mtxr.gallerycdn.vsassets.io/extensions/mtxr/sqltools-driver-mysql/0.6.7/1783357259690/Microsoft.VisualStudio.Services.VSIXPackage",
-      "target": "tools/windows-x64/vscode/data/extensions/mtxr.sqltools-driver-mysql-0.6.7",
+      "name": "mtxr.sqltools-driver-sqlite-windows-x64",
+      "version": "0.5.4",
+      "url": "https://mtxr.gallerycdn.vsassets.io/extensions/mtxr/sqltools-driver-sqlite/0.5.4/1783357311434/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/windows-x64/vscode/data/extensions/mtxr.sqltools-driver-sqlite-0.5.4",
       "kind": "vsix",
-      "sha256": "62134cbf8eb1b65d56ba75c14be65739782496b6034c52c27bf0e860e65cd5a8",
+      "sha256": "6a53e33690840d826250f9f4342b9652827b760b5324dbdc3692ea20ea3c1363",
       "prefix": "extension/",
-      "hash_origin": "HTTPS-primeiro-download"
+      "hash_origin": "upstream"
     },
     {
-      "name": "mtxr.sqltools-driver-mysql-linux-x64",
-      "version": "0.6.7",
-      "url": "https://mtxr.gallerycdn.vsassets.io/extensions/mtxr/sqltools-driver-mysql/0.6.7/1783357259690/Microsoft.VisualStudio.Services.VSIXPackage",
-      "target": "tools/linux-x64/vscode/data/extensions/mtxr.sqltools-driver-mysql-0.6.7",
+      "name": "mtxr.sqltools-driver-sqlite-linux-x64",
+      "version": "0.5.4",
+      "url": "https://mtxr.gallerycdn.vsassets.io/extensions/mtxr/sqltools-driver-sqlite/0.5.4/1783357311434/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/linux-x64/vscode/data/extensions/mtxr.sqltools-driver-sqlite-0.5.4",
       "kind": "vsix",
-      "sha256": "62134cbf8eb1b65d56ba75c14be65739782496b6034c52c27bf0e860e65cd5a8",
+      "sha256": "6a53e33690840d826250f9f4342b9652827b760b5324dbdc3692ea20ea3c1363",
       "prefix": "extension/",
-      "hash_origin": "HTTPS-primeiro-download"
+      "hash_origin": "upstream"
     }
   ]
 }

@@ -1,14 +1,21 @@
 @echo off
 setlocal
-if not exist "%~dp0tools\windows-x64\python\python.exe" (
-    echo Kit incompleto. O professor precisa executar preparar.py montar antes de distribuir.
+set "PY_EXE=%~dp0ferramentas\windows-x64\python\python.exe"
+if not exist "%PY_EXE%" set "PY_EXE=%~dp0tools\windows-x64\python\python.exe"
+
+if not exist "%PY_EXE%" (
+    echo Kit incompleto. As ferramentas para Windows nao foram encontradas.
     pause
     exit /b 1
 )
-if not exist "%~dp0estado\windows-x64\credenciais.json" (
+
+if not exist "%~dp0configuracoes\windows-x64\iniciado.txt" (
+    if not exist "%~dp0configuracoes\windows-x64" mkdir "%~dp0configuracoes\windows-x64"
     start "" "%~dp0BEM-VINDO.html"
+    type nul > "%~dp0configuracoes\windows-x64\iniciado.txt" 2>nul
 )
-"%~dp0tools\windows-x64\python\python.exe" -E "%~dp0lab.py" %*
+
+"%PY_EXE%" -E "%~dp0lab.py" %*
 set "TASK_RESULT=%ERRORLEVEL%"
 if not "%TASK_RESULT%"=="0" pause
 exit /b %TASK_RESULT%

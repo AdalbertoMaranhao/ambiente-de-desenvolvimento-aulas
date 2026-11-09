@@ -8,7 +8,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f0f4f8; color: #1a202c; line-height: 1.6; }
   .container { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
-  .hero { text-align: center; padding: 3rem 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 16px; margin-bottom: 2rem; }
+  .hero { text-align: center; padding: 3rem 1rem; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: white; border-radius: 16px; margin-bottom: 2rem; }
   .hero h1 { font-size: 2rem; margin-bottom: 0.5rem; }
   .hero p { font-size: 1.1rem; opacity: 0.9; }
   .card { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -16,20 +16,20 @@
   .card h2 .icon { font-size: 1.5rem; }
   .step { display: flex; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid #e2e8f0; }
   .step:last-child { border-bottom: none; }
-  .step-num { flex-shrink: 0; width: 36px; height: 36px; background: #667eea; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1rem; }
+  .step-num { flex-shrink: 0; width: 36px; height: 36px; background: #0284c7; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1rem; }
   .step-content h3 { font-size: 1rem; margin-bottom: 0.25rem; }
   .step-content p { font-size: 0.9rem; color: #4a5568; }
   .badge { display: inline-block; background: #edf2f7; color: #4a5568; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.85rem; font-family: monospace; margin: 0.1rem; }
-  .warning { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
-  .warning p { color: #92400e; font-size: 0.9rem; }
+  .success { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
+  .success p { color: #15803d; font-size: 0.9rem; }
   .info { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
   .info p { color: #1e40af; font-size: 0.9rem; }
   .table-wrap { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
   th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
   th { background: #f7fafc; font-weight: 600; }
-  .link-btn { display: inline-block; background: #667eea; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 1rem; transition: background 0.2s; }
-  .link-btn:hover { background: #5a67d8; }
+  .link-btn { display: inline-block; background: #0284c7; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 1rem; transition: background 0.2s; }
+  .link-btn:hover { background: #0369a1; }
   .footer { text-align: center; padding: 2rem 0; color: #718096; font-size: 0.85rem; }
 </style>
 </head>
@@ -37,101 +37,74 @@
 <div class="container">
 
   <div class="hero">
-    <h1>🧪 Bem-vindo ao Laboratório de Programação</h1>
-    <p>Seu ambiente completo para aprender a programar — 100% offline</p>
+    <h1>🧪 Bem-vindo ao Laboratório Portátil</h1>
+    <p>Seu ambiente de desenvolvimento universal — Windows &amp; Linux — 100% offline</p>
   </div>
 
   <div class="card">
-    <h2><span class="icon">🚀</span> Como começar</h2>
+    <h2><span class="icon">🚀</span> Como iniciar suas aulas</h2>
     <div class="step">
       <div class="step-num">1</div>
       <div class="step-content">
-        <h3>Abra o editor de código</h3>
-        <p>No terminal que abriu junto com esta página, escolha a opção <span class="badge">2</span> para abrir o editor com o banco de dados ativado.</p>
+        <h3>Abra o atalho do seu sistema</h3>
+        <p>No <strong>Windows</strong>, clique duas vezes em <span class="badge">Iniciar &lt;Disciplina&gt;.cmd</span>.<br>
+           No <strong>Linux Mint</strong>, clique duas vezes em <span class="badge">Iniciar &lt;Disciplina&gt;.desktop</span>.</p>
       </div>
     </div>
     <div class="step">
       <div class="step-num">2</div>
       <div class="step-content">
-        <h3>Crie seu primeiro arquivo</h3>
-        <p>No editor, vá até a pasta <span class="badge">projetos/php</span> e crie um arquivo chamado <span class="badge">meu-primeiro.php</span>.</p>
+        <h3>O VS Code abre automaticamente</h3>
+        <p>O editor abrirá com seus arquivos, tarefas e configurações prontas, preservando abas e temas em qualquer computador.</p>
       </div>
     </div>
     <div class="step">
       <div class="step-num">3</div>
       <div class="step-content">
-        <h3>Escreva e execute</h3>
-        <p>Digite <span class="badge">&lt;?php echo "Olá!"; ?&gt;</span>, salve e veja o resultado no navegador.</p>
+        <h3>Execute os exemplos</h3>
+        <p>Consulte o arquivo <span class="badge">README.txt</span> dentro da sua pasta de projetos para instruções de execução da sua disciplina.</p>
       </div>
     </div>
   </div>
 
   <div class="card">
-    <h2><span class="icon">📁</span> Onde salvar seus projetos</h2>
+    <h2><span class="icon">💾</span> Banco de Dados Universal (SQLite)</h2>
+    <div class="success">
+      <p>
+        ✓ <strong>Zero configuração e sem travamentos de portas:</strong> O banco de dados é um arquivo único chamado <span class="badge">banco.db</span> localizado dentro da pasta do seu projeto.<br>
+        ✓ <strong>100% Interoperável:</strong> Modificações feitas no Windows aparecem de imediato no Linux (e vice-versa), sem necessidade de exportar ou importar backups!
+      </p>
+    </div>
+    <p style="font-size: 0.9rem; color: #4a5568; margin-top: 0.5rem;">
+      💡 No VS Code, você pode usar a extensão <strong>SQLTools</strong> (ícone de banco de dados na barra lateral esquerda). A conexão <strong>"Banco de Aulas (SQLite)"</strong> já vem pré-configurada e pronta para você executar consultas SQL!
+    </p>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">📁</span> Estrutura do seu Pendrive</h2>
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th>Pasta</th><th>Para que serve</th><th>Exemplo de arquivo</th></tr>
+          <tr><th>Local</th><th>Para que serve</th></tr>
         </thead>
         <tbody>
-          <tr><td><span class="badge">projetos/php</span></td><td>Arquivos PHP e páginas web</td><td><span class="badge">index.php</span></td></tr>
-          <tr><td><span class="badge">projetos/python</span></td><td>Scripts Python</td><td><span class="badge">script.py</span></td></tr>
-          <tr><td><span class="badge">projetos/java</span></td><td>Programas Java</td><td><span class="badge">Programa.java</span></td></tr>
-          <tr><td><span class="badge">projetos/php-composer</span></td><td>Projetos PHP com Composer</td><td><span class="badge">composer.json</span></td></tr>
+          <tr><td><span class="badge">projetos/</span></td><td>Onde ficam seus códigos (.php, .py ou .java) e o arquivo <span class="badge">banco.db</span></td></tr>
+          <tr><td><span class="badge">configuracoes/</span></td><td>Guarda seus temas, histórico de abas abertas e preferências do VS Code</td></tr>
+          <tr><td><span class="badge">ferramentas/</span></td><td>Binários portáteis que fazem o ambiente rodar em Windows e Linux</td></tr>
+          <tr><td><span class="badge">backups/</span></td><td>Onde ficam cópias de segurança geradas pelo comando de backup</td></tr>
         </tbody>
       </table>
-    </div>
-    <div class="info">
-      <p>💡 Cada pasta de projeto contém um arquivo <strong>README.txt</strong> com instruções específicas. Leia antes de começar!</p>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2><span class="icon">🔑</span> Conexão com o Banco de Dados (MariaDB)</h2>
-    <p style="margin-bottom: 1rem; font-size: 0.95rem;">O banco de dados já está configurado com credenciais padrão para suas aulas:</p>
-    <div class="warning">
-      <p>
-        🌐 <strong>Host:</strong> <span class="badge">127.0.0.1</span> | <strong>Porta:</strong> <span class="badge">3307</span> | <strong>Banco:</strong> <span class="badge">aulas</span><br>
-        👤 <strong>Usuário:</strong> <span class="badge">aluno</span> | <strong>Senha:</strong> <span class="badge">aluno</span><br>
-        ⚙️ <strong>Root (Admin):</strong> <span class="badge">root</span> | <strong>Senha:</strong> <span class="badge">root</span>
-      </p>
-    </div>
-    <p style="font-size: 0.9rem; color: #4a5568;">💡 No VS Code, você pode usar a extensão <strong>SQLTools</strong> (ícone de banco na barra lateral) que já vem com a conexão configurada pronta para conectar!</p>
-  </div>
-
-  <div class="card">
-    <h2><span class="icon">❓</span> O que fazer se algo der errado</h2>
-    <div class="step">
-      <div class="step-num">!</div>
-      <div class="step-content">
-        <h3>O editor não abre</h3>
-        <p>No Linux, o sistema pode bloquear o VS Code por segurança. Consulte o guia completo <strong>LEIA-ME.html</strong> para resolver.</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">!</div>
-      <div class="step-content">
-        <h3>O banco de dados não liga</h3>
-        <p>Escolha a opção <span class="badge">4</span> no menu para verificar se todas as ferramentas estão funcionando. Se algo falhar, consulte o professor.</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">!</div>
-      <div class="step-content">
-        <h3>Perdi meus dados</h3>
-        <p>Use a opção <span class="badge">5</span> no menu para fazer backup regularmente. Os backups ficam na pasta <span class="badge">backups/</span>.</p>
-      </div>
     </div>
   </div>
 
   <div class="card">
     <h2><span class="icon">📖</span> Guia completo</h2>
-    <p style="font-size: 0.95rem;">Para instruções detalhadas sobre Git, Composer, Python e solução de problemas avançados:</p>
+    <p style="font-size: 0.95rem;">Para instruções detalhadas sobre execução de códigos e solução de problemas:</p>
     <a class="link-btn" href="LEIA-ME.html">📄 Abrir guia completo (LEIA-ME.html)</a>
   </div>
 
   <div class="footer">
-    <p>Laboratório Portátil Offline &mdash; Feito para aprender sem complicação</p>
+    <p>Laboratório Portátil Universal &mdash; Feito para aprender sem complicação</p>
   </div>
 
 </div>

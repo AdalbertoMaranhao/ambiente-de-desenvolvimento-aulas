@@ -1,7 +1,7 @@
 {
   "folders": [
     {
-      "name": "POO com Python (MariaDB)",
+      "name": "POO com Python (SQLite)",
       "path": "projetos/python"
     }
   ],
@@ -21,24 +21,14 @@
     "sqltools.useNodeRuntime": true,
     "sqltools.connections": [
       {
-        "name": "Laboratório (MariaDB)",
-        "dialect": "MySQL",
-        "server": "127.0.0.1",
-        "port": 3307,
-        "database": "aulas",
-        "username": "aluno",
-        "password": "aluno",
-        "connectString": "mysql://aluno:aluno@127.0.0.1:3307/aulas",
+        "name": "Banco de Aulas (SQLite)",
+        "dialect": "SQLite",
+        "database": "${workspaceFolder}/banco.db",
         "isActive": true
       }
     ],
     "terminal.integrated.env.osx": {
-      "PATH": "/opt/homebrew/opt/python@3.13/bin:/opt/homebrew/opt/mariadb@11.4/bin:${env:PATH}",
-      "DB_HOST": "127.0.0.1",
-      "DB_PORT": "3307",
-      "DB_NAME": "aulas",
-      "DB_USER": "aluno",
-      "DB_PASSWORD": "aluno"
+      "PATH": "/opt/homebrew/opt/python@3.13/bin:${env:PATH}"
     }
   }
 }

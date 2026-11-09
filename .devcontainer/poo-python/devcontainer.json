@@ -1,5 +1,5 @@
 {
-  "name": "🐍 POO Python (Python 3.13 & MariaDB)",
+  "name": "🐍 POO com Python (CPython 3.13 & SQLite)",
   "build": {
     "dockerfile": "Dockerfile"
   },
@@ -9,8 +9,9 @@
         "ms-python.python",
         "ms-python.vscode-pylance",
         "ms-python.debugpy",
+        "ms-python.vscode-python-envs",
         "mtxr.sqltools",
-        "mtxr.sqltools-driver-mysql"
+        "mtxr.sqltools-driver-sqlite"
       ],
       "settings": {
         "editor.inlineSuggest.enabled": false,
@@ -22,28 +23,14 @@
         "sqltools.useNodeRuntime": true,
         "sqltools.connections": [
           {
-            "name": "Laboratório (MariaDB)",
-            "dialect": "MySQL",
-            "server": "127.0.0.1",
-            "port": 3307,
-            "database": "aulas",
-            "username": "aluno",
-            "password": "aluno",
-            "connectString": "mysql://aluno:aluno@127.0.0.1:3307/aulas",
+            "name": "Banco de Aulas (SQLite)",
+            "dialect": "SQLite",
+            "database": "${workspaceFolder}/banco.db",
             "isActive": true
           }
         ]
       }
     }
   },
-  "remoteEnv": {
-    "DB_HOST": "127.0.0.1",
-    "DB_PORT": "3307",
-    "DB_NAME": "aulas",
-    "DB_USER": "aluno",
-    "DB_PASSWORD": "aluno"
-  },
-  "forwardPorts": [3307],
-  "postStartCommand": "/usr/local/bin/init-db.sh",
   "containerUser": "root"
 }

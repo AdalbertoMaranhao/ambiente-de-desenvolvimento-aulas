@@ -27,40 +27,40 @@ DEFERRED_LINKS = []
 
 PROFILES = {
     "web": {
-        "title": "Desenvolvimento Web (PHP 8.5 & MariaDB 11.4)",
+        "title": "Desenvolvimento Web (PHP 8.5 & SQLite)",
+        "launcher_name": "Web",
         "project_folder": "web",
         "has_php": True,
         "has_composer": True,
         "has_python": True,
         "has_python_dev": False,
         "has_java": False,
-        "has_mariadb": True,
-        "extensions": ["bmewburn.vscode-intelephense-client", "mtxr.sqltools", "mtxr.sqltools-driver-mysql"]
+        "extensions": ["bmewburn.vscode-intelephense-client", "mtxr.sqltools", "mtxr.sqltools-driver-sqlite"]
     },
     "poo-python": {
-        "title": "POO com Python (CPython 3.13 & MariaDB 11.4)",
+        "title": "POO com Python (CPython 3.13 & SQLite)",
+        "launcher_name": "Python",
         "project_folder": "python",
         "has_php": False,
         "has_composer": False,
         "has_python": True,
         "has_python_dev": True,
         "has_java": False,
-        "has_mariadb": True,
         "extensions": [
             "ms-python.python", "ms-python.vscode-pylance", "ms-python.debugpy",
-            "ms-python.vscode-python-envs", "mtxr.sqltools", "mtxr.sqltools-driver-mysql"
+            "ms-python.vscode-python-envs", "mtxr.sqltools", "mtxr.sqltools-driver-sqlite"
         ]
     },
     "poo-java": {
-        "title": "POO com Java (Adoptium JDK 25 & MariaDB 11.4)",
+        "title": "POO com Java (Adoptium JDK 25 & SQLite)",
+        "launcher_name": "Java",
         "project_folder": "java",
         "has_php": False,
         "has_composer": False,
         "has_python": True,
         "has_python_dev": False,
         "has_java": True,
-        "has_mariadb": True,
-        "extensions": ["redhat.java", "vscjava.vscode-java-debug", "mtxr.sqltools", "mtxr.sqltools-driver-mysql"]
+        "extensions": ["redhat.java", "vscjava.vscode-java-debug", "mtxr.sqltools", "mtxr.sqltools-driver-sqlite"]
     }
 }
 
@@ -207,13 +207,6 @@ def resolve():
     add("php-linux-x64", fp["tag_name"], a["browser_download_url"], "tools/linux-x64/php/frankenphp", "file", a["digest"].split(":")[1])
     add("frankenphp-license", fp["tag_name"], "https://raw.githubusercontent.com/php/frankenphp/" + fp["tag_name"] + "/LICENSE", "tools/linux-x64/php/LICENSE.txt", "file")
 
-    db = metadata("mariadb", "https://downloads.mariadb.org/rest-api/mariadb/11.4/latest/")
-    version, release = next(iter(db["releases"].items()))
-    for platform, suffix in [("windows-x64", "winx64.zip"), ("linux-x64", "linux-systemd-x86_64.tar.gz")]:
-        pkg = next(f for f in release["files"] if f["file_name"].endswith(suffix))
-        add("mariadb-" + platform, version, pkg["file_download_url"], "tools/" + platform + "/mariadb",
-            "zip-root" if platform.startswith("windows") else "tar-root", pkg["checksum"]["sha256sum"])
-
     git = metadata("git", "https://api.github.com/repos/git-for-windows/git/releases/latest")
     a = next(a for a in git["assets"] if re.match(r"MinGit-[\d.]+-64-bit.zip$", a["name"]))
     add("git-windows-x64", git["tag_name"], a["browser_download_url"], "tools/windows-x64/git", "zip", (a.get("digest") or "").removeprefix("sha256:") or None)
@@ -254,22 +247,18 @@ def resolve():
         fetch("https://getcomposer.org" + comp["path"] + ".sha256sum", checksum)
     add("composer", comp["version"], "https://getcomposer.org" + comp["path"], "dependencias/composer/composer.phar", "file", checksum.read_text().split()[0])
 
-    pymysql = metadata("pymysql", "https://pypi.org/pypi/PyMySQL/json")
-    a = next(a for a in pymysql["urls"] if a["filename"].endswith(".whl"))
-    add("pymysql", pymysql["info"]["version"], a["url"], "dependencias/python/" + a["filename"], "file", a["digests"]["sha256"])
-
     jdbc = CAT / "jdbc.xml"
     if not jdbc.exists():
-        fetch("https://repo.maven.apache.org/maven2/org/mariadb/jdbc/mariadb-java-client/maven-metadata.xml", jdbc)
-    versions = ET.fromstring(jdbc.read_text()).findall("versioning/versions/version")
-    version = [v.text for v in versions if re.fullmatch(r"3\.5\.\d+", v.text)][-1]
-    url = "https://repo.maven.apache.org/maven2/org/mariadb/jdbc/mariadb-java-client/" + version + "/mariadb-java-client-" + version + ".jar"
-    add("jdbc", version, url, "dependencias/java/mariadb-java-client.jar", "file")
+        fetch("https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/maven-metadata.xml", jdbc)
+    tree = ET.fromstring(jdbc.read_text())
+    version = (tree.find("./versioning/release") or tree.find("./versioning/latest")).text
+    url = "https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/" + version + "/sqlite-jdbc-" + version + ".jar"
+    add("jdbc", version, url, "dependencias/java/sqlite-jdbc.jar", "file")
 
     extensions = [
         "redhat.java", "vscjava.vscode-java-debug", "ms-python.python", "ms-python.vscode-pylance",
         "ms-python.debugpy", "ms-python.vscode-python-envs", "bmewburn.vscode-intelephense-client",
-        "mtxr.sqltools", "mtxr.sqltools-driver-mysql"
+        "mtxr.sqltools", "mtxr.sqltools-driver-sqlite"
     ]
     for ext in extensions:
         data = metadata("ext-" + ext, "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery",
@@ -278,7 +267,7 @@ def resolve():
         for platform in ["windows-x64", "linux-x64"]:
             target = "win32-x64" if platform.startswith("windows") else "linux-x64"
             choices = [v for v in versions if not any(p["key"] == "Microsoft.VisualStudio.Code.PreRelease" and p["value"] == "true" for p in v.get("properties", []))]
-            v = next((v for v in choices if v.get("targetPlatform") == (None if ext in ("redhat.java", "bmewburn.vscode-intelephense-client", "mtxr.sqltools", "mtxr.sqltools-driver-mysql") else target)), None)
+            v = next((v for v in choices if v.get("targetPlatform") == (None if ext in ("redhat.java", "bmewburn.vscode-intelephense-client", "mtxr.sqltools", "mtxr.sqltools-driver-sqlite") else target)), None)
             if v is None:
                 v = next(v for v in choices if not v.get("targetPlatform"))
             url = next(f["source"] for f in v["files"] if f["assetType"] == "Microsoft.VisualStudio.Services.VSIXPackage")
@@ -291,6 +280,8 @@ def resolve():
 def acquire(item, verbose=False):
     extension = {"zip": ".zip", "zip-root": ".zip", "tar": ".tar.gz", "tar-root": ".tar.gz", "deb": ".deb", "vsix": ".vsix"}.get(item["kind"], ".bin")
     path = CACHE / (item["name"] + extension)
+    if not path.exists() and (CACHE / (item["name"] + ".jar")).exists():
+        path = CACHE / (item["name"] + ".jar")
     if not path.exists():
         if verbose:
             print("Baixando " + item["name"], flush=True)
@@ -433,8 +424,6 @@ def filter_items_for_profile(items, perfil, osname):
         name = item["name"]
         if name.startswith("vscode-") and not name.endswith(osname):
             continue
-        if name.startswith("mariadb-") and not name.endswith(osname):
-            continue
         if name.startswith("git-") and not name.endswith(osname):
             continue
         if name.startswith("linux-deb-") and osname != "linux-x64":
@@ -449,8 +438,6 @@ def filter_items_for_profile(items, perfil, osname):
                 continue
         if name == "composer" and not cfg["has_composer"]:
             continue
-        if name == "pymysql" and not cfg["has_python_dev"]:
-            continue
         if name.startswith("jdk-"):
             if not cfg["has_java"] or not name.endswith(osname):
                 continue
@@ -461,7 +448,7 @@ def filter_items_for_profile(items, perfil, osname):
         is_extension = any(name.startswith(ext + "-") for ext in [
             "redhat.java", "vscjava.vscode-java-debug", "ms-python.python",
             "ms-python.vscode-pylance", "ms-python.debugpy", "ms-python.vscode-python-envs",
-            "bmewburn.vscode-intelephense-client", "mtxr.sqltools", "mtxr.sqltools-driver-mysql"
+            "bmewburn.vscode-intelephense-client", "mtxr.sqltools", "mtxr.sqltools-driver-sqlite"
         ])
         if is_extension:
             if not any(name.startswith(ext + "-") and name.endswith(osname) for ext in cfg["extensions"]):
@@ -478,6 +465,245 @@ def get_needed_items(items, target_profiles, target_sos):
             for item in filter_items_for_profile(items, p, OS_TARGETS[s]):
                 needed_names.add(item["name"])
     return [item for item in items if item["name"] in needed_names]
+
+
+def assemble_universal_kit(perfil, items, item_paths):
+    cfg = PROFILES[perfil]
+    kit_name = f"kit-{perfil}"
+    kit_dir = to_long_path(DIST / kit_name)
+    print(f"\n========================================================")
+    print(f"📦 Montando Kit Universal: {kit_name} ({cfg['title']})")
+    print(f"   Compatível com Windows 11 e Linux Mint x64 no mesmo pendrive")
+    print(f"========================================================")
+    kit_dir.mkdir(parents=True, exist_ok=True)
+    (kit_dir / "PREPARACAO.json").unlink(missing_ok=True)
+    DEFERRED_LINKS.clear()
+
+    # Itens para ambos os SOs
+    selected_items = []
+    for os_key, osname in OS_TARGETS.items():
+        selected_items.extend(filter_items_for_profile(items, perfil, osname))
+
+    paths_dict = item_paths if isinstance(item_paths, dict) else {item["name"]: path for item, path in zip(items, item_paths)}
+
+    bar = ProgressBar(len(selected_items), title=f"📦 {kit_name}")
+    bar.set_current(0, "Iniciando...")
+
+    for idx, item in enumerate(selected_items, 1):
+        bar.set_current(idx - 1, f"Extraindo {item['name']}")
+        path = paths_dict.get(item["name"])
+        if path is None:
+            path = acquire(item)
+        target = to_long_path(kit_dir / item["target"])
+        marker = to_long_path(kit_dir / ".preparacao" / (item["name"] + ".sha256"))
+        if item["kind"] != "deb" and marker.exists() and marker.read_text() == item["sha256"] and target.exists():
+            bar.set_current(idx, f"Cache {item['name']}")
+            continue
+        if item["kind"] == "file":
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(path, target)
+        else:
+            unpack(path, target, item["kind"], item.get("prefix", ""))
+        marker.parent.mkdir(parents=True, exist_ok=True)
+        marker.write_text(item["sha256"])
+        bar.set_current(idx, f"OK {item['name']}")
+
+    bar.finish("Extração concluída!")
+    materialize_links(DEFERRED_LINKS)
+
+    # Copiar scripts de controle base
+    shutil.copy2(BASE / "kit" / "lab.py", kit_dir / "lab.py")
+    shutil.copy2(BASE / "kit" / "BEM-VINDO.html", kit_dir / "BEM-VINDO.html")
+    shutil.copy2(BASE / "kit" / "LEIA-ME.html", kit_dir / "LEIA-ME.html")
+    shutil.copy2(BASE / "kit" / "iniciar-windows.cmd", kit_dir / "iniciar-windows.cmd")
+    shutil.copy2(BASE / "kit" / "iniciar-linux.sh", kit_dir / "iniciar-linux.sh")
+    (kit_dir / "iniciar-linux.sh").chmod(0o755)
+    shutil.copy2(BASE / "kit" / "laboratorio.desktop", kit_dir / "laboratorio.desktop")
+
+    # Atalhos raiz com o nome específico da disciplina
+    launcher_name = cfg.get("launcher_name", "Laboratorio")
+    cmd_launcher = kit_dir / f"Iniciar {launcher_name}.cmd"
+    cmd_launcher.write_bytes(f'@echo off\r\ncall "%~dp0iniciar-windows.cmd" %*\r\n'.encode())
+
+    desktop_launcher = kit_dir / f"Iniciar {launcher_name}.desktop"
+    desktop_content = f"""[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Iniciar {cfg['title']}
+Comment=Abrir laboratório portátil de {cfg['title']}
+Exec=sh -c '"$(dirname "$1")"/iniciar-linux.sh' dummy %k
+Icon=utilities-terminal
+Terminal=true
+Categories=Education;Development;
+StartupNotify=false
+"""
+    desktop_launcher.write_text(desktop_content, encoding="utf-8")
+    desktop_launcher.chmod(0o755)
+
+    # Diagnóstico
+    shutil.copytree(BASE / "diagnostico", kit_dir / "diagnostico", dirs_exist_ok=True)
+
+    # Projetos da disciplina (com o banco.db seed)
+    proj_folder = cfg["project_folder"]
+    src_proj = BASE / "kit" / "projetos" / proj_folder
+    dest_proj = kit_dir / "projetos" / proj_folder
+    if src_proj.exists():
+        shutil.copytree(src_proj, dest_proj, dirs_exist_ok=True)
+    else:
+        dest_proj.mkdir(parents=True, exist_ok=True)
+
+    # Workspace dedicado
+    ws_content = {
+        "folders": [
+            {"name": cfg["title"], "path": f"projetos/{proj_folder}"}
+        ]
+    }
+    (kit_dir / "aulas.code-workspace").write_text(json.dumps(ws_content, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    # Configuração de executáveis e wrappers para Windows e Linux
+    for os_key, osname in OS_TARGETS.items():
+        tools = kit_dir / "tools" / osname
+        bindir = tools / "bin"
+        bindir.mkdir(parents=True, exist_ok=True)
+        for folder in ["data/user-data/User", "data/tmp", "data/extensions"]:
+            (tools / "vscode" / folder).mkdir(parents=True, exist_ok=True)
+
+        if os_key == "windows":
+            # Copiar DLLs VC runtime (vcruntime140) de Python ou VS Code para PHP se PHP existir
+            if (tools / "php").exists():
+                src_dir = tools / "python" if (tools / "python").exists() else tools / "vscode/tools"
+                if src_dir.exists():
+                    for source in src_dir.glob("*140*.dll"):
+                        shutil.copy2(source, tools / "php" / source.name)
+
+            commands = {
+                "python3": '"%~dp0..\\python\\python.exe" %*',
+                "lab": '"%~dp0..\\python\\python.exe" "%~dp0..\\..\\..\\lab.py" %*'
+            }
+            if cfg["has_python_dev"]:
+                commands["pip"] = '"%~dp0..\\python\\python.exe" -m pip %*'
+            if cfg["has_php"]:
+                commands["composer"] = '"%~dp0..\\php\\php.exe" "%~dp0..\\..\\..\\dependencias\\composer\\composer.phar" %*'
+            for name, cmd in commands.items():
+                (bindir / (name + ".cmd")).write_bytes(("@echo off\r\n" + cmd + "\r\n").encode())
+        else:
+            commands = {
+                "python": 'exec "$TASK_DIR/python/bin/python3" "$@"',
+                "python3": 'exec "$TASK_DIR/python/bin/python3" "$@"',
+                "lab": 'exec "$TASK_DIR/python/bin/python3" "$TASK_DIR/../../lab.py" "$@"',
+                "git": 'export LD_LIBRARY_PATH="$TASK_DIR/sysroot/usr/lib/x86_64-linux-gnu:$TASK_DIR/sysroot/lib/x86_64-linux-gnu"\nexport GIT_EXEC_PATH="$TASK_DIR/sysroot/usr/lib/git-core"\nexport GIT_TEMPLATE_DIR="$TASK_DIR/sysroot/usr/share/git-core/templates"\nexec "$TASK_DIR/sysroot/usr/bin/git" "$@"'
+            }
+            if cfg["has_python_dev"]:
+                commands["pip"] = 'exec "$TASK_DIR/python/bin/python3" -m pip "$@"'
+            if cfg["has_php"]:
+                commands["php"] = 'exec "$TASK_DIR/php/frankenphp" php-cli "$@"'
+                commands["composer"] = 'exec "$TASK_DIR/bin/php" "$TASK_DIR/../../dependencias/composer/composer.phar" "$@"'
+                if (tools / "php/frankenphp").exists():
+                    (tools / "php/frankenphp").chmod(0o755)
+            for name, cmd in commands.items():
+                out = bindir / name
+                out.write_text('#!/bin/sh\nset -eu\nTASK_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)\n' + cmd + '\n')
+                out.chmod(0o755)
+
+            for path in (kit_dir / "tools" / osname).rglob("*"):
+                if path.is_file():
+                    with path.open("rb") as f:
+                        magic = f.read(4)
+                    if magic == b"\x7fELF":
+                        path.chmod(path.stat().st_mode | 0o100)
+
+            executable = [str(p.relative_to(kit_dir)) for p in (kit_dir / "tools" / osname).rglob("*") if p.is_file() and p.stat().st_mode & 0o111]
+            (tools / "linux-executaveis.json").write_text(json.dumps(executable))
+            (kit_dir / "linux-executaveis.json").write_text(json.dumps(executable))
+
+    # Pre-configuração compartilhada do VS Code
+    shared_user_dir = kit_dir / "configuracoes" / "vscode" / "User"
+    shared_user_dir.mkdir(parents=True, exist_ok=True)
+    settings = {
+        "update.mode": "none",
+        "extensions.autoUpdate": False,
+        "extensions.autoCheckUpdates": False,
+        "telemetry.telemetryLevel": "off",
+        "workbench.enableExperiments": False,
+        "git.autofetch": False,
+        "editor.inlineSuggest.enabled": False,
+        "github.copilot.enable": {"*": False},
+        "chat.commandCenter.enabled": False,
+        "sqltools.useNodeRuntime": False,
+        "sqltools.connections": [
+            {
+                "name": "Banco de Aulas (SQLite)",
+                "dialect": "SQLite",
+                "database": "${workspaceFolder}/banco.db",
+                "isActive": True
+            }
+        ]
+    }
+    if cfg["has_php"]:
+        settings["intelephense.environment.phpVersion"] = "8.4"
+    if cfg["has_java"]:
+        settings["java.import.maven.enabled"] = False
+        settings["java.import.gradle.enabled"] = False
+        settings["java.autobuild.enabled"] = False
+        settings["java.jdt.ls.vmargs"] = "-Xmx512m -Xms64m"
+    if cfg["has_python_dev"]:
+        settings["python.terminal.activateEnvironment"] = False
+        settings["python.experiments.enabled"] = False
+
+    settings_json_str = json.dumps(settings, indent=2, ensure_ascii=False) + "\n"
+    (shared_user_dir / "settings.json").write_text(settings_json_str, encoding="utf-8")
+
+    # Copiar também para o fallback individual de cada VS Code
+    for os_key, osname in OS_TARGETS.items():
+        vscode_user = kit_dir / "tools" / osname / "vscode" / "data/user-data/User"
+        vscode_user.mkdir(parents=True, exist_ok=True)
+        (vscode_user / "settings.json").write_text(settings_json_str, encoding="utf-8")
+
+    # Copiar lock reduzido para auditoria
+    (kit_dir / "componentes.lock.json").write_text(json.dumps({"components": selected_items}, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    size = sum(p.stat().st_size for p in kit_dir.rglob("*") if p.is_file())
+    report = {
+        "perfil": perfil,
+        "tipo": "universal-dual-os",
+        "sistemas": ["windows-x64", "linux-x64"],
+        "bytes_extraidos": size,
+        "gb_decimal": round(size / 1e9, 2),
+        "limite_recomendado_bytes": 4_000_000_000
+    }
+    (kit_dir / "PREPARACAO.json").write_text(json.dumps(report, indent=2) + "\n")
+    print(f"✅ Kit Universal '{kit_name}' montado com sucesso! Tamanho extraído: {size / 1e9:.2f} GB")
+
+
+def zip_universal_kit(perfil):
+    kit_name = f"kit-{perfil}"
+    kit_dir = to_long_path(DIST / kit_name)
+    if not (kit_dir / "PREPARACAO.json").exists():
+        raise RuntimeError(f"O kit {kit_name} ainda não foi montado. Execute 'montar' primeiro.")
+
+    print(f"\n📦 Compactando Kit Universal {kit_name}...", flush=True)
+    files_to_pack = sorted(list(kit_dir.rglob("*")))
+    total_files = len(files_to_pack)
+
+    zip_path = DIST / f"{kit_name}.zip"
+    bar = ProgressBar(total_files, title=f"🗜️ {kit_name}.zip")
+    with zipfile.ZipFile(clean_path_str(zip_path), "w", zipfile.ZIP_DEFLATED) as zf:
+        for idx, p in enumerate(files_to_pack, 1):
+            rel_path = os.path.relpath(clean_path_str(p), clean_path_str(DIST))
+            arcname = rel_path.replace("\\", "/")
+            if p.is_dir():
+                zinfo = zipfile.ZipInfo(arcname + "/")
+                zf.writestr(zinfo, "")
+            else:
+                zf.write(clean_path_str(p), arcname)
+            if idx % 25 == 0 or idx == total_files:
+                bar.set_current(idx, p.name)
+    bar.finish("Concluído!")
+    output = str(zip_path)
+    checksum = digest(output)
+    Path(output + ".sha256").write_text(checksum + "  " + Path(output).name + "\n")
+    size_mb = os.path.getsize(output) / (1024 * 1024)
+    print(f"🎉 Pacote gerado: {Path(output).name} ({size_mb:.1f} MB) | SHA256: {checksum[:16]}...")
 
 
 def assemble_single_kit(perfil, os_key, items, item_paths):
@@ -546,19 +772,12 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         dest_proj.mkdir(parents=True, exist_ok=True)
 
     # Workspace dedicado
-    ws_name = f"{cfg['title']}.code-workspace"
     ws_content = {
         "folders": [
             {"name": cfg["title"], "path": f"projetos/{proj_folder}"}
         ]
     }
     (kit_dir / "aulas.code-workspace").write_text(json.dumps(ws_content, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-
-    # Dependencias especificas
-    if cfg["has_python_dev"]:
-        wheel = next((i for i in selected_items if i["name"] == "pymysql"), None)
-        if wheel:
-            (kit_dir / "dependencias/python/requirements.txt").write_text("PyMySQL==" + wheel["version"] + "\n")
 
     # Configuracao de ferramentas e wrappers
     tools = kit_dir / "tools" / osname
@@ -568,11 +787,12 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         (tools / "vscode" / folder).mkdir(parents=True, exist_ok=True)
 
     if os_key == "windows":
-        # Copiar DLLs VC runtime de MariaDB para PHP se PHP existir
-        mariadb_bin = tools / "mariadb" / "bin"
-        if (tools / "php").exists() and mariadb_bin.exists():
-            for source in mariadb_bin.glob("*140*.dll"):
-                shutil.copy2(source, tools / "php" / source.name)
+        # Copiar DLLs VC runtime de Python ou VS Code para PHP se PHP existir
+        if (tools / "php").exists():
+            src_dir = tools / "python" if (tools / "python").exists() else tools / "vscode/tools"
+            if src_dir.exists():
+                for source in src_dir.glob("*140*.dll"):
+                    shutil.copy2(source, tools / "php" / source.name)
 
         commands = {
             "python3": '"%~dp0..\\python\\python.exe" %*',
@@ -625,38 +845,27 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         "telemetry.telemetryLevel": "off",
         "workbench.enableExperiments": False,
         "git.autofetch": False,
-        "git.path": clean_path_str(tools / ("git/cmd/git.exe" if os_key == "windows" else "bin/git")),
         "editor.inlineSuggest.enabled": False,
         "github.copilot.enable": {"*": False},
         "chat.commandCenter.enabled": False,
         "sqltools.useNodeRuntime": False,
         "sqltools.connections": [
             {
-                "name": "Laboratório (MariaDB)",
-                "dialect": "MySQL",
-                "server": "127.0.0.1",
-                "port": 3307,
-                "database": "aulas",
-                "username": "aluno",
-                "password": "aluno",
-                "connectString": "mysql://aluno:aluno@127.0.0.1:3307/aulas",
+                "name": "Banco de Aulas (SQLite)",
+                "dialect": "SQLite",
+                "database": "${workspaceFolder}/banco.db",
                 "isActive": True
             }
         ]
     }
     if cfg["has_php"]:
-        settings["php.validate.executablePath"] = clean_path_str(tools / ("php/php.exe" if os_key == "windows" else "bin/php"))
         settings["intelephense.environment.phpVersion"] = "8.4"
     if cfg["has_java"]:
-        settings["java.jdt.ls.java.home"] = clean_path_str(tools / "jdk")
-        settings["java.configuration.runtimes"] = [{"name": "JavaSE-25", "path": clean_path_str(tools / "jdk"), "default": True}]
         settings["java.import.maven.enabled"] = False
         settings["java.import.gradle.enabled"] = False
         settings["java.autobuild.enabled"] = False
         settings["java.jdt.ls.vmargs"] = "-Xmx512m -Xms64m"
     if cfg["has_python_dev"]:
-        settings["python.defaultInterpreterPath"] = clean_path_str(tools / ("python/python.exe" if os_key == "windows" else "python/bin/python3"))
-        settings["python.analysis.extraPaths"] = [clean_path_str(kit_dir / f"estado/{osname}/python-packages")]
         settings["python.terminal.activateEnvironment"] = False
         settings["python.experiments.enabled"] = False
 
@@ -744,21 +953,21 @@ def interactive_menu():
 
     print("""
 Perfis disponíveis:
-  [1] web         - Desenvolvimento Web (PHP 8.5 & MariaDB)
-  [2] poo-python  - POO com Python (CPython 3.13 & MariaDB)
-  [3] poo-java    - POO com Java (JDK 25 & MariaDB)
+  [1] web         - Desenvolvimento Web (PHP 8.5 & SQLite)
+  [2] poo-python  - POO com Python (CPython 3.13 & SQLite)
+  [3] poo-java    - POO com Java (JDK 25 & SQLite)
   [4] todos       - Gerar os 3 perfis""")
     perfil_choice = input("👉 Escolha o perfil (1-4) [todos]: ").strip()
     perfil_map = {"1": "web", "2": "poo-python", "3": "poo-java", "4": "todos", "": "todos"}
     perfil = perfil_map.get(perfil_choice, "todos")
 
     print("""
-Sistemas disponíveis:
-  [1] windows - Windows 11 x64 (.zip)
-  [2] linux   - Linux Mint x64 (.tar.gz)
-  [3] ambos   - Gerar para ambos os sistemas""")
-    so_choice = input("👉 Escolha o sistema (1-3) [ambos]: ").strip()
-    so_map = {"1": "windows", "2": "linux", "3": "ambos", "": "ambos"}
+Modalidade do Kit:
+  [1] universal - Kit Universal Híbrido (Dual-OS Windows + Linux no mesmo pendrive) [.zip]
+  [2] windows   - Apenas Windows 11 x64 (.zip)
+  [3] linux     - Apenas Linux Mint x64 (.tar.gz)""")
+    so_choice = input("👉 Escolha a modalidade (1-3) [1]: ").strip()
+    so_map = {"1": "ambos", "2": "windows", "3": "linux", "": "ambos"}
     so = so_map.get(so_choice, "ambos")
 
     return acao, perfil, so
@@ -829,14 +1038,22 @@ def main():
         bar.finish("Prontos!")
         paths_dict = {item["name"]: path for item, path in zip(needed_items, downloaded_paths)}
 
-        for p in target_profiles:
-            for s in target_sos:
-                assemble_single_kit(p, s, items, paths_dict)
+        if so is None or so == "ambos":
+            for p in target_profiles:
+                assemble_universal_kit(p, items, paths_dict)
+        else:
+            for p in target_profiles:
+                for s in target_sos:
+                    assemble_single_kit(p, s, items, paths_dict)
 
     if acao in ("zip", "tudo"):
-        for p in target_profiles:
-            for s in target_sos:
-                zip_single_kit(p, s)
+        if so is None or so == "ambos":
+            for p in target_profiles:
+                zip_universal_kit(p)
+        else:
+            for p in target_profiles:
+                for s in target_sos:
+                    zip_single_kit(p, s)
 
 
 if __name__ == "__main__":
