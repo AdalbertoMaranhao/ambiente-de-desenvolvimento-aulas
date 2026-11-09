@@ -769,6 +769,126 @@
       "sha256": "6a53e33690840d826250f9f4342b9652827b760b5324dbdc3692ea20ea3c1363",
       "prefix": "extension/",
       "hash_origin": "upstream"
+    },
+    {
+      "name": "usernamehw.errorlens-windows-x64",
+      "version": "3.30.0",
+      "url": "https://usernamehw.gallerycdn.vsassets.io/extensions/usernamehw/errorlens/3.30.0/1792653127666/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/windows-x64/vscode/data/extensions/usernamehw.errorlens-3.30.0",
+      "kind": "vsix",
+      "sha256": "c8686859442fc68db5ae4769812f39080822850752d7ddfeaaec76f1ed2c6748",
+      "prefix": "extension/",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "usernamehw.errorlens-linux-x64",
+      "version": "3.30.0",
+      "url": "https://usernamehw.gallerycdn.vsassets.io/extensions/usernamehw/errorlens/3.30.0/1792653127666/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/linux-x64/vscode/data/extensions/usernamehw.errorlens-3.30.0",
+      "kind": "vsix",
+      "sha256": "c8686859442fc68db5ae4769812f39080822850752d7ddfeaaec76f1ed2c6748",
+      "prefix": "extension/",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "oderwat.indent-rainbow-windows-x64",
+      "version": "8.3.1",
+      "url": "https://oderwat.gallerycdn.vsassets.io/extensions/oderwat/indent-rainbow/8.3.1/1649543509070/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/windows-x64/vscode/data/extensions/oderwat.indent-rainbow-8.3.1",
+      "kind": "vsix",
+      "sha256": "74e89cc9ad01dacae24dc0d2742ca1b69d0c731e5be9351a14a55bd185378d47",
+      "prefix": "extension/",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "oderwat.indent-rainbow-linux-x64",
+      "version": "8.3.1",
+      "url": "https://oderwat.gallerycdn.vsassets.io/extensions/oderwat/indent-rainbow/8.3.1/1649543509070/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/linux-x64/vscode/data/extensions/oderwat.indent-rainbow-8.3.1",
+      "kind": "vsix",
+      "sha256": "74e89cc9ad01dacae24dc0d2742ca1b69d0c731e5be9351a14a55bd185378d47",
+      "prefix": "extension/",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "aaron-bond.better-comments-windows-x64",
+      "version": "3.2.0",
+      "url": "https://aaron-bond.gallerycdn.vsassets.io/extensions/aaron-bond/better-comments/3.2.0/1793716599796/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/windows-x64/vscode/data/extensions/aaron-bond.better-comments-3.2.0",
+      "kind": "vsix",
+      "sha256": "261cf381f833b13cf921e86de28cb712ccf394be9e5f15d8bf1b451d3d677d40",
+      "prefix": "extension/",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "aaron-bond.better-comments-linux-x64",
+      "version": "3.2.0",
+      "url": "https://aaron-bond.gallerycdn.vsassets.io/extensions/aaron-bond/better-comments/3.2.0/1793716599796/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/linux-x64/vscode/data/extensions/aaron-bond.better-comments-3.2.0",
+      "kind": "vsix",
+      "sha256": "261cf381f833b13cf921e86de28cb712ccf394be9e5f15d8bf1b451d3d677d40",
+      "prefix": "extension/",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "christian-kohler.path-intellisense-windows-x64",
+      "version": "2.10.0",
+      "url": "https://christian-kohler.gallerycdn.vsassets.io/extensions/christian-kohler/path-intellisense/2.10.0/1732919213601/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/windows-x64/vscode/data/extensions/christian-kohler.path-intellisense-2.10.0",
+      "kind": "vsix",
+      "sha256": "6c4df6566cd906c02a812c5d4002bd3a84dc4e0bad184b60bf0ebe45a89ea91b",
+      "prefix": "extension/",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "christian-kohler.path-intellisense-linux-x64",
+      "version": "2.10.0",
+      "url": "https://christian-kohler.gallerycdn.vsassets.io/extensions/christian-kohler/path-intellisense/2.10.0/1732919213601/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/linux-x64/vscode/data/extensions/christian-kohler.path-intellisense-2.10.0",
+      "kind": "vsix",
+      "sha256": "6c4df6566cd906c02a812c5d4002bd3a84dc4e0bad184b60bf0ebe45a89ea91b",
+      "prefix": "extension/",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "formulahendry.auto-rename-tag-windows-x64",
+      "version": "0.1.10",
+      "url": "https://formulahendry.gallerycdn.vsassets.io/extensions/formulahendry/auto-rename-tag/0.1.10/1644319230173/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/windows-x64/vscode/data/extensions/formulahendry.auto-rename-tag-0.1.10",
+      "kind": "vsix",
+      "sha256": "b97a9679bc670f069454b146e8c521e1b67b8f0e5ddab4c7466e4da11da7d15b",
+      "prefix": "extension/",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "formulahendry.auto-rename-tag-linux-x64",
+      "version": "0.1.10",
+      "url": "https://formulahendry.gallerycdn.vsassets.io/extensions/formulahendry/auto-rename-tag/0.1.10/1644319230173/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/linux-x64/vscode/data/extensions/formulahendry.auto-rename-tag-0.1.10",
+      "kind": "vsix",
+      "sha256": "b97a9679bc670f069454b146e8c521e1b67b8f0e5ddab4c7466e4da11da7d15b",
+      "prefix": "extension/",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "MS-CEINTL.vscode-language-pack-pt-BR-windows-x64",
+      "version": "1.131.2026090407",
+      "url": "https://MS-CEINTL.gallerycdn.vsassets.io/extensions/ms-ceintl/vscode-language-pack-pt-br/1.131.2026090407/1788508422376/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/windows-x64/vscode/data/extensions/MS-CEINTL.vscode-language-pack-pt-BR-1.131.2026090407",
+      "kind": "vsix",
+      "sha256": "c09b2ef6b1273375d18f19e68b8c3c13d1aa81f047d81d8b6e162f03957e4f91",
+      "prefix": "extension/",
+      "hash_origin": "upstream"
+    },
+    {
+      "name": "MS-CEINTL.vscode-language-pack-pt-BR-linux-x64",
+      "version": "1.131.2026090407",
+      "url": "https://MS-CEINTL.gallerycdn.vsassets.io/extensions/ms-ceintl/vscode-language-pack-pt-br/1.131.2026090407/1788508422376/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/linux-x64/vscode/data/extensions/MS-CEINTL.vscode-language-pack-pt-BR-1.131.2026090407",
+      "kind": "vsix",
+      "sha256": "c09b2ef6b1273375d18f19e68b8c3c13d1aa81f047d81d8b6e162f03957e4f91",
+      "prefix": "extension/",
+      "hash_origin": "upstream"
     }
   ]
 }

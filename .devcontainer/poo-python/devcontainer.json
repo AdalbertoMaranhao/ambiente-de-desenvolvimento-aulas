@@ -11,7 +11,13 @@
         "ms-python.debugpy",
         "ms-python.vscode-python-envs",
         "mtxr.sqltools",
-        "mtxr.sqltools-driver-sqlite"
+        "mtxr.sqltools-driver-sqlite",
+        "usernamehw.errorlens",
+        "oderwat.indent-rainbow",
+        "aaron-bond.better-comments",
+        "christian-kohler.path-intellisense",
+        "formulahendry.auto-rename-tag",
+        "MS-CEINTL.vscode-language-pack-pt-BR"
       ],
       "settings": {
         "editor.inlineSuggest.enabled": false,
@@ -19,6 +25,10 @@
           "*": false
         },
         "chat.commandCenter.enabled": false,
+        "editor.bracketPairColorization.enabled": true,
+        "editor.guides.bracketPairs": "active",
+        "editor.wordWrap": "on",
+        "errorlens.enabled": true,
         "python.defaultInterpreterPath": "/usr/local/bin/python",
         "sqltools.useNodeRuntime": true,
         "sqltools.connections": [

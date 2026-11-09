@@ -16,6 +16,10 @@
       "*": false
     },
     "chat.commandCenter.enabled": false,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": "active",
+    "editor.wordWrap": "on",
+    "errorlens.enabled": true,
     "php.validate.executablePath": "/opt/homebrew/bin/php",
     "intelephense.environment.phpVersion": "8.4",
     "sqltools.useNodeRuntime": true,

@@ -16,6 +16,10 @@
       "*": false
     },
     "chat.commandCenter.enabled": false,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": "active",
+    "editor.wordWrap": "on",
+    "errorlens.enabled": true,
     "java.jdt.ls.java.home": "/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home",
     "java.configuration.runtimes": [
       {

@@ -136,6 +136,8 @@ class ProfileFilterTests(unittest.TestCase):
         self.assertIn("php-windows-x64", names)
         self.assertNotIn("jdk-windows-x64", names)
         self.assertNotIn("ms-python.python-windows-x64", names)
+        self.assertIn("usernamehw.errorlens-windows-x64", names)
+        self.assertIn("oderwat.indent-rainbow-windows-x64", names)
 
 
 class LongPathTests(unittest.TestCase):

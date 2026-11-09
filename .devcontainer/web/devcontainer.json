@@ -8,7 +8,13 @@
       "extensions": [
         "bmewburn.vscode-intelephense-client",
         "mtxr.sqltools",
-        "mtxr.sqltools-driver-sqlite"
+        "mtxr.sqltools-driver-sqlite",
+        "usernamehw.errorlens",
+        "oderwat.indent-rainbow",
+        "aaron-bond.better-comments",
+        "christian-kohler.path-intellisense",
+        "formulahendry.auto-rename-tag",
+        "MS-CEINTL.vscode-language-pack-pt-BR"
       ],
       "settings": {
         "editor.inlineSuggest.enabled": false,
@@ -16,6 +22,10 @@
           "*": false
         },
         "chat.commandCenter.enabled": false,
+        "editor.bracketPairColorization.enabled": true,
+        "editor.guides.bracketPairs": "active",
+        "editor.wordWrap": "on",
+        "errorlens.enabled": true,
         "php.validate.executablePath": "/usr/local/bin/php",
         "intelephense.environment.phpVersion": "8.4",
         "sqltools.useNodeRuntime": true,

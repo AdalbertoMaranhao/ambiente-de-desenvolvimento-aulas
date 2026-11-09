@@ -16,6 +16,10 @@
       "*": false
     },
     "chat.commandCenter.enabled": false,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": "active",
+    "editor.wordWrap": "on",
+    "errorlens.enabled": true,
     "python.defaultInterpreterPath": "/opt/homebrew/opt/python@3.13/bin/python3.13",
     "python.terminal.activateEnvironment": true,
     "sqltools.useNodeRuntime": true,

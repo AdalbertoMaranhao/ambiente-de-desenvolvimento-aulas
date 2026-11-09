@@ -25,6 +25,28 @@ LOCK = BASE / "componentes.lock.json"
 DIST = BASE / "dist"
 DEFERRED_LINKS = []
 
+PEDAGOGICAL_EXTENSIONS = [
+    "usernamehw.errorlens",
+    "oderwat.indent-rainbow",
+    "aaron-bond.better-comments",
+    "christian-kohler.path-intellisense",
+    "formulahendry.auto-rename-tag",
+    "MS-CEINTL.vscode-language-pack-pt-BR"
+]
+
+ALL_KNOWN_EXTENSIONS = [
+    "redhat.java",
+    "vscjava.vscode-java-debug",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.debugpy",
+    "ms-python.vscode-python-envs",
+    "bmewburn.vscode-intelephense-client",
+    "mtxr.sqltools",
+    "mtxr.sqltools-driver-sqlite",
+    *PEDAGOGICAL_EXTENSIONS
+]
+
 PROFILES = {
     "web": {
         "title": "Desenvolvimento Web (PHP 8.5 & SQLite)",
@@ -35,7 +57,12 @@ PROFILES = {
         "has_python": True,
         "has_python_dev": False,
         "has_java": False,
-        "extensions": ["bmewburn.vscode-intelephense-client", "mtxr.sqltools", "mtxr.sqltools-driver-sqlite"]
+        "extensions": [
+            "bmewburn.vscode-intelephense-client",
+            "mtxr.sqltools",
+            "mtxr.sqltools-driver-sqlite",
+            *PEDAGOGICAL_EXTENSIONS
+        ]
     },
     "poo-python": {
         "title": "POO com Python (CPython 3.13 & SQLite)",
@@ -47,8 +74,13 @@ PROFILES = {
         "has_python_dev": True,
         "has_java": False,
         "extensions": [
-            "ms-python.python", "ms-python.vscode-pylance", "ms-python.debugpy",
-            "ms-python.vscode-python-envs", "mtxr.sqltools", "mtxr.sqltools-driver-sqlite"
+            "ms-python.python",
+            "ms-python.vscode-pylance",
+            "ms-python.debugpy",
+            "ms-python.vscode-python-envs",
+            "mtxr.sqltools",
+            "mtxr.sqltools-driver-sqlite",
+            *PEDAGOGICAL_EXTENSIONS
         ]
     },
     "poo-java": {
@@ -60,7 +92,13 @@ PROFILES = {
         "has_python": True,
         "has_python_dev": False,
         "has_java": True,
-        "extensions": ["redhat.java", "vscjava.vscode-java-debug", "mtxr.sqltools", "mtxr.sqltools-driver-sqlite"]
+        "extensions": [
+            "redhat.java",
+            "vscjava.vscode-java-debug",
+            "mtxr.sqltools",
+            "mtxr.sqltools-driver-sqlite",
+            *PEDAGOGICAL_EXTENSIONS
+        ]
     }
 }
 
@@ -255,11 +293,7 @@ def resolve():
     url = "https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/" + version + "/sqlite-jdbc-" + version + ".jar"
     add("jdbc", version, url, "dependencias/java/sqlite-jdbc.jar", "file")
 
-    extensions = [
-        "redhat.java", "vscjava.vscode-java-debug", "ms-python.python", "ms-python.vscode-pylance",
-        "ms-python.debugpy", "ms-python.vscode-python-envs", "bmewburn.vscode-intelephense-client",
-        "mtxr.sqltools", "mtxr.sqltools-driver-sqlite"
-    ]
+    extensions = ALL_KNOWN_EXTENSIONS
     for ext in extensions:
         data = metadata("ext-" + ext, "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery",
                         {"filters": [{"criteria": [{"filterType": 7, "value": ext}]}], "flags": 147})
@@ -267,7 +301,7 @@ def resolve():
         for platform in ["windows-x64", "linux-x64"]:
             target = "win32-x64" if platform.startswith("windows") else "linux-x64"
             choices = [v for v in versions if not any(p["key"] == "Microsoft.VisualStudio.Code.PreRelease" and p["value"] == "true" for p in v.get("properties", []))]
-            v = next((v for v in choices if v.get("targetPlatform") == (None if ext in ("redhat.java", "bmewburn.vscode-intelephense-client", "mtxr.sqltools", "mtxr.sqltools-driver-sqlite") else target)), None)
+            v = next((v for v in choices if v.get("targetPlatform") == (None if ext not in ("redhat.java", "vscjava.vscode-java-debug", "ms-python.python", "ms-python.vscode-pylance", "ms-python.debugpy", "ms-python.vscode-python-envs") else target)), None)
             if v is None:
                 v = next(v for v in choices if not v.get("targetPlatform"))
             url = next(f["source"] for f in v["files"] if f["assetType"] == "Microsoft.VisualStudio.Services.VSIXPackage")
@@ -445,11 +479,7 @@ def filter_items_for_profile(items, perfil, osname):
             continue
 
         # Filtragem de extensoes
-        is_extension = any(name.startswith(ext + "-") for ext in [
-            "redhat.java", "vscjava.vscode-java-debug", "ms-python.python",
-            "ms-python.vscode-pylance", "ms-python.debugpy", "ms-python.vscode-python-envs",
-            "bmewburn.vscode-intelephense-client", "mtxr.sqltools", "mtxr.sqltools-driver-sqlite"
-        ])
+        is_extension = any(name.startswith(ext + "-") for ext in ALL_KNOWN_EXTENSIONS)
         if is_extension:
             if not any(name.startswith(ext + "-") and name.endswith(osname) for ext in cfg["extensions"]):
                 continue
@@ -629,6 +659,11 @@ StartupNotify=false
         "editor.inlineSuggest.enabled": False,
         "github.copilot.enable": {"*": False},
         "chat.commandCenter.enabled": False,
+        "editor.bracketPairColorization.enabled": True,
+        "editor.guides.bracketPairs": "active",
+        "editor.wordWrap": "on",
+        "errorlens.enabled": True,
+        "locale": "pt-br",
         "sqltools.useNodeRuntime": False,
         "sqltools.connections": [
             {
@@ -653,11 +688,16 @@ StartupNotify=false
     settings_json_str = json.dumps(settings, indent=2, ensure_ascii=False) + "\n"
     (shared_user_dir / "settings.json").write_text(settings_json_str, encoding="utf-8")
 
+    argv_str = json.dumps({"locale": "pt-br"}, indent=2) + "\n"
+    (kit_dir / "configuracoes" / "vscode" / "argv.json").write_text(argv_str, encoding="utf-8")
+
     # Copiar também para o fallback individual de cada VS Code
     for os_key, osname in OS_TARGETS.items():
         vscode_user = kit_dir / "tools" / osname / "vscode" / "data/user-data/User"
         vscode_user.mkdir(parents=True, exist_ok=True)
         (vscode_user / "settings.json").write_text(settings_json_str, encoding="utf-8")
+        vscode_userdata = kit_dir / "tools" / osname / "vscode" / "data/user-data"
+        (vscode_userdata / "argv.json").write_text(argv_str, encoding="utf-8")
 
     # Copiar lock reduzido para auditoria
     (kit_dir / "componentes.lock.json").write_text(json.dumps({"components": selected_items}, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -848,6 +888,11 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         "editor.inlineSuggest.enabled": False,
         "github.copilot.enable": {"*": False},
         "chat.commandCenter.enabled": False,
+        "editor.bracketPairColorization.enabled": True,
+        "editor.guides.bracketPairs": "active",
+        "editor.wordWrap": "on",
+        "errorlens.enabled": True,
+        "locale": "pt-br",
         "sqltools.useNodeRuntime": False,
         "sqltools.connections": [
             {
@@ -870,6 +915,8 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         settings["python.experiments.enabled"] = False
 
     settings_file.write_text(json.dumps(settings, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    argv_str = json.dumps({"locale": "pt-br"}, indent=2) + "\n"
+    (tools / "vscode" / "data/user-data/argv.json").write_text(argv_str, encoding="utf-8")
 
     # Copiar lock reduzido para auditoria
     (kit_dir / "componentes.lock.json").write_text(json.dumps({"components": selected_items}, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

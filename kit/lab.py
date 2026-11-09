@@ -101,7 +101,8 @@ class Lab:
         cmd = [
             str(self.vscode),
             "--user-data-dir", str(user_dir),
-            "--extensions-dir", str(ext_dir)
+            "--extensions-dir", str(ext_dir),
+            "--locale", "pt-BR"
         ]
         if workspace.exists():
             cmd.append(str(workspace))
