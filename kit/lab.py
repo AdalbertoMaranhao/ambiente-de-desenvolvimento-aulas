@@ -83,6 +83,14 @@ class Lab:
 
         STATE.mkdir(parents=True, exist_ok=True)
         VSCODE_USER.mkdir(parents=True, exist_ok=True)
+        if sys.platform == "win32":
+            try:
+                import ctypes
+                for p in [ROOT / "configuracoes", TOOLS]:
+                    if p.exists():
+                        ctypes.windll.kernel32.SetFileAttributesW(str(p), 2)
+            except Exception:
+                pass
 
         self.python = TOOLS / ("python/python.exe" if WINDOWS else "python/bin/python3")
         self.php = TOOLS / ("php/php.exe" if WINDOWS else "bin/php")
@@ -168,7 +176,6 @@ class Lab:
                 pass
             return False
 
-        workspace = ROOT / "aulas.code-workspace"
         ext_dir = TOOLS / "extensions"
         if not ext_dir.exists() and (TOOLS / "vscode/data/extensions").exists():
             ext_dir = TOOLS / "vscode/data/extensions"
@@ -182,10 +189,16 @@ class Lab:
         if not WINDOWS:
             cmd.append("--no-sandbox")
 
-        if workspace.exists():
-            cmd.append(str(workspace))
-        else:
-            cmd.append(str(ROOT / "projetos"))
+        target_dir = None
+        for sub in ["web", "python", "java"]:
+            candidate = ROOT / "projetos" / sub
+            if candidate.is_dir():
+                target_dir = candidate
+                break
+        if not target_dir or not target_dir.exists():
+            target_dir = ROOT / "projetos"
+
+        cmd.append(str(target_dir))
         try:
             subprocess.Popen(cmd, env=self.env)
             print("🚀 Editor VS Code iniciado!")

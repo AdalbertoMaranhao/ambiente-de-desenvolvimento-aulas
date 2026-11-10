@@ -1,8 +1,0 @@
-{
-  "folders": [
-    {"name": "PHP", "path": "projetos/php"},
-    {"name": "Java", "path": "projetos/java"},
-    {"name": "Python", "path": "projetos/python"},
-    {"name": "Composer", "path": "projetos/php-composer"}
-  ]
-}

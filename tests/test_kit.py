@@ -393,6 +393,30 @@ class VSCodeHostDetectionTests(unittest.TestCase):
             found = runtime.find_vscode()
             self.assertIsNone(found)
 
+    def test_editor_vscode_launches_with_target_dir(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "projetos/web").mkdir(parents=True)
+            (root / "configuracoes/linux-x64").mkdir(parents=True)
+            fake_code = root / "tools/code"
+            fake_code.parent.mkdir(parents=True, exist_ok=True)
+            fake_code.touch(mode=0o755)
+            with patch.object(runtime, "ROOT", root), \
+                 patch.object(runtime, "STATE", root / "configuracoes/linux-x64"), \
+                 patch.object(runtime, "VSCODE_USER", root / "configuracoes/vscode"), \
+                 patch.object(runtime, "find_vscode", return_value=fake_code), \
+                 patch.object(runtime, "WINDOWS", False), \
+                 patch.object(runtime.sys, "platform", "linux"), \
+                 patch.object(runtime.platform, "machine", return_value="x86_64"), \
+                 patch("subprocess.Popen") as mock_popen:
+                lab = runtime.Lab()
+                res = lab.editor()
+                self.assertTrue(res)
+                mock_popen.assert_called_once()
+                args, kwargs = mock_popen.call_args
+                cmd = args[0]
+                self.assertEqual(cmd[-1], str(root / "projetos/web"))
+
     def test_editor_missing_vscode_prints_alert_and_returns_false(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
