@@ -29,6 +29,8 @@ Cada kit é especializado por disciplina e contém os binários de **ambos os si
 
 ## 2. Como Usar o Kit (Aluno)
 
+Consulte o [Guia Completo do Aluno](GUIA-DO-ALUNO.md) para imprimir ou compartilhar no portal de aulas.
+
 1. Extraia o arquivo `.zip` da sua disciplina diretamente no pendrive ou em uma pasta local do computador.
 2. Dê duplo clique no lançador correspondente ao sistema da máquina:
    * **No Windows:** Abra `Iniciar <Disciplina>.cmd` (ex: `Iniciar Web.cmd`).
