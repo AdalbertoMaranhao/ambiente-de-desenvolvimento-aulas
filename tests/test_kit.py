@@ -498,6 +498,7 @@ class IntelliJHostDetectionTests(unittest.TestCase):
                  patch.object(runtime, "TOOLS", root / "tools/windows-x64"), \
                  patch.object(runtime, "WINDOWS", True), \
                  patch.object(runtime.sys, "platform", "win32"), \
+                 patch.object(runtime.platform, "machine", return_value="x86_64"), \
                  patch.object(runtime, "find_intellij", return_value=None), \
                  patch("builtins.input", return_value="n"):
                 lab = runtime.Lab()
@@ -516,6 +517,7 @@ class IntelliJHostDetectionTests(unittest.TestCase):
                  patch.object(runtime, "TOOLS", root / "tools/windows-x64"), \
                  patch.object(runtime, "WINDOWS", True), \
                  patch.object(runtime.sys, "platform", "win32"), \
+                 patch.object(runtime.platform, "machine", return_value="x86_64"), \
                  patch.object(runtime, "find_intellij", return_value=fake_idea), \
                  patch.object(runtime, "configure_intellij_jdk", return_value=True), \
                  patch("subprocess.Popen") as mock_popen:
@@ -540,6 +542,7 @@ class IntelliJHostDetectionTests(unittest.TestCase):
                  patch.object(runtime, "TOOLS", root / "tools/linux-x64"), \
                  patch.object(runtime, "WINDOWS", False), \
                  patch.object(runtime.sys, "platform", "linux"), \
+                 patch.object(runtime.platform, "machine", return_value="x86_64"), \
                  patch.object(runtime, "find_vscode", return_value=fake_code), \
                  patch("subprocess.Popen") as mock_popen:
                 lab = runtime.Lab()
