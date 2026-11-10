@@ -45,7 +45,7 @@ Consulte o [Guia Completo do Aluno](GUIA-DO-ALUNO.md) para imprimir ou compartil
 ### Testando Códigos de Exemplo
 * **Web (PHP):** Pressione `Ctrl+Shift+B` (ou `Terminal -> Run Task`) e escolha **"🌐 Iniciar Servidor Web PHP"**. Acesse `http://127.0.0.1:8080/ola-mundo.php`.
 * **Python:** Abra `ola-mundo.py` e pressione `F5`.
-* **Java:** Abra `OlaMundo.java` e clique no botão `Run` acima de `main`.
+* **Java:** Abra `src/OlaMundo.java` e clique no botão `Run` acima de `main` (ou ▶ no IntelliJ).
 
 ---
 

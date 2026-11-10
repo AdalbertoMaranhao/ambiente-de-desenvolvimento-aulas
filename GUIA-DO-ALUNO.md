@@ -63,7 +63,7 @@ Cada kit vem com um arquivo de teste pronto:
 2. Pressione a tecla `F5` ou clique no botão de Play no canto superior direito.
 
 ### ☕ Java (POO & SQLite)
-1. Abra o arquivo `OlaMundo.java`.
+1. Abra o arquivo `src/OlaMundo.java` (ou clique no botão ▶ no canto superior direito do IntelliJ).
 2. Clique no botão **`Run`** que aparece logo acima do método `public static void main`.
 
 ---

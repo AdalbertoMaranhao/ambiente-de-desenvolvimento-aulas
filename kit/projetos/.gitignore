@@ -3,5 +3,11 @@ vendor/
 __pycache__/
 *.pyc
 java/bin/
+java/out/
+out/
+bin/
 *.class
 .env
+.idea/workspace.xml
+.idea/shelf/
+

@@ -27,6 +27,10 @@
         "editor.guides.bracketPairs": "active",
         "editor.wordWrap": "on",
         "errorlens.enabled": true,
+        "java.project.sourcePaths": [
+          "src"
+        ],
+        "java.project.outputPath": "bin",
         "java.project.referencedLibraries": [
           "/opt/jdbc/*.jar",
           "dependencias/java/*.jar"
