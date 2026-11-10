@@ -258,7 +258,7 @@ def resolve():
             fields = dict(line.split(": ", 1) for line in paragraph.splitlines() if ": " in line and not line.startswith(" "))
             if "Package" in fields and "Filename" in fields:
                 packages[fields["Package"]] = fields
-    queue = ["base-files", "git", "libaio1", "liburing2", "libncurses6", "libtinfo6", "libssl3", "libsystemd0", "libcrypt1", "libstdc++6", "libgcc-s1"]
+    queue = ["base-files", "git", "libncurses6", "libtinfo6", "libssl3", "libsystemd0", "libcrypt1", "libstdc++6", "libgcc-s1"]
     skip = {"libc6", "perl", "perl-base", "git-man", "debconf", "debconf-2.0", "dpkg", "tar"}
     seen = set(skip)
     while queue:
@@ -607,6 +607,7 @@ StartupNotify=false
                         shutil.copy2(source, tools / "php" / source.name)
 
             commands = {
+                "python": '"%~dp0..\\python\\python.exe" %*',
                 "python3": '"%~dp0..\\python\\python.exe" %*',
                 "lab": '"%~dp0..\\python\\python.exe" "%~dp0..\\..\\..\\lab.py" %*'
             }
@@ -659,6 +660,7 @@ StartupNotify=false
         "editor.inlineSuggest.enabled": False,
         "github.copilot.enable": {"*": False},
         "chat.commandCenter.enabled": False,
+        "chat.disableAIFeatures": True,
         "editor.bracketPairColorization.enabled": True,
         "editor.guides.bracketPairs": "active",
         "editor.wordWrap": "on",
@@ -835,6 +837,7 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
                     shutil.copy2(source, tools / "php" / source.name)
 
         commands = {
+            "python": '"%~dp0..\\python\\python.exe" %*',
             "python3": '"%~dp0..\\python\\python.exe" %*',
             "lab": '"%~dp0..\\python\\python.exe" "%~dp0..\\..\\..\\lab.py" %*'
         }
@@ -888,6 +891,7 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         "editor.inlineSuggest.enabled": False,
         "github.copilot.enable": {"*": False},
         "chat.commandCenter.enabled": False,
+        "chat.disableAIFeatures": True,
         "editor.bracketPairColorization.enabled": True,
         "editor.guides.bracketPairs": "active",
         "editor.wordWrap": "on",

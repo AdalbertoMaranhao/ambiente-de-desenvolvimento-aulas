@@ -25,6 +25,7 @@
           "*": false
         },
         "chat.commandCenter.enabled": false,
+        "chat.disableAIFeatures": true,
         "editor.bracketPairColorization.enabled": true,
         "editor.guides.bracketPairs": "active",
         "editor.wordWrap": "on",
