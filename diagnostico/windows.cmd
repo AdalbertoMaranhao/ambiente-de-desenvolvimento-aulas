@@ -7,7 +7,7 @@ echo Arquitetura do processo: %PROCESSOR_ARCHITECTURE%
 if defined PROCESSOR_ARCHITEW6432 echo Arquitetura nativa: %PROCESSOR_ARCHITEW6432%
 echo.
 echo Comandos encontrados no PATH - nao verifica se funcionam:
-for %%T in (php.exe java.exe javac.exe python.exe git.exe mariadbd.exe mariadb.exe Code.exe tar.exe) do (
+for %%T in (php.exe java.exe javac.exe python.exe git.exe sqlite3.exe Code.exe tar.exe) do (
     where /q %%T >nul 2>&1
     if errorlevel 1 (echo %%T: ausente) else (echo %%T: presente)
 )

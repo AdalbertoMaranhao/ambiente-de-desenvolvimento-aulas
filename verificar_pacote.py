@@ -82,13 +82,9 @@ def inspect_kit(kit_path):
     linux = kit_path / "tools/linux-x64"
     if linux.exists():
         locations = [linux / "sysroot/usr/lib/x86_64-linux-gnu", linux / "sysroot/lib/x86_64-linux-gnu"]
-        if (linux / "mariadb/lib").exists():
-            locations.append(linux / "mariadb/lib")
         available = {p.name: p for folder in locations for p in folder.glob("*.so*") if p.is_file()}
         host = {"libc.so.6", "libm.so.6", "libpthread.so.0", "libdl.so.2", "librt.so.1", "libresolv.so.2", "libutil.so.1", "ld-linux-x86-64.so.2"}
         queue = [linux / "sysroot/usr/bin/git"]
-        if (linux / "mariadb/bin").exists():
-            queue.extend([linux / "mariadb/bin" / name for name in ["mariadbd", "mariadb", "mariadb-admin", "mariadb-dump"]])
         seen = set()
         while queue:
             file = queue.pop()
@@ -108,8 +104,6 @@ def inspect_kit(kit_path):
     win = kit_path / "tools/windows-x64"
     if win.exists():
         check_groups = []
-        if (win / "mariadb/bin").exists():
-            check_groups.append((win / "mariadb/bin", ["mariadbd.exe", "mariadb.exe", "mariadb-install-db.exe"]))
         if (win / "php").exists():
             check_groups.append((win / "php", ["php.exe", "php8.dll"]))
         if (win / "python").exists():

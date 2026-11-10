@@ -13,7 +13,8 @@ Como testar no navegador:
       
   Depois acesse no seu navegador: http://127.0.0.1:8080/ola-mundo.php
 
-Banco de Dados MariaDB:
-  Host: 127.0.0.1 (Porta: 3307)
-  Banco: aulas
-  Usuário: aluno | Senha: aluno
+Banco de Dados SQLite:
+  Arquivo: banco.db (localizado nesta mesma pasta)
+  Conexão no VS Code: Já conectada automaticamente na barra lateral (ícone SQLTools)!
+  Conexão em PHP:
+    $pdo = new PDO("sqlite:" . __DIR__ . "/banco.db");

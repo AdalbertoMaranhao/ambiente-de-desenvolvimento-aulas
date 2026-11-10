@@ -31,7 +31,7 @@
           "/opt/jdbc/*.jar",
           "dependencias/java/*.jar"
         ],
-        "sqltools.useNodeRuntime": true,
+        "sqltools.useNodeRuntime": false,
         "sqltools.connections": [
           {
             "name": "Banco de Aulas (SQLite)",

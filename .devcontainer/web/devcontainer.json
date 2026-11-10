@@ -28,7 +28,7 @@
         "errorlens.enabled": true,
         "php.validate.executablePath": "/usr/local/bin/php",
         "intelephense.environment.phpVersion": "8.4",
-        "sqltools.useNodeRuntime": true,
+        "sqltools.useNodeRuntime": false,
         "sqltools.connections": [
           {
             "name": "Banco de Aulas (SQLite)",

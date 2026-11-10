@@ -1,6 +1,6 @@
 # Ambiente do Professor para macOS (kit-mac)
 
-Esta pasta mantém a configuração do professor para computadores Apple Silicon (M1/M2/M3/M4), espelhando com **100% de paridade** as ferramentas, portas e configurações dos kits de alunos.
+Esta pasta mantém a configuração do professor para computadores Apple Silicon (M1/M2/M3/M4), espelhando com **100% de paridade** as ferramentas, configurações e banco de dados SQLite dos kits dos alunos.
 
 ---
 
@@ -14,27 +14,24 @@ Esta pasta mantém a configuração do professor para computadores Apple Silicon
 ```
 
 O script:
-* Instala/atualiza as ferramentas via `Brewfile` (Python 3.13, PHP 8.5, OpenJDK 25, MariaDB 11.4, VS Code).
-* Instala as extensões essenciais do VS Code (incluindo Intelephense e SQLTools).
-* Instala a biblioteca `PyMySQL`.
-* Garante a presença do driver JDBC `mariadb-java-client.jar`.
+* Instala/atualiza as ferramentas via `Brewfile` (Python 3.13, PHP 8.5, OpenJDK 25, VS Code).
+* Instala as extensões essenciais e pedagógicas do VS Code (Intelephense, Python/Pylance, Red Hat Java, SQLTools, Error Lens, Indent Rainbow, Better Comments, Path Intellisense, Auto Rename Tag e Português pt-BR).
+* Garante a presença do driver JDBC `sqlite-jdbc.jar` em `dependencias/java/`.
 
 ---
 
 ## 2. Como Usar
 
 ### Painel Unificado (Menu Interativo)
-Você pode usar a mesma interface dos alunos executando:
+Você pode usar a interface do laboratório executando:
 ```sh
 ./lab.sh
 ```
 Opções disponíveis:
 * **Opção 1:** Abre o VS Code (permite escolher entre Web, POO Python ou POO Java).
-* **Opção 2:** Inicia o MariaDB (porta 3307) e abre o VS Code.
-* **Opção 3:** Abre terminal com `JAVA_HOME`, `PATH` e variáveis do banco prontas.
-* **Opção 4:** Diagnóstico completo das ferramentas instaladas.
-* **Opção 5:** Backup SQL do banco `aulas`.
-* **Opção 6 / 0:** Parada segura do MariaDB.
+* **Opção 2:** Faz backup compactado (`.zip`) de todos os projetos em `backups/`.
+* **Opção 3:** Diagnóstico completo das ferramentas e bancos SQLite (Doctor).
+* **Opção 0:** Sair.
 
 ---
 
@@ -42,20 +39,20 @@ Opções disponíveis:
 
 Abra o workspace específico da aula que estiver lecionando:
 ```sh
-# Aulas de Web (PHP 8.5 & MariaDB)
+# Aulas de Desenvolvimento Web (PHP 8.5 & SQLite)
 code web.code-workspace
 
-# Aulas de POO com Python
+# Aulas de POO com Python (CPython 3.13 & SQLite)
 code poo-python.code-workspace
 
-# Aulas de POO com Java
+# Aulas de POO com Java (Adoptium JDK 25 & SQLite)
 code poo-java.code-workspace
 ```
 
-Todos os workspaces já incluem a conexão com o banco pré-configurada no **SQLTools**:
-* **Host:** `127.0.0.1` | **Porta:** `3307` | **Banco:** `aulas`
-* **Usuário Aluno:** `aluno` | **Senha:** `aluno`
-* **Usuário Admin:** `root` | **Senha:** `root`
+Todos os workspaces já incluem a conexão com o banco de dados pré-configurada no **SQLTools**:
+* **Banco:** `Banco de Aulas (SQLite)`
+* **Arquivo:** `${workspaceFolder}/banco.db` (localizado diretamente na pasta de projetos da disciplina)
+* **Zero Serviços:** Sem necessidade de iniciar serviços em segundo plano ou configurar portas de rede.
 
 ---
 
@@ -69,9 +66,8 @@ Todos os workspaces já incluem a conexão com o banco pré-configurada no **SQL
 
 ---
 
-## 5. Scripts Shell Diretos (Atalhos)
-Se preferir não usar o menu `./lab.sh`:
-* `./iniciar-mariadb.sh`: sobe o MariaDB na porta `3307` e garante o banco `aulas` e usuário `aluno`.
-* `./parar-mariadb.sh`: faz backup automático e encerra o MariaDB.
-* `./backup-mariadb.sh [nome_do_banco]`: gera backup SQL na pasta `backups/`.
-* `source ./ambiente.sh`: injeta o Java 25, Python 3.13 e variáveis de banco na sessão atual do seu terminal.
+## 5. Sessão do Terminal do macOS
+Para injetar o Java 25, Python 3.13 e as variáveis de ambiente na sessão atual do seu terminal:
+```sh
+source ./ambiente.sh
+```

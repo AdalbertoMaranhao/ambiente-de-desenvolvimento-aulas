@@ -19,7 +19,7 @@ fi
 printf '\n%s\n' 'Espaco no local atual:'
 df -Pk .
 printf '\n%s\n' 'Comandos encontrados no PATH (nao verifica se funcionam):'
-for task_command in php java javac python3 git mariadbd mariadb code tar; do
+for task_command in php java javac python3 git sqlite3 code tar; do
     if command -v "$task_command" >/dev/null 2>&1; then
         printf '%s: presente\n' "$task_command"
     else

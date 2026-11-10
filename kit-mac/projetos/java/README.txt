@@ -9,8 +9,11 @@ Como executar:
     javac OlaMundo.java
     java OlaMundo
 
-Banco de Dados MariaDB:
-  Host: 127.0.0.1 (Porta: 3307)
-  Banco: aulas
-  Usuário: aluno | Senha: aluno
-  Driver JDBC: já configurado automaticamente no projeto! (import java.sql.*)
+Banco de Dados SQLite:
+  Arquivo: banco.db (localizado nesta mesma pasta)
+  Conexão no VS Code: Já conectada automaticamente na barra lateral (ícone SQLTools)!
+  Driver JDBC: dependencias/java/sqlite-jdbc.jar (já configurado no projeto)
+  Conexão em Java:
+    import java.sql.Connection;
+    import java.sql.DriverManager;
+    Connection conn = DriverManager.getConnection("jdbc:sqlite:banco.db");
