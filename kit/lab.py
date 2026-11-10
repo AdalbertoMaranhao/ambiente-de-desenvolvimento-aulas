@@ -21,6 +21,55 @@ STATE = ROOT / "configuracoes" / TARGET
 VSCODE_USER = ROOT / "configuracoes" / "vscode"
 
 
+def find_vscode():
+    """Localiza o executável do Visual Studio Code instalado na máquina hospedeira."""
+    # 1. PATH do sistema
+    for name in ("code.cmd", "code.exe", "code"):
+        found = shutil.which(name)
+        if found:
+            return Path(found)
+
+    # 2. Diretórios conhecidos no Windows
+    if WINDOWS:
+        candidates = []
+        local_app = os.environ.get("LOCALAPPDATA")
+        if local_app:
+            candidates.append(Path(local_app) / "Programs" / "Microsoft VS Code" / "Code.exe")
+            candidates.append(Path(local_app) / "Programs" / "Microsoft VS Code" / "bin" / "code.cmd")
+        prog_files = os.environ.get("ProgramFiles")
+        if prog_files:
+            candidates.append(Path(prog_files) / "Microsoft VS Code" / "Code.exe")
+            candidates.append(Path(prog_files) / "Microsoft VS Code" / "bin" / "code.cmd")
+        prog_files_x86 = os.environ.get("ProgramFiles(x86)")
+        if prog_files_x86:
+            candidates.append(Path(prog_files_x86) / "Microsoft VS Code" / "Code.exe")
+            candidates.append(Path(prog_files_x86) / "Microsoft VS Code" / "bin" / "code.cmd")
+
+        for c in candidates:
+            if c.exists():
+                return c
+
+    # 3. Diretórios conhecidos no Linux
+    elif sys.platform.startswith("linux"):
+        for path_str in [
+            "/usr/bin/code",
+            "/usr/share/code/bin/code",
+            "/snap/bin/code",
+            "/var/lib/flatpak/exports/bin/com.visualstudio.code"
+        ]:
+            c = Path(path_str)
+            if c.exists():
+                return c
+
+    # 4. macOS (desenvolvimento / teste)
+    elif sys.platform == "darwin":
+        mac_app = Path("/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code")
+        if mac_app.exists():
+            return mac_app
+
+    return None
+
+
 def run(args, **kwargs):
     return subprocess.run([str(a) for a in args], check=True, **kwargs)
 
@@ -37,7 +86,7 @@ class Lab:
 
         self.python = TOOLS / ("python/python.exe" if WINDOWS else "python/bin/python3")
         self.php = TOOLS / ("php/php.exe" if WINDOWS else "bin/php")
-        self.vscode = TOOLS / ("vscode/Code.exe" if WINDOWS else "vscode/bin/code")
+        self.vscode = find_vscode()
 
         self.env = os.environ.copy()
         for key in ["PYTHONHOME", "VIRTUAL_ENV", "COMPOSER", "COMPOSER_AUTH", "PIP_PREFIX", "PIP_ROOT",
@@ -46,7 +95,7 @@ class Lab:
 
         paths = [
             TOOLS / "bin", TOOLS / "python", TOOLS / "python/bin", TOOLS / "php",
-            TOOLS / "jdk/bin", TOOLS / "git/cmd", TOOLS / "vscode/bin"
+            TOOLS / "jdk/bin", TOOLS / "git/cmd"
         ]
         self.env["PATH"] = os.pathsep.join(str(p) for p in paths if p.exists()) + os.pathsep + self.env.get("PATH", "")
         if (TOOLS / "jdk").exists():
@@ -95,11 +144,32 @@ class Lab:
         (STATE / "composer-home/config.json").write_text(json.dumps(config), encoding="utf-8")
 
     def editor(self, **kwargs):
+        code_bin = self.vscode or find_vscode()
+        if not code_bin:
+            print("\n" + "=" * 60)
+            print("❌ Visual Studio Code não encontrado neste computador!")
+            print("=" * 60)
+            print("Para utilizar o ambiente das aulas, o Visual Studio Code precisa")
+            print("estar instalado na máquina.")
+            print("\nVocê pode baixá-lo gratuitamente em:")
+            print("👉 https://code.visualstudio.com/")
+            print("=" * 60 + "\n")
+            try:
+                import webbrowser
+                resp = input("Deseja abrir a página de download do VS Code agora? [S/n]: ").strip().lower()
+                if resp in ("", "s", "sim", "y", "yes"):
+                    webbrowser.open("https://code.visualstudio.com/")
+            except Exception:
+                pass
+            return False
+
         workspace = ROOT / "aulas.code-workspace"
-        ext_dir = TOOLS / "vscode/data/extensions"
+        ext_dir = TOOLS / "extensions"
+        if not ext_dir.exists() and (TOOLS / "vscode/data/extensions").exists():
+            ext_dir = TOOLS / "vscode/data/extensions"
         user_dir = ROOT / "configuracoes/vscode"
         cmd = [
-            str(self.vscode),
+            str(code_bin),
             "--user-data-dir", str(user_dir),
             "--extensions-dir", str(ext_dir),
             "--locale", "pt-BR"
@@ -110,6 +180,7 @@ class Lab:
             cmd.append(str(ROOT / "projetos"))
         subprocess.Popen(cmd, env=self.env)
         print("🚀 Editor VS Code iniciado!")
+        return True
 
     def terminal(self):
         shell = os.environ.get("COMSPEC", "cmd.exe") if WINDOWS else os.environ.get("SHELL", "bash")
@@ -195,6 +266,13 @@ class Lab:
             except Exception as e:
                 failures.append(str(p))
                 print(f"  ❌ Banco {p} — {e}")
+
+        # VS Code na máquina
+        code_bin = self.vscode or find_vscode()
+        if code_bin:
+            print(f"  ✅ VS Code da máquina ({code_bin})")
+        else:
+            print("  ⚠️  VS Code não encontrado na máquina (instale em https://code.visualstudio.com/)")
 
         if failures:
             raise RuntimeError("Componentes com falha: " + ", ".join(failures))

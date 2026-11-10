@@ -353,5 +353,63 @@ class VerifierTests(unittest.TestCase):
             self.assertTrue(verifier.inspect_kit(kit_dir))
 
 
+class VSCodeHostDetectionTests(unittest.TestCase):
+    def test_find_vscode_via_path(self):
+        with patch("shutil.which", return_value="/custom/bin/code"):
+            found = runtime.find_vscode()
+            self.assertEqual(found, Path("/custom/bin/code"))
+
+    def test_find_vscode_windows_candidates(self):
+        with patch("shutil.which", return_value=None), \
+             patch.object(runtime, "WINDOWS", True), \
+             patch.object(runtime.sys, "platform", "win32"), \
+             patch.dict(runtime.os.environ, {"LOCALAPPDATA": r"C:\Users\Aluno\AppData\Local"}), \
+             patch.object(Path, "exists", autospec=True) as mock_exists:
+
+            def fake_exists(path_self):
+                return str(path_self).endswith("Code.exe")
+
+            mock_exists.side_effect = fake_exists
+            found = runtime.find_vscode()
+            self.assertIsNotNone(found)
+            self.assertTrue(str(found).endswith("Code.exe"))
+
+    def test_find_vscode_linux_candidates(self):
+        with patch("shutil.which", return_value=None), \
+             patch.object(runtime, "WINDOWS", False), \
+             patch.object(runtime.sys, "platform", "linux"), \
+             patch.object(Path, "exists", autospec=True) as mock_exists:
+
+            def fake_exists(path_self):
+                return str(path_self) == "/usr/bin/code"
+
+            mock_exists.side_effect = fake_exists
+            found = runtime.find_vscode()
+            self.assertEqual(found, Path("/usr/bin/code"))
+
+    def test_find_vscode_not_found(self):
+        with patch("shutil.which", return_value=None), \
+             patch.object(Path, "exists", return_value=False):
+            found = runtime.find_vscode()
+            self.assertIsNone(found)
+
+    def test_editor_missing_vscode_prints_alert_and_returns_false(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "projetos").mkdir()
+            (root / "configuracoes/linux-x64").mkdir(parents=True)
+            with patch.object(runtime, "ROOT", root), \
+                 patch.object(runtime, "STATE", root / "configuracoes/linux-x64"), \
+                 patch.object(runtime, "VSCODE_USER", root / "configuracoes/vscode"), \
+                 patch.object(runtime, "find_vscode", return_value=None), \
+                 patch.object(runtime, "WINDOWS", False), \
+                 patch.object(runtime.sys, "platform", "linux"), \
+                 patch.object(runtime.platform, "machine", return_value="x86_64"), \
+                 patch("builtins.input", return_value="n"):
+                lab = runtime.Lab()
+                res = lab.editor()
+                self.assertFalse(res)
+
+
 if __name__ == "__main__":
     unittest.main()

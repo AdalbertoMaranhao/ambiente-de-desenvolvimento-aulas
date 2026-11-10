@@ -341,10 +341,6 @@ def resolve():
         pkg = jdk["binary"]["package"]
         add("jdk-" + platform, jdk["version"]["semver"], pkg["link"], "tools/" + platform + "/jdk",
             "zip-root" if osname == "windows" else "tar-root", pkg["checksum"])
-        code = metadata("vscodewin" if osname == "windows" else "vscode",
-                        "https://update.code.visualstudio.com/api/update/" + ("win32-x64-archive" if osname == "windows" else "linux-x64") + "/stable/latest")
-        add("vscode-" + platform, code["productVersion"], code["url"], "tools/" + platform + "/vscode",
-            "zip" if osname == "windows" else "tar", code["sha256hash"], "" if osname == "windows" else "VSCode-linux-x64/")
 
     php = metadata("phpwin", "https://windows.php.net/downloads/releases/releases.json")["8.5"]
     pkg = next(v["zip"] for k, v in php.items() if k.startswith("nts-") and k.endswith("-x64"))
@@ -415,7 +411,7 @@ def resolve():
                 v = next(v for v in choices if not v.get("targetPlatform"))
             url = next(f["source"] for f in v["files"] if f["assetType"] == "Microsoft.VisualStudio.Services.VSIXPackage")
             add(ext + "-" + platform, v["version"], url,
-                "tools/" + platform + "/vscode/data/extensions/" + ext + "-" + v["version"], "vsix", prefix="extension/")
+                "tools/" + platform + "/extensions/" + ext + "-" + v["version"], "vsix", prefix="extension/")
     LOCK.write_text(json.dumps({"components": items}, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return items
 
@@ -718,16 +714,13 @@ StartupNotify=false
         tools = kit_dir / "tools" / osname
         bindir = tools / "bin"
         bindir.mkdir(parents=True, exist_ok=True)
-        for folder in ["data/user-data/User", "data/tmp", "data/extensions"]:
-            (tools / "vscode" / folder).mkdir(parents=True, exist_ok=True)
+        (tools / "extensions").mkdir(parents=True, exist_ok=True)
 
         if os_key == "windows":
-            # Copiar DLLs VC runtime (vcruntime140) de Python ou VS Code para PHP se PHP existir
-            if (tools / "php").exists():
-                src_dir = tools / "python" if (tools / "python").exists() else tools / "vscode/tools"
-                if src_dir.exists():
-                    for source in src_dir.glob("*140*.dll"):
-                        shutil.copy2(source, tools / "php" / source.name)
+            # Copiar DLLs VC runtime (vcruntime140) de Python para PHP se PHP existir
+            if (tools / "php").exists() and (tools / "python").exists():
+                for source in (tools / "python").glob("*140*.dll"):
+                    shutil.copy2(source, tools / "php" / source.name)
 
             commands = {
                 "python": '"%~dp0..\\python\\python.exe" %*',
@@ -815,14 +808,6 @@ StartupNotify=false
 
     argv_str = json.dumps({"locale": "pt-br"}, indent=2) + "\n"
     (kit_dir / "configuracoes" / "vscode" / "argv.json").write_text(argv_str, encoding="utf-8")
-
-    # Copiar também para o fallback individual de cada VS Code
-    for os_key, osname in OS_TARGETS.items():
-        vscode_user = kit_dir / "tools" / osname / "vscode" / "data/user-data/User"
-        vscode_user.mkdir(parents=True, exist_ok=True)
-        (vscode_user / "settings.json").write_text(settings_json_str, encoding="utf-8")
-        vscode_userdata = kit_dir / "tools" / osname / "vscode" / "data/user-data"
-        (vscode_userdata / "argv.json").write_text(argv_str, encoding="utf-8")
 
     # Copiar lock reduzido para auditoria
     (kit_dir / "componentes.lock.json").write_text(json.dumps({"components": selected_items}, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -948,16 +933,13 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
     tools = kit_dir / "tools" / osname
     bindir = tools / "bin"
     bindir.mkdir(parents=True, exist_ok=True)
-    for folder in ["data/user-data/User", "data/tmp", "data/extensions"]:
-        (tools / "vscode" / folder).mkdir(parents=True, exist_ok=True)
+    (tools / "extensions").mkdir(parents=True, exist_ok=True)
 
     if os_key == "windows":
-        # Copiar DLLs VC runtime de Python ou VS Code para PHP se PHP existir
-        if (tools / "php").exists():
-            src_dir = tools / "python" if (tools / "python").exists() else tools / "vscode/tools"
-            if src_dir.exists():
-                for source in src_dir.glob("*140*.dll"):
-                    shutil.copy2(source, tools / "php" / source.name)
+        # Copiar DLLs VC runtime de Python para PHP se PHP existir
+        if (tools / "php").exists() and (tools / "python").exists():
+            for source in (tools / "python").glob("*140*.dll"):
+                shutil.copy2(source, tools / "php" / source.name)
 
         commands = {
             "python": '"%~dp0..\\python\\python.exe" %*',
@@ -1003,7 +985,9 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         (kit_dir / "linux-executaveis.json").write_text(json.dumps(executable))
 
     # Pre-configuracao do settings.json do VS Code
-    settings_file = tools / "vscode" / "data/user-data/User/settings.json"
+    shared_user_dir = kit_dir / "configuracoes" / "vscode" / "User"
+    shared_user_dir.mkdir(parents=True, exist_ok=True)
+    settings_file = shared_user_dir / "settings.json"
     settings = {
         "update.mode": "none",
         "extensions.autoUpdate": False,
@@ -1043,7 +1027,7 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
 
     settings_file.write_text(json.dumps(settings, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     argv_str = json.dumps({"locale": "pt-br"}, indent=2) + "\n"
-    (tools / "vscode" / "data/user-data/argv.json").write_text(argv_str, encoding="utf-8")
+    (kit_dir / "configuracoes" / "vscode" / "argv.json").write_text(argv_str, encoding="utf-8")
 
     # Copiar lock reduzido para auditoria
     (kit_dir / "componentes.lock.json").write_text(json.dumps({"components": selected_items}, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
