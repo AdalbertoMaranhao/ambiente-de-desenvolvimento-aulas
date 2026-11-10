@@ -1,3 +1,4 @@
+import hashlib
 import importlib.util
 import io
 import json
@@ -277,6 +278,49 @@ class DownloadResilienceTests(unittest.TestCase):
                 self.assertEqual(path, corrupt_file)
                 self.assertEqual(path.read_bytes(), b"conteudo integro")
                 mock_fetch.assert_called_once_with(item["url"], corrupt_file)
+
+
+class GravarPendriveTests(unittest.TestCase):
+    def test_calcular_sha256(self):
+        import gravar_pendrive
+        with tempfile.TemporaryDirectory() as folder:
+            f = Path(folder) / "teste.txt"
+            f.write_bytes(b"dados para hash")
+            expected = hashlib.sha256(b"dados para hash").hexdigest()
+            self.assertEqual(gravar_pendrive.calcular_sha256(f), expected)
+
+    def test_validar_integridade_pacote(self):
+        import gravar_pendrive
+        with tempfile.TemporaryDirectory() as folder:
+            zip_file = Path(folder) / "kit-teste.zip"
+            zip_file.write_bytes(b"conteudo zip")
+            sha_file = Path(folder) / "kit-teste.zip.sha256"
+            
+            # Caso 1: Hash correto
+            sha_file.write_text(hashlib.sha256(b"conteudo zip").hexdigest() + "  kit-teste.zip\n")
+            self.assertTrue(gravar_pendrive.validar_integridade_pacote(zip_file))
+
+            # Caso 2: Hash incorreto
+            sha_file.write_text("0000000000000000000000000000000000000000000000000000000000000000  kit-teste.zip\n")
+            self.assertFalse(gravar_pendrive.validar_integridade_pacote(zip_file))
+
+    def test_extrair_com_progresso_strip_prefix(self):
+        import gravar_pendrive
+        with tempfile.TemporaryDirectory() as folder:
+            zip_path = Path(folder) / "kit-teste.zip"
+            dest_dir = Path(folder) / "pendrive"
+
+            # Cria um zip simulando kit-web/com arquivos
+            with zipfile.ZipFile(zip_path, "w") as zf:
+                zf.writestr("kit-web/BEM-VINDO.html", "<h1>Bem vindo</h1>")
+                zf.writestr("kit-web/projetos/ola.txt", "Ola")
+
+            gravar_pendrive.extrair_com_progresso(zip_path, dest_dir)
+
+            self.assertTrue((dest_dir / "BEM-VINDO.html").exists())
+            self.assertTrue((dest_dir / "projetos" / "ola.txt").exists())
+            self.assertEqual((dest_dir / "BEM-VINDO.html").read_text(), "<h1>Bem vindo</h1>")
+            self.assertEqual((dest_dir / "projetos" / "ola.txt").read_text(), "Ola")
 
 
 if __name__ == "__main__":

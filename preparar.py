@@ -1117,13 +1117,16 @@ def interactive_menu():
 ║     [2] Compactar kits (gerar .zip ou .tar.gz)               ║
 ║     [3] Montar E Compactar tudo                              ║
 ║     [4] Baixar apenas (cache de componentes)                 ║
+║     [5] Gravar Kit diretamente em um Pendrive                ║
 ║     [0] Sair                                                 ║
 ╚══════════════════════════════════════════════════════════════╝""")
-    acao_choice = input("👉 Escolha a ação (1-4): ").strip()
+    acao_choice = input("👉 Escolha a ação (1-5): ").strip()
     if acao_choice == "0":
         sys.exit(0)
-    acao_map = {"1": "montar", "2": "zip", "3": "tudo", "4": "baixar"}
+    acao_map = {"1": "montar", "2": "zip", "3": "tudo", "4": "baixar", "5": "gravar"}
     acao = acao_map.get(acao_choice, "montar")
+    if acao == "gravar":
+        return "gravar", None, None
 
     print("""
 Perfis disponíveis:
@@ -1149,7 +1152,7 @@ Modalidade do Kit:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("acao", choices=["resolver", "baixar", "montar", "zip", "tudo", "menu"], nargs="?", default=None)
+    parser.add_argument("acao", choices=["resolver", "baixar", "montar", "zip", "tudo", "menu", "gravar"], nargs="?", default=None)
     parser.add_argument("--perfil", choices=["web", "poo-python", "poo-java", "todos"], default=None)
     parser.add_argument("--so", choices=["windows", "linux", "ambos"], default=None)
     args = parser.parse_args()
@@ -1157,6 +1160,10 @@ def main():
     acao = args.acao
     perfil = args.perfil
     so = args.so
+
+    if acao == "gravar":
+        import gravar_pendrive
+        sys.exit(gravar_pendrive.main())
 
     if acao is None or acao == "menu" or (acao in ("montar", "zip", "tudo") and perfil is None and so is None):
         if sys.stdin.isatty():

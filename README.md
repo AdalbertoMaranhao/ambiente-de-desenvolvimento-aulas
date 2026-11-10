@@ -69,7 +69,25 @@ Os pacotes gerados ficam na pasta `dist/`:
 
 ---
 
-## 4. Ambiente do Professor no macOS (`kit-mac`)
+## 4. Gravar o Kit Diretamente no Pendrive
+
+O utilitário [`gravar_pendrive.py`](file:///Users/adalberto/ambiente_de_desenvolvimento_portatil/gravar_pendrive.py) detecta automaticamente pendrives/mídias removíveis conectadas no macOS, Linux ou Windows, confere o hash SHA-256 de integridade e extrai o kit pronto para a aula:
+
+```sh
+# Modo interativo (detecta pendrives e exibe opções na tela)
+python3 gravar_pendrive.py
+
+# Ou via preparador
+python3 preparar.py gravar
+
+# Modo direto por argumentos
+python3 gravar_pendrive.py --kit web --destino /Volumes/MEUPENDRIVE
+# No Windows: python gravar_pendrive.py --kit web --destino E:\
+```
+
+---
+
+## 5. Ambiente do Professor no macOS (`kit-mac`)
 
 Para professores que utilizam macOS (Apple Silicon):
 1. Acesse a pasta `kit-mac/` e execute:
@@ -84,7 +102,7 @@ Para professores que utilizam macOS (Apple Silicon):
 
 ---
 
-## 5. Validação e Testes Automatizados
+## 6. Validação e Testes Automatizados
 
 Para auditar os binários PE (Windows) e ELF (Linux) e validar limites de tamanho:
 ```sh
