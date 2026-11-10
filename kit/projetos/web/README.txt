@@ -15,6 +15,6 @@ Como testar no navegador:
 
 Banco de Dados SQLite:
   Arquivo: banco.db (localizado nesta mesma pasta)
-  Conexão no VS Code: Já conectada automaticamente na barra lateral (ícone SQLTools)!
+  No VS Code: Basta clicar no arquivo banco.db para abrir o SQLite Viewer integrado!
   Conexão em PHP:
     $pdo = new PDO("sqlite:" . __DIR__ . "/banco.db");

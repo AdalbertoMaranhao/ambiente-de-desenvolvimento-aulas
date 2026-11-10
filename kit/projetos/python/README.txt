@@ -9,7 +9,7 @@ Como executar:
 
 Banco de Dados SQLite:
   Arquivo: banco.db (localizado nesta mesma pasta)
-  Conexão no VS Code: Já conectada automaticamente na barra lateral (ícone SQLTools)!
+  No VS Code: Basta clicar no arquivo banco.db para abrir o SQLite Viewer integrado!
   Conexão em Python:
     import sqlite3
     conn = sqlite3.connect("banco.db")

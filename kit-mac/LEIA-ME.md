@@ -15,7 +15,7 @@ Esta pasta mantém a configuração do professor para computadores Apple Silicon
 
 O script:
 * Instala/atualiza as ferramentas via `Brewfile` (Python 3.13, PHP 8.5, OpenJDK 25, VS Code).
-* Instala as extensões essenciais e pedagógicas do VS Code (Intelephense, Python/Pylance, Red Hat Java, SQLTools, Error Lens, Indent Rainbow, Better Comments, Path Intellisense, Auto Rename Tag e Português pt-BR).
+* Instala as extensões essenciais e pedagógicas do VS Code (Intelephense, Python/Pylance, Red Hat Java, SQLite Viewer, Error Lens, Indent Rainbow, Better Comments, Path Intellisense, Auto Rename Tag e Português pt-BR).
 * Garante a presença do driver JDBC `sqlite-jdbc.jar` em `dependencias/java/`.
 
 ---
@@ -49,8 +49,7 @@ code poo-python.code-workspace
 code poo-java.code-workspace
 ```
 
-Todos os workspaces já incluem a conexão com o banco de dados pré-configurada no **SQLTools**:
-* **Banco:** `Banco de Aulas (SQLite)`
+O banco de dados pode ser aberto diretamente no VS Code clicando no arquivo **`banco.db`** (utilizando a extensão integrada **SQLite Viewer**):
 * **Arquivo:** `${workspaceFolder}/banco.db` (localizado diretamente na pasta de projetos da disciplina)
 * **Zero Serviços:** Sem necessidade de iniciar serviços em segundo plano ou configurar portas de rede.
 

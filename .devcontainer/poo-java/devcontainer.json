@@ -8,8 +8,7 @@
       "extensions": [
         "redhat.java",
         "vscjava.vscode-java-debug",
-        "mtxr.sqltools",
-        "mtxr.sqltools-driver-sqlite",
+        "qwtel.sqlite-viewer",
         "usernamehw.errorlens",
         "oderwat.indent-rainbow",
         "aaron-bond.better-comments",
@@ -32,15 +31,9 @@
           "/opt/jdbc/*.jar",
           "dependencias/java/*.jar"
         ],
-        "sqltools.useNodeRuntime": false,
-        "sqltools.connections": [
-          {
-            "name": "Banco de Aulas (SQLite)",
-            "dialect": "SQLite",
-            "database": "${workspaceFolder}/banco.db",
-            "isActive": true
-          }
-        ]
+        "workbench.editorAssociations": {
+          "*.db": "sqlite-viewer.view"
+        }
       }
     }
   },

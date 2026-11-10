@@ -45,7 +45,7 @@ Seu laboratório utiliza **SQLite**, o que significa que o banco de dados é um 
 ### Vantagens para você:
 * **Sem servidores para ligar:** Não precisa iniciar serviços nem se preocupar com portas ocupadas.
 * **100% Portátil:** Modificações feitas no Windows aparecem de imediato no Linux e vice-versa.
-* **Painel Visual:** Na barra lateral esquerda do VS Code, clique no ícone de banco de dados (**SQLTools**). A conexão **"Banco de Aulas (SQLite)"** já está pronta com a tabela `alunos` para você rodar consultas SQL.
+* **Painel Visual:** No VS Code, basta clicar diretamente no arquivo **`banco.db`** na barra lateral de arquivos para abrir o **SQLite Viewer** integrado. Ele permite navegar pelas tabelas, visualizar dados e rodar consultas SQL facilmente.
 
 ---
 

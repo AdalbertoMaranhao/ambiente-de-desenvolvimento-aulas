@@ -87,8 +87,13 @@ class Lab:
         (STATE / "php-conf/extra").mkdir(exist_ok=True)
         ini = 'date.timezone=America/Fortaleza\ndefault_charset=UTF-8\ndisplay_errors=On\nerror_reporting=E_ALL\nmemory_limit=256M\n'
         if WINDOWS:
-            ini += 'extension_dir="' + (TOOLS / "php/ext").as_posix() + '"\n'
+            ini += 'extension_dir="ext"\n'
             ini += 'extension=pdo_sqlite\nextension=sqlite3\nextension=mbstring\nextension=openssl\nextension=curl\nextension=fileinfo\nextension=zip\n'
+            if (TOOLS / "php").exists():
+                try:
+                    (TOOLS / "php/php.ini").write_text(ini, encoding="utf-8")
+                except OSError:
+                    pass
         (STATE / "php-conf/php.ini").write_text(ini, encoding="utf-8")
 
         config = {"config": {"allow-plugins": False}, "repositories": {"packagist.org": False}}

@@ -23,15 +23,9 @@
     "errorlens.enabled": true,
     "python.defaultInterpreterPath": "/opt/homebrew/opt/python@3.13/bin/python3.13",
     "python.terminal.activateEnvironment": true,
-    "sqltools.useNodeRuntime": true,
-    "sqltools.connections": [
-      {
-        "name": "Banco de Aulas (SQLite)",
-        "dialect": "SQLite",
-        "database": "${workspaceFolder}/banco.db",
-        "isActive": true
-      }
-    ],
+    "workbench.editorAssociations": {
+      "*.db": "sqlite-viewer.view"
+    },
     "terminal.integrated.env.osx": {
       "PATH": "/opt/homebrew/opt/python@3.13/bin:${env:PATH}"
     }

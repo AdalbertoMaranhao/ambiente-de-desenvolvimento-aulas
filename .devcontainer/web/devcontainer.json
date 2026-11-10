@@ -7,8 +7,7 @@
     "vscode": {
       "extensions": [
         "bmewburn.vscode-intelephense-client",
-        "mtxr.sqltools",
-        "mtxr.sqltools-driver-sqlite",
+        "qwtel.sqlite-viewer",
         "usernamehw.errorlens",
         "oderwat.indent-rainbow",
         "aaron-bond.better-comments",
@@ -29,15 +28,9 @@
         "errorlens.enabled": true,
         "php.validate.executablePath": "/usr/local/bin/php",
         "intelephense.environment.phpVersion": "8.4",
-        "sqltools.useNodeRuntime": false,
-        "sqltools.connections": [
-          {
-            "name": "Banco de Aulas (SQLite)",
-            "dialect": "SQLite",
-            "database": "${workspaceFolder}/banco.db",
-            "isActive": true
-          }
-        ]
+        "workbench.editorAssociations": {
+          "*.db": "sqlite-viewer.view"
+        }
       }
     }
   },

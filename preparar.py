@@ -46,8 +46,7 @@ ALL_KNOWN_EXTENSIONS = [
     "ms-python.debugpy",
     "ms-python.vscode-python-envs",
     "bmewburn.vscode-intelephense-client",
-    "mtxr.sqltools",
-    "mtxr.sqltools-driver-sqlite",
+    "qwtel.sqlite-viewer",
     *PEDAGOGICAL_EXTENSIONS
 ]
 
@@ -63,8 +62,7 @@ PROFILES = {
         "has_java": False,
         "extensions": [
             "bmewburn.vscode-intelephense-client",
-            "mtxr.sqltools",
-            "mtxr.sqltools-driver-sqlite",
+            "qwtel.sqlite-viewer",
             *PEDAGOGICAL_EXTENSIONS
         ]
     },
@@ -82,8 +80,7 @@ PROFILES = {
             "ms-python.vscode-pylance",
             "ms-python.debugpy",
             "ms-python.vscode-python-envs",
-            "mtxr.sqltools",
-            "mtxr.sqltools-driver-sqlite",
+            "qwtel.sqlite-viewer",
             *PEDAGOGICAL_EXTENSIONS
         ]
     },
@@ -99,8 +96,7 @@ PROFILES = {
         "extensions": [
             "redhat.java",
             "vscjava.vscode-java-debug",
-            "mtxr.sqltools",
-            "mtxr.sqltools-driver-sqlite",
+            "qwtel.sqlite-viewer",
             *PEDAGOGICAL_EXTENSIONS
         ]
     }
@@ -776,7 +772,27 @@ StartupNotify=false
             if cfg["has_python_dev"]:
                 commands["pip"] = '"%~dp0..\\python\\python.exe" -m pip %*'
             if cfg["has_php"]:
+                commands["php"] = '"%~dp0..\\php\\php.exe" %*'
                 commands["composer"] = '"%~dp0..\\php\\php.exe" "%~dp0..\\..\\..\\dependencias\\composer\\composer.phar" %*'
+                php_ini = (
+                    "[PHP]\n"
+                    "date.timezone = America/Fortaleza\n"
+                    "default_charset = UTF-8\n"
+                    "display_errors = On\n"
+                    "display_startup_errors = On\n"
+                    "error_reporting = E_ALL\n"
+                    "memory_limit = 256M\n\n"
+                    "extension_dir = \"ext\"\n"
+                    "extension = pdo_sqlite\n"
+                    "extension = sqlite3\n"
+                    "extension = mbstring\n"
+                    "extension = openssl\n"
+                    "extension = curl\n"
+                    "extension = fileinfo\n"
+                    "extension = zip\n"
+                )
+                if (tools / "php").exists():
+                    (tools / "php" / "php.ini").write_text(php_ini, encoding="utf-8")
             for name, cmd in commands.items():
                 (bindir / (name + ".cmd")).write_bytes(("@echo off\r\n" + cmd + "\r\n").encode())
         else:
@@ -819,15 +835,9 @@ StartupNotify=false
         "editor.wordWrap": "on",
         "errorlens.enabled": True,
         "locale": "pt-br",
-        "sqltools.useNodeRuntime": False,
-        "sqltools.connections": [
-            {
-                "name": "Banco de Aulas (SQLite)",
-                "dialect": "SQLite",
-                "database": "${workspaceFolder}/banco.db",
-                "isActive": True
-            }
-        ]
+        "workbench.editorAssociations": {
+            "*.db": "sqlite-viewer.view"
+        }
     }
     if cfg["has_php"]:
         settings["intelephense.environment.phpVersion"] = "8.4"
@@ -997,7 +1007,27 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         if cfg["has_python_dev"]:
             commands["pip"] = '"%~dp0..\\python\\python.exe" -m pip %*'
         if cfg["has_php"]:
+            commands["php"] = '"%~dp0..\\php\\php.exe" %*'
             commands["composer"] = '"%~dp0..\\php\\php.exe" "%~dp0..\\..\\..\\dependencias\\composer\\composer.phar" %*'
+            php_ini = (
+                "[PHP]\n"
+                "date.timezone = America/Fortaleza\n"
+                "default_charset = UTF-8\n"
+                "display_errors = On\n"
+                "display_startup_errors = On\n"
+                "error_reporting = E_ALL\n"
+                "memory_limit = 256M\n\n"
+                "extension_dir = \"ext\"\n"
+                "extension = pdo_sqlite\n"
+                "extension = sqlite3\n"
+                "extension = mbstring\n"
+                "extension = openssl\n"
+                "extension = curl\n"
+                "extension = fileinfo\n"
+                "extension = zip\n"
+            )
+            if (tools / "php").exists():
+                (tools / "php" / "php.ini").write_text(php_ini, encoding="utf-8")
 
         for name, cmd in commands.items():
             (bindir / (name + ".cmd")).write_bytes(("@echo off\r\n" + cmd + "\r\n").encode())
@@ -1042,15 +1072,9 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         "editor.wordWrap": "on",
         "errorlens.enabled": True,
         "locale": "pt-br",
-        "sqltools.useNodeRuntime": False,
-        "sqltools.connections": [
-            {
-                "name": "Banco de Aulas (SQLite)",
-                "dialect": "SQLite",
-                "database": "${workspaceFolder}/banco.db",
-                "isActive": True
-            }
-        ]
+        "workbench.editorAssociations": {
+            "*.db": "sqlite-viewer.view"
+        }
     }
     if cfg["has_php"]:
         settings["intelephense.environment.phpVersion"] = "8.4"

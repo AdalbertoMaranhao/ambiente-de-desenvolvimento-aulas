@@ -32,15 +32,9 @@
     "java.project.referencedLibraries": [
       "dependencias/java/*.jar"
     ],
-    "sqltools.useNodeRuntime": true,
-    "sqltools.connections": [
-      {
-        "name": "Banco de Aulas (SQLite)",
-        "dialect": "SQLite",
-        "database": "${workspaceFolder}/banco.db",
-        "isActive": true
-      }
-    ],
+    "workbench.editorAssociations": {
+      "*.db": "sqlite-viewer.view"
+    },
     "terminal.integrated.env.osx": {
       "PATH": "/opt/homebrew/opt/openjdk@25/bin:${env:PATH}",
       "JAVA_HOME": "/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home"

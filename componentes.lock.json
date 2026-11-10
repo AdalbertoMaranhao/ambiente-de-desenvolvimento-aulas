@@ -731,42 +731,22 @@
       "hash_origin": "HTTPS-primeiro-download"
     },
     {
-      "name": "mtxr.sqltools-windows-x64",
-      "version": "0.28.6",
-      "url": "https://mtxr.gallerycdn.vsassets.io/extensions/mtxr/sqltools/0.28.6/1783357234287/Microsoft.VisualStudio.Services.VSIXPackage",
-      "target": "tools/windows-x64/vscode/data/extensions/mtxr.sqltools-0.28.6",
+      "name": "qwtel.sqlite-viewer-windows-x64",
+      "version": "26.9.1",
+      "url": "https://qwtel.gallerycdn.vsassets.io/extensions/qwtel/sqlite-viewer/26.9.1/1790252037234/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/windows-x64/vscode/data/extensions/qwtel.sqlite-viewer-26.9.1",
       "kind": "vsix",
-      "sha256": "4a95451fe41ff6da67366e09e73ddf3a15b3cd83f42e49c3366f3c2473319085",
-      "prefix": "extension/",
-      "hash_origin": "HTTPS-primeiro-download"
-    },
-    {
-      "name": "mtxr.sqltools-linux-x64",
-      "version": "0.28.6",
-      "url": "https://mtxr.gallerycdn.vsassets.io/extensions/mtxr/sqltools/0.28.6/1783357234287/Microsoft.VisualStudio.Services.VSIXPackage",
-      "target": "tools/linux-x64/vscode/data/extensions/mtxr.sqltools-0.28.6",
-      "kind": "vsix",
-      "sha256": "4a95451fe41ff6da67366e09e73ddf3a15b3cd83f42e49c3366f3c2473319085",
-      "prefix": "extension/",
-      "hash_origin": "HTTPS-primeiro-download"
-    },
-    {
-      "name": "mtxr.sqltools-driver-sqlite-windows-x64",
-      "version": "0.5.4",
-      "url": "https://mtxr.gallerycdn.vsassets.io/extensions/mtxr/sqltools-driver-sqlite/0.5.4/1783357311434/Microsoft.VisualStudio.Services.VSIXPackage",
-      "target": "tools/windows-x64/vscode/data/extensions/mtxr.sqltools-driver-sqlite-0.5.4",
-      "kind": "vsix",
-      "sha256": "6a53e33690840d826250f9f4342b9652827b760b5324dbdc3692ea20ea3c1363",
+      "sha256": "d3f116efa3ded0b63ac3b91f597d0a6b492f3db32f3724ac523da97dd7c7add0",
       "prefix": "extension/",
       "hash_origin": "upstream"
     },
     {
-      "name": "mtxr.sqltools-driver-sqlite-linux-x64",
-      "version": "0.5.4",
-      "url": "https://mtxr.gallerycdn.vsassets.io/extensions/mtxr/sqltools-driver-sqlite/0.5.4/1783357311434/Microsoft.VisualStudio.Services.VSIXPackage",
-      "target": "tools/linux-x64/vscode/data/extensions/mtxr.sqltools-driver-sqlite-0.5.4",
+      "name": "qwtel.sqlite-viewer-linux-x64",
+      "version": "26.9.1",
+      "url": "https://qwtel.gallerycdn.vsassets.io/extensions/qwtel/sqlite-viewer/26.9.1/1790252037234/Microsoft.VisualStudio.Services.VSIXPackage",
+      "target": "tools/linux-x64/vscode/data/extensions/qwtel.sqlite-viewer-26.9.1",
       "kind": "vsix",
-      "sha256": "6a53e33690840d826250f9f4342b9652827b760b5324dbdc3692ea20ea3c1363",
+      "sha256": "d3f116efa3ded0b63ac3b91f597d0a6b492f3db32f3724ac523da97dd7c7add0",
       "prefix": "extension/",
       "hash_origin": "upstream"
     },

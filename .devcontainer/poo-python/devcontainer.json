@@ -10,8 +10,7 @@
         "ms-python.vscode-pylance",
         "ms-python.debugpy",
         "ms-python.vscode-python-envs",
-        "mtxr.sqltools",
-        "mtxr.sqltools-driver-sqlite",
+        "qwtel.sqlite-viewer",
         "usernamehw.errorlens",
         "oderwat.indent-rainbow",
         "aaron-bond.better-comments",
@@ -31,15 +30,9 @@
         "editor.wordWrap": "on",
         "errorlens.enabled": true,
         "python.defaultInterpreterPath": "/usr/local/bin/python",
-        "sqltools.useNodeRuntime": false,
-        "sqltools.connections": [
-          {
-            "name": "Banco de Aulas (SQLite)",
-            "dialect": "SQLite",
-            "database": "${workspaceFolder}/banco.db",
-            "isActive": true
-          }
-        ]
+        "workbench.editorAssociations": {
+          "*.db": "sqlite-viewer.view"
+        }
       }
     }
   },
