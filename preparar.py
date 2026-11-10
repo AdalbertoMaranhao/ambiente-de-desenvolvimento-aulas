@@ -620,6 +620,45 @@ def get_needed_items(items, target_profiles, target_sos):
     return [item for item in items if item["name"] in needed_names]
 
 
+def setup_linux_executables(tools_dir, kit_dir):
+    """Garante permissões de execução nos binários e scripts Linux e gera o manifesto linux-executaveis.json."""
+    known_execs = {
+        "code", "code-tunnel", "chrome-sandbox", "chrome_crashpad_handler",
+        "python", "python3", "frankenphp", "git", "pip", "lab", "composer", "php"
+    }
+    executables = []
+    for path in tools_dir.rglob("*"):
+        if not path.is_file():
+            continue
+        is_exec = False
+        magic = b""
+        try:
+            with path.open("rb") as f:
+                magic = f.read(4)
+        except OSError:
+            pass
+
+        if magic.startswith(b"\x7fELF") or magic.startswith(b"#!"):
+            is_exec = True
+        elif path.name in known_execs or path.parent.name in ("bin", "git-core"):
+            is_exec = True
+        elif hasattr(path.stat(), "st_mode") and (path.stat().st_mode & 0o111):
+            is_exec = True
+
+        if is_exec:
+            if sys.platform != "win32":
+                try:
+                    path.chmod(path.stat().st_mode | 0o755)
+                except OSError:
+                    pass
+            executables.append(str(path.relative_to(kit_dir)))
+
+    executables.sort()
+    manifest_data = json.dumps(executables, indent=2) + "\n"
+    (tools_dir / "linux-executaveis.json").write_text(manifest_data, encoding="utf-8")
+    (kit_dir / "linux-executaveis.json").write_text(manifest_data, encoding="utf-8")
+
+
 def assemble_universal_kit(perfil, items, item_paths):
     cfg = PROFILES[perfil]
     kit_name = f"kit-{perfil}"
@@ -759,16 +798,7 @@ StartupNotify=false
                 out.write_text('#!/bin/sh\nset -eu\nTASK_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)\n' + cmd + '\n')
                 out.chmod(0o755)
 
-            for path in (kit_dir / "tools" / osname).rglob("*"):
-                if path.is_file():
-                    with path.open("rb") as f:
-                        magic = f.read(4)
-                    if magic == b"\x7fELF":
-                        path.chmod(path.stat().st_mode | 0o100)
-
-            executable = [str(p.relative_to(kit_dir)) for p in (kit_dir / "tools" / osname).rglob("*") if p.is_file() and p.stat().st_mode & 0o111]
-            (tools / "linux-executaveis.json").write_text(json.dumps(executable))
-            (kit_dir / "linux-executaveis.json").write_text(json.dumps(executable))
+            setup_linux_executables(tools, kit_dir)
 
     # Pre-configuração compartilhada do VS Code
     shared_user_dir = kit_dir / "configuracoes" / "vscode" / "User"
@@ -992,15 +1022,7 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
             out.write_text("#!/bin/sh\n" + root + cmd + "\n")
             out.chmod(0o755)
 
-        for path in (kit_dir / "tools" / osname).rglob("*"):
-            if path.is_file():
-                with path.open("rb") as f:
-                    magic = f.read(4)
-                if magic == b"\x7fELF":
-                    path.chmod(path.stat().st_mode | 0o100)
-
-        executable = [str(p.relative_to(kit_dir)) for p in (kit_dir / "tools" / osname).rglob("*") if p.is_file() and p.stat().st_mode & 0o111]
-        (kit_dir / "linux-executaveis.json").write_text(json.dumps(executable))
+        setup_linux_executables(tools, kit_dir)
 
     # Pre-configuracao do settings.json do VS Code
     settings_file = tools / "vscode" / "data/user-data/User/settings.json"

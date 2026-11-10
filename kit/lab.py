@@ -98,18 +98,58 @@ class Lab:
         workspace = ROOT / "aulas.code-workspace"
         ext_dir = TOOLS / "vscode/data/extensions"
         user_dir = ROOT / "configuracoes/vscode"
+
+        vscode_exe = self.vscode
+        if not WINDOWS:
+            # No Linux, garantir permissões de execução nos binários do VS Code
+            for p in [
+                self.vscode,
+                TOOLS / "vscode/code",
+                TOOLS / "vscode/bin/code",
+                TOOLS / "vscode/chrome-sandbox",
+                TOOLS / "vscode/chrome_crashpad_handler"
+            ]:
+                if p.exists():
+                    try:
+                        p.chmod(p.stat().st_mode | 0o755)
+                    except OSError:
+                        pass
+
+            if not vscode_exe.exists() and (TOOLS / "vscode/code").exists():
+                vscode_exe = TOOLS / "vscode/code"
+
+        if not vscode_exe.exists():
+            # Fallback caso o VS Code esteja instalado na máquina hospedeira
+            system_code = shutil.which("code")
+            if system_code:
+                vscode_exe = Path(system_code)
+            else:
+                print(f"\n❌ Executável do VS Code não encontrado em {self.vscode}.")
+                print("Se você acabou de trocar de branch, execute 'python3 preparar.py montar' para montar o kit.")
+                print("Ou instale o VS Code no sistema: https://code.visualstudio.com/\n")
+                return False
+
         cmd = [
-            str(self.vscode),
+            str(vscode_exe),
             "--user-data-dir", str(user_dir),
             "--extensions-dir", str(ext_dir),
             "--locale", "pt-BR"
         ]
+        if not WINDOWS:
+            # Necessário no Linux quando executado sem SUID sandbox root (pendrive/ambiente portátil)
+            cmd.append("--no-sandbox")
+
         if workspace.exists():
             cmd.append(str(workspace))
         else:
             cmd.append(str(ROOT / "projetos"))
-        subprocess.Popen(cmd, env=self.env)
-        print("🚀 Editor VS Code iniciado!")
+        try:
+            subprocess.Popen(cmd, env=self.env)
+            print("🚀 Editor VS Code iniciado!")
+            return True
+        except Exception as e:
+            print(f"❌ Erro ao iniciar o VS Code ({vscode_exe}): {e}")
+            return False
 
     def terminal(self):
         shell = os.environ.get("COMSPEC", "cmd.exe") if WINDOWS else os.environ.get("SHELL", "bash")

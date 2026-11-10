@@ -17,6 +17,9 @@ manifest="$TASK_ROOT/ferramentas/linux-x64/linux-executaveis.json"
 if [ ! -f "$manifest" ]; then
     manifest="$TASK_ROOT/tools/linux-x64/linux-executaveis.json"
 fi
+if [ ! -f "$manifest" ]; then
+    manifest="$TASK_ROOT/linux-executaveis.json"
+fi
 if [ -f "$manifest" ]; then
     "$TASK_PYTHON" -E - "$TASK_ROOT" "$manifest" <<'PY'
 import json, pathlib, sys
@@ -26,7 +29,7 @@ try:
     for name in json.loads(manifest_file.read_text()):
         path = (root / name).resolve()
         if path.is_relative_to(root) and path.is_file():
-            path.chmod(path.stat().st_mode | 0o100)
+            path.chmod(path.stat().st_mode | 0o755)
 except Exception:
     pass
 PY
