@@ -191,5 +191,93 @@ class ProgressBarTests(unittest.TestCase):
             self.assertEqual(bar.current, 100)
 
 
+class DownloadResilienceTests(unittest.TestCase):
+    def test_safe_replace_retries_and_succeeds(self):
+        with tempfile.TemporaryDirectory() as folder:
+            src = Path(folder) / "src.part"
+            dst = Path(folder) / "dst.txt"
+            src.write_text("novo conteudo")
+
+            attempts = 0
+            original_replace = Path.replace
+
+            def flaky_replace(self_path, target):
+                nonlocal attempts
+                attempts += 1
+                if attempts < 3:
+                    raise PermissionError("[WinError 32] Arquivo em uso por outro processo")
+                return original_replace(self_path, target)
+
+            with patch.object(Path, "replace", side_effect=flaky_replace, autospec=True):
+                builder.safe_replace(src, dst, max_retries=5, delay=0.01)
+
+            self.assertEqual(attempts, 3)
+            self.assertEqual(dst.read_text(), "novo conteudo")
+
+    def test_safe_replace_windows_unlink_target(self):
+        with tempfile.TemporaryDirectory() as folder:
+            src = Path(folder) / "src.part"
+            dst = Path(folder) / "dst.txt"
+            src.write_text("novo")
+            dst.write_text("antigo")
+
+            unlink_called = False
+            orig_unlink = Path.unlink
+
+            def track_unlink(p_self, *args, **kwargs):
+                nonlocal unlink_called
+                unlink_called = True
+                return orig_unlink(p_self, *args, **kwargs)
+
+            with patch.object(builder.sys, "platform", "win32"), \
+                 patch.object(builder, "to_long_path", side_effect=lambda p: p), \
+                 patch.object(Path, "unlink", side_effect=track_unlink, autospec=True):
+                builder.safe_replace(src, dst, max_retries=2, delay=0.01)
+
+            self.assertTrue(unlink_called)
+            self.assertEqual(dst.read_text(), "novo")
+            self.assertFalse(src.exists())
+
+    def test_fetch_fallback_to_urllib_when_curl_fails(self):
+        with tempfile.TemporaryDirectory() as folder:
+            dst = Path(folder) / "arquivo.bin"
+
+            def fake_urllib(url, part, post=None):
+                part.write_bytes(b"dados baixados via urllib")
+
+            with patch("shutil.which", return_value="/usr/bin/curl"), \
+                 patch("subprocess.run", side_effect=subprocess.CalledProcessError(22, "curl")), \
+                 patch.object(builder, "_download_urllib", side_effect=fake_urllib):
+                res = builder.fetch("https://exemplo.com/teste.bin", dst)
+
+            self.assertEqual(res, dst)
+            self.assertEqual(dst.read_bytes(), b"dados baixados via urllib")
+
+    def test_acquire_recovers_corrupted_cached_file(self):
+        import hashlib
+        with tempfile.TemporaryDirectory() as folder:
+            cache_dir = Path(folder)
+            with patch.object(builder, "CACHE", cache_dir):
+                item = {
+                    "name": "teste-pkg",
+                    "kind": "zip",
+                    "url": "https://exemplo.com/teste-pkg.zip",
+                    "sha256": hashlib.sha256(b"conteudo integro").hexdigest()
+                }
+                # Cria arquivo com conteúdo corrompido no cache
+                corrupt_file = cache_dir / "teste-pkg.zip"
+                corrupt_file.write_bytes(b"conteudo corrompido")
+
+                def fake_fetch(url, path, post=None):
+                    path.write_bytes(b"conteudo integro")
+
+                with patch.object(builder, "fetch", side_effect=fake_fetch) as mock_fetch:
+                    path = builder.acquire(item)
+
+                self.assertEqual(path, corrupt_file)
+                self.assertEqual(path.read_bytes(), b"conteudo integro")
+                mock_fetch.assert_called_once_with(item["url"], corrupt_file)
+
+
 if __name__ == "__main__":
     unittest.main()

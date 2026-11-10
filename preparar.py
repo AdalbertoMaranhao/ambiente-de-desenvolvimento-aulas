@@ -10,11 +10,15 @@ import os
 from pathlib import Path
 import re
 import shutil
+import ssl
 import subprocess
 import sys
 import tarfile
 import tempfile
 import threading
+import time
+import urllib.error
+import urllib.request
 import zipfile
 import xml.etree.ElementTree as ET
 
@@ -193,23 +197,128 @@ def digest(path):
     return h.hexdigest()
 
 
+def safe_replace(src, dst, max_retries=10, delay=0.5):
+    """Substitui o arquivo de destino tratando locks transitórios de antivírus/indexador no Windows."""
+    src = to_long_path(src)
+    dst = to_long_path(dst)
+    for attempt in range(max_retries):
+        try:
+            if sys.platform == "win32" and dst.exists():
+                try:
+                    dst.unlink()
+                except OSError:
+                    pass
+            src.replace(dst)
+            return
+        except OSError:
+            if attempt == max_retries - 1:
+                raise
+            time.sleep(delay)
+
+
+def _download_urllib(url, part_path, post=None):
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AntigravityPreparador/1.0"
+    }
+    data = None
+    if post is not None:
+        headers["Content-Type"] = "application/json"
+        headers["Accept"] = "application/json;api-version=7.2-preview.1"
+        data = json.dumps(post).encode("utf-8")
+
+    req = urllib.request.Request(url, data=data, headers=headers)
+    ctx = None
+    try:
+        ctx = ssl.create_default_context()
+    except Exception:
+        pass
+
+    with urllib.request.urlopen(req, timeout=60, context=ctx) as response:
+        with open(part_path, "wb") as f:
+            shutil.copyfileobj(response, f, length=1024 * 1024)
+
+
 def fetch(url, path, post=None):
+    path = to_long_path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     part = path.with_name(path.name + ".part")
-    args = ["curl", "--fail", "--location", "--silent", "--show-error", "--retry", "3",
-            "--connect-timeout", "30", "--max-time", "900", "--proto", "=https", url, "-o", str(part)]
-    if post is not None:
-        args += ["-H", "Content-Type: application/json", "-H", "Accept: application/json;api-version=7.2-preview.1",
-                 "--data", json.dumps(post)]
-    subprocess.run(args, check=True)
-    part.replace(path)
-    return path
+
+    urls = [url]
+    if "windows.php.net/downloads/releases/" in url and "/archives/" not in url:
+        urls.append(url.replace("/downloads/releases/", "/downloads/releases/archives/"))
+
+    last_error = None
+    for candidate_url in urls:
+        # 1. Tentar via curl se disponível
+        curl_bin = shutil.which("curl")
+        if curl_bin:
+            clean_part = clean_path_str(part)
+            try:
+                part.unlink(missing_ok=True)
+            except OSError:
+                pass
+
+            args = [
+                curl_bin,
+                "--fail",
+                "--location",
+                "--silent",
+                "--show-error",
+                "--retry", "5",
+                "--retry-delay", "2",
+                "--connect-timeout", "30",
+                "--max-time", "1800",
+                "-A", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AntigravityPreparador/1.0",
+            ]
+            if sys.platform == "win32":
+                args.append("--ssl-revoke-best-effort")
+
+            args.extend([candidate_url, "-o", clean_part])
+
+            if post is not None:
+                args.extend([
+                    "-H", "Content-Type: application/json",
+                    "-H", "Accept: application/json;api-version=7.2-preview.1",
+                    "--data", json.dumps(post)
+                ])
+
+            try:
+                res = subprocess.run(args, capture_output=True, text=True)
+                if res.returncode == 0 and part.exists() and part.stat().st_size > 0:
+                    safe_replace(part, path)
+                    return path
+                else:
+                    last_error = RuntimeError(f"curl falhou ({res.returncode}): {res.stderr.strip() or res.stdout.strip()}")
+            except Exception as e:
+                last_error = e
+
+        # 2. Fallback para urllib
+        try:
+            try:
+                part.unlink(missing_ok=True)
+            except OSError:
+                pass
+            _download_urllib(candidate_url, part, post)
+            if part.exists() and part.stat().st_size > 0:
+                safe_replace(part, path)
+                return path
+        except Exception as e:
+            last_error = e
+
+    raise RuntimeError(f"Falha ao baixar {url} para {path}: {last_error}")
 
 
 def metadata(name, url, post=None):
     path = CAT / (name + ".json")
-    if not path.exists():
-        fetch(url, path, post)
+    if path.exists():
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            try:
+                path.unlink(missing_ok=True)
+            except OSError:
+                pass
+    fetch(url, path, post)
     return json.loads(path.read_text(encoding="utf-8"))
 
 
@@ -322,7 +431,21 @@ def acquire(item, verbose=False):
         fetch(item["url"], path)
     actual = digest(path)
     if item.get("sha256") and item["sha256"] != actual:
-        raise RuntimeError("SHA256 incorreto: " + str(path) + ". Remova apenas este arquivo e tente novamente.")
+        sys.stderr.write(
+            f"\n⚠️  SHA256 incorreto para {path.name} (esperado: {item['sha256'][:8]}..., obtido: {actual[:8]}...). "
+            f"Arquivo local corrompido ou incompleto. Baixando novamente...\n"
+        )
+        try:
+            path.unlink(missing_ok=True)
+        except OSError:
+            pass
+        fetch(item["url"], path)
+        actual = digest(path)
+        if item.get("sha256") and item["sha256"] != actual:
+            raise RuntimeError(
+                f"SHA256 incorreto para {path.name} após novo download. "
+                f"Esperado: {item['sha256']}, obtido: {actual}. Remova este arquivo e tente novamente."
+            )
     item["hash_origin"] = item.get("hash_origin") or ("upstream" if item.get("sha256") else "HTTPS-primeiro-download")
     item["sha256"] = actual
     return path
@@ -1068,7 +1191,8 @@ def main():
             bar.update(1, item["name"])
             return res
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+        workers = 2 if sys.platform == "win32" else 4
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
             list(pool.map(_acquire_and_track, needed_items))
         bar.finish("Concluído!")
         print(f"✅ Todos os componentes selecionados ({len(needed_items)}) foram baixados e verificados com sucesso!")
@@ -1084,7 +1208,8 @@ def main():
             bar.update(1, item["name"])
             return res
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+        workers = 2 if sys.platform == "win32" else 4
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
             downloaded_paths = list(pool.map(_acquire_and_track, needed_items))
         bar.finish("Prontos!")
         paths_dict = {item["name"]: path for item, path in zip(needed_items, downloaded_paths)}
