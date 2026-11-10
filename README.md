@@ -106,12 +106,22 @@ Para professores que utilizam macOS (Apple Silicon):
 
 ## 6. Validação e Testes Automatizados
 
-Para auditar os binários PE (Windows) e ELF (Linux) e validar limites de tamanho:
+Para executar todas as validações de uma só vez (testes unitários e inspeção de pacotes):
+
 ```sh
-python3 verificar_pacote.py
+# No Linux ou macOS:
+./testar.sh
+
+# No Windows:
+testar.cmd
 ```
 
-Para executar os testes unitários do runtime e orquestrador:
+Ou execute os passos individualmente:
+
 ```sh
+# Testes unitários (26 testes)
 python3 -m unittest discover -s tests -v
+
+# Auditoria estática de binários (PE/ELF) e folga de espaço no pendrive
+python3 verificar_pacote.py
 ```
