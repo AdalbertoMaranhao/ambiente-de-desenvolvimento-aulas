@@ -554,6 +554,7 @@ class IntelliJHostDetectionTests(unittest.TestCase):
                 self.assertEqual(args[0], str(fake_code))
                 self.assertIn("--extensions-dir", args)
                 self.assertIn(str(root / "tools/linux-x64/extensions"), args)
+                self.assertEqual(args[-1], str(root / "projetos/java"))
 
 
 if __name__ == "__main__":
