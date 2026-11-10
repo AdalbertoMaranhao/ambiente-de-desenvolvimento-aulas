@@ -11,6 +11,7 @@ import sqlite3
 import subprocess
 import sys
 import tempfile
+import xml.etree.ElementTree as ET
 import zipfile
 
 ROOT = Path(__file__).resolve().parent
@@ -70,6 +71,178 @@ def find_vscode():
     return None
 
 
+def find_intellij():
+    """Localiza o executável do IntelliJ IDEA instalado no Windows."""
+    # 1. PATH do sistema
+    for name in ("idea64.exe", "idea.cmd", "idea.bat", "idea"):
+        found = shutil.which(name)
+        if found:
+            return Path(found)
+
+    # 2. Diretórios conhecidos no Windows
+    if WINDOWS:
+        candidates = []
+        prog_files = os.environ.get("ProgramFiles")
+        if prog_files:
+            candidates.extend(Path(prog_files).glob("JetBrains/IntelliJ IDEA*/bin/idea64.exe"))
+            candidates.extend(Path(prog_files).glob("JetBrains/IntelliJ IDEA*/bin/idea.cmd"))
+        prog_files_x86 = os.environ.get("ProgramFiles(x86)")
+        if prog_files_x86:
+            candidates.extend(Path(prog_files_x86).glob("JetBrains/IntelliJ IDEA*/bin/idea64.exe"))
+            candidates.extend(Path(prog_files_x86).glob("JetBrains/IntelliJ IDEA*/bin/idea.cmd"))
+        local_app = os.environ.get("LOCALAPPDATA")
+        if local_app:
+            candidates.extend(Path(local_app).glob("Programs/IntelliJ IDEA*/bin/idea64.exe"))
+            candidates.extend(Path(local_app).glob("JetBrains/Toolbox/apps/**/bin/idea64.exe"))
+            candidates.extend(Path(local_app).glob("JetBrains/Toolbox/apps/**/bin/idea.cmd"))
+
+        candidates = [c for c in candidates if c.exists()]
+        candidates.sort(reverse=True)
+        if candidates:
+            return candidates[0]
+
+    return None
+
+
+def _update_jdk_table_xml(xml_file, home_posix, java_version, modules, src_zip):
+    root = None
+    if xml_file.exists():
+        try:
+            tree = ET.parse(xml_file)
+            root = tree.getroot()
+        except Exception:
+            root = None
+
+    if root is None or root.tag != "application":
+        root = ET.Element("application")
+
+    component = None
+    for comp in root.findall("component"):
+        if comp.get("name") == "ProjectJdkTable":
+            component = comp
+            break
+    if component is None:
+        component = ET.SubElement(root, "component", name="ProjectJdkTable")
+
+    # Substituir entrada existente com nome JDK-Kit
+    for jdk in list(component.findall("jdk")):
+        name_elem = jdk.find("name")
+        if name_elem is not None and name_elem.get("value") == "JDK-Kit":
+            component.remove(jdk)
+
+    jdk_node = ET.SubElement(component, "jdk", version="2")
+    ET.SubElement(jdk_node, "name", value="JDK-Kit")
+    ET.SubElement(jdk_node, "type", value="JavaSDK")
+    ET.SubElement(jdk_node, "version", value=java_version)
+    ET.SubElement(jdk_node, "homePath", value=home_posix)
+
+    roots_elem = ET.SubElement(jdk_node, "roots")
+
+    # annotationsPath
+    ann = ET.SubElement(roots_elem, "annotationsPath")
+    ET.SubElement(ann, "root", type="composite")
+
+    # classPath com módulos jrt://
+    cp = ET.SubElement(roots_elem, "classPath")
+    cp_composite = ET.SubElement(cp, "root", type="composite")
+    for mod in modules:
+        ET.SubElement(cp_composite, "root", url=f"jrt://{home_posix}!/{mod}", type="simple")
+
+    # javadocPath
+    javadoc = ET.SubElement(roots_elem, "javadocPath")
+    ET.SubElement(javadoc, "root", type="composite")
+
+    # sourcePath
+    sp = ET.SubElement(roots_elem, "sourcePath")
+    sp_composite = ET.SubElement(sp, "root", type="composite")
+    if src_zip and Path(src_zip).exists():
+        ET.SubElement(sp_composite, "root", url=f"jar://{src_zip}!/", type="simple")
+
+    ET.SubElement(jdk_node, "additional")
+
+    ET.indent(root, space="  ")
+    tree = ET.ElementTree(root)
+    tree.write(xml_file, encoding="utf-8", xml_declaration=True)
+
+
+def configure_intellij_jdk(jdk_dir):
+    """Registra ou atualiza o JDK-Kit no arquivo jdk.table.xml do IntelliJ IDEA."""
+    if not jdk_dir.exists():
+        return False
+    appdata = os.environ.get("APPDATA")
+    if not appdata:
+        return False
+
+    jetbrains_dir = Path(appdata) / "JetBrains"
+    target_dirs = []
+    if jetbrains_dir.exists():
+        for d in jetbrains_dir.iterdir():
+            if d.is_dir() and (d.name.startswith("IdeaIC") or d.name.startswith("IntelliJIdea")):
+                target_dirs.append(d)
+
+    if not target_dirs:
+        idea_exe = find_intellij()
+        if idea_exe:
+            try:
+                install_dir = idea_exe.resolve().parent.parent
+                prod_info = install_dir / "product-info.json"
+                if prod_info.exists():
+                    data = json.loads(prod_info.read_text(encoding="utf-8"))
+                    dir_name = data.get("dataDirectoryName")
+                    if dir_name:
+                        target_dirs.append(jetbrains_dir / dir_name)
+            except Exception:
+                pass
+        if not target_dirs:
+            target_dirs.append(jetbrains_dir / "IdeaIC2024.3")
+
+    release_file = jdk_dir / "release"
+    java_version = "openjdk-25"
+    modules = []
+    if release_file.exists():
+        try:
+            for line in release_file.read_text(encoding="utf-8").splitlines():
+                if line.startswith("JAVA_VERSION="):
+                    java_version = line.split("=", 1)[1].strip('"').strip("'")
+                elif line.startswith("MODULES="):
+                    mods_str = line.split("=", 1)[1].strip('"').strip("'")
+                    modules = mods_str.split()
+        except Exception:
+            pass
+
+    if not modules:
+        modules = [
+            "java.base", "java.compiler", "java.datatransfer", "java.desktop",
+            "java.instrument", "java.logging", "java.management", "java.management.rmi",
+            "java.naming", "java.net.http", "java.prefs", "java.rmi", "java.scripting",
+            "java.se", "java.security.jgss", "java.security.sasl", "java.smartcardio",
+            "java.sql", "java.sql.rowset", "java.transaction.xa", "java.xml", "java.xml.crypto",
+            "jdk.accessibility", "jdk.attach", "jdk.charsets", "jdk.compiler", "jdk.crypto.cryptoki",
+            "jdk.crypto.ec", "jdk.dynalink", "jdk.httpserver", "jdk.incubator.vector",
+            "jdk.internal.ed", "jdk.internal.jvmstat", "jdk.internal.le", "jdk.internal.opt",
+            "jdk.jartool", "jdk.javadoc", "jdk.jcmd", "jdk.jconsole", "jdk.jdeps",
+            "jdk.jdi", "jdk.jdwp.agent", "jdk.jfr", "jdk.jlink", "jdk.jpackage",
+            "jdk.jshell", "jdk.jsobject", "jdk.jstatd", "jdk.localedata", "jdk.management",
+            "jdk.management.agent", "jdk.management.jfr", "jdk.naming.dns", "jdk.naming.rmi",
+            "jdk.net", "jdk.nio.mapmode", "jdk.sctp", "jdk.security.auth", "jdk.security.jgss",
+            "jdk.unsupported", "jdk.unsupported.desktop", "jdk.xml.dom", "jdk.zipfs"
+        ]
+
+    home_posix = jdk_dir.resolve().as_posix()
+    src_zip_candidate = jdk_dir / "lib/src.zip"
+    if not src_zip_candidate.exists():
+        src_zip_candidate = jdk_dir / "src.zip"
+    src_zip = src_zip_candidate.resolve().as_posix() if src_zip_candidate.exists() else None
+
+    for config_dir in target_dirs:
+        options_dir = config_dir / "options"
+        options_dir.mkdir(parents=True, exist_ok=True)
+        jdk_table_file = options_dir / "jdk.table.xml"
+        _update_jdk_table_xml(jdk_table_file, home_posix, java_version, modules, src_zip)
+
+    return True
+
+
 def run(args, **kwargs):
     return subprocess.run([str(a) for a in args], check=True, **kwargs)
 
@@ -87,6 +260,9 @@ class Lab:
         self.python = TOOLS / ("python/python.exe" if WINDOWS else "python/bin/python3")
         self.php = TOOLS / ("php/php.exe" if WINDOWS else "bin/php")
         self.vscode = find_vscode()
+
+        has_only_java_project = (ROOT / "projetos/java").exists() and not (ROOT / "projetos/web").exists() and not (ROOT / "projetos/python").exists()
+        self.use_intellij = WINDOWS and ((TOOLS / "jdk").exists() or has_only_java_project)
 
         self.env = os.environ.copy()
         for key in ["PYTHONHOME", "VIRTUAL_ENV", "COMPOSER", "COMPOSER_AUTH", "PIP_PREFIX", "PIP_ROOT",
@@ -149,6 +325,48 @@ class Lab:
         (STATE / "composer-home/config.json").write_text(json.dumps(config), encoding="utf-8")
 
     def editor(self, **kwargs):
+        if self.use_intellij:
+            return self.editor_intellij(**kwargs)
+        return self.editor_vscode(**kwargs)
+
+    def editor_intellij(self, **kwargs):
+        idea_bin = find_intellij()
+        if not idea_bin:
+            print("\n" + "=" * 60)
+            print("❌ IntelliJ IDEA não encontrado neste computador!")
+            print("=" * 60)
+            print("Para programar em Java neste computador, o IntelliJ IDEA precisa")
+            print("estar instalado na máquina (Community ou Ultimate).")
+            print("\nVocê pode baixá-lo gratuitamente em:")
+            print("👉 https://www.jetbrains.com/idea/download/")
+            print("=" * 60 + "\n")
+            try:
+                import webbrowser
+                resp = input("Deseja abrir a página de download do IntelliJ IDEA agora? [S/n]: ").strip().lower()
+                if resp in ("", "s", "sim", "y", "yes"):
+                    webbrowser.open("https://www.jetbrains.com/idea/download/")
+            except Exception:
+                pass
+            return False
+
+        jdk_dir = TOOLS / "jdk"
+        if jdk_dir.exists():
+            try:
+                configure_intellij_jdk(jdk_dir)
+            except Exception as e:
+                print(f"⚠️  Aviso ao registrar JDK portátil no IntelliJ: {e}")
+
+        project_dir = ROOT / "projetos/java"
+        cmd = [str(idea_bin), str(project_dir)]
+        try:
+            subprocess.Popen(cmd, env=self.env)
+            print("🚀 Editor IntelliJ IDEA iniciado!")
+            return True
+        except Exception as e:
+            print(f"❌ Erro ao iniciar o IntelliJ IDEA ({idea_bin}): {e}")
+            return False
+
+    def editor_vscode(self, **kwargs):
         code_bin = self.vscode or find_vscode()
         if not code_bin:
             print("\n" + "=" * 60)
@@ -279,12 +497,19 @@ class Lab:
                 failures.append(str(p))
                 print(f"  ❌ Banco {p} — {e}")
 
-        # VS Code na máquina
-        code_bin = self.vscode or find_vscode()
-        if code_bin:
-            print(f"  ✅ VS Code da máquina ({code_bin})")
+        # Editor na máquina
+        if self.use_intellij:
+            idea_bin = find_intellij()
+            if idea_bin:
+                print(f"  ✅ IntelliJ IDEA da máquina ({idea_bin})")
+            else:
+                print("  ⚠️  IntelliJ IDEA não encontrado na máquina (instale em https://www.jetbrains.com/idea/download/)")
         else:
-            print("  ⚠️  VS Code não encontrado na máquina (instale em https://code.visualstudio.com/)")
+            code_bin = self.vscode or find_vscode()
+            if code_bin:
+                print(f"  ✅ VS Code da máquina ({code_bin})")
+            else:
+                print("  ⚠️  VS Code não encontrado na máquina (instale em https://code.visualstudio.com/)")
 
         if failures:
             raise RuntimeError("Componentes com falha: " + ", ".join(failures))
@@ -316,13 +541,15 @@ class Lab:
         run(command, env=self.env)
 
     def ajuda(self):
-        print("""
+        editor_nome = "IntelliJ IDEA" if self.use_intellij else "VS Code"
+        editor_desc = "Abre o IntelliJ IDEA local com seu projeto e banco SQLite." if self.use_intellij else "Abre o VS Code local com as extensões do kit e SQLite."
+        print(f"""
 ╔══════════════════════════════════════════════════════════════╗
 ║  ❓ AJUDA DO LABORATÓRIO PORTÁTIL UNIVERSAL                   ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║  1  📝 Abrir editor de código (VS Code)                      ║
-║     Abre o VS Code portátil com seu projeto e banco SQLite.  ║
+║  1  📝 Abrir editor de código ({editor_nome:<13})             ║
+║     {editor_desc:<57}║
 ║                                                              ║
 ║  2  💻 Abrir terminal do laboratório                         ║
 ║     Abre um terminal com todas as ferramentas prontas.       ║
@@ -366,12 +593,13 @@ def main():
             "7": lab.ajuda
         }
         while True:
-            print("""
+            editor_label = "IntelliJ IDEA" if lab.use_intellij else "VS Code"
+            print(f"""
 ╔════════════════════════════════════════════════════╗
 ║  🧪 LABORATÓRIO PORTÁTIL UNIVERSAL                 ║
 ╠════════════════════════════════════════════════════╣
 ║                                                    ║
-║  1  📝 Abrir editor de código (VS Code)            ║
+║  1  📝 Abrir editor de código ({editor_label:<13}) ║
 ║  2  💻 Abrir terminal do laboratório               ║
 ║  3  🔍 Verificar integridade (Doctor)              ║
 ║  4  💾 Fazer cópia de segurança (Backup)           ║

@@ -569,10 +569,12 @@ def materialize_links(links, deferred=None):
 def filter_items_for_profile(items, perfil, osname):
     cfg = PROFILES[perfil]
     selected = []
+    uses_host_intellij = (perfil == "poo-java" and osname == "windows-x64")
     for item in items:
         name = item["name"]
-        if name.startswith("vscode-") and not name.endswith(osname):
-            continue
+        if name.startswith("vscode-"):
+            if uses_host_intellij or not name.endswith(osname):
+                continue
         if name.startswith("git-") and not name.endswith(osname):
             continue
         if name.startswith("linux-deb-") and osname != "linux-x64":
@@ -596,6 +598,8 @@ def filter_items_for_profile(items, perfil, osname):
         # Filtragem de extensoes
         is_extension = any(name.startswith(ext + "-") for ext in ALL_KNOWN_EXTENSIONS)
         if is_extension:
+            if uses_host_intellij:
+                continue
             if not any(name.startswith(ext + "-") and name.endswith(osname) for ext in cfg["extensions"]):
                 continue
 
@@ -749,7 +753,8 @@ StartupNotify=false
         tools = kit_dir / "tools" / osname
         bindir = tools / "bin"
         bindir.mkdir(parents=True, exist_ok=True)
-        (tools / "extensions").mkdir(parents=True, exist_ok=True)
+        if not (perfil == "poo-java" and os_key == "windows"):
+            (tools / "extensions").mkdir(parents=True, exist_ok=True)
 
         if os_key == "windows":
             # Copiar DLLs VC runtime (vcruntime140) de Python para PHP se PHP existir
@@ -973,7 +978,9 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
     tools = kit_dir / "tools" / osname
     bindir = tools / "bin"
     bindir.mkdir(parents=True, exist_ok=True)
-    (tools / "extensions").mkdir(parents=True, exist_ok=True)
+    uses_vscode = not (perfil == "poo-java" and os_key == "windows")
+    if uses_vscode:
+        (tools / "extensions").mkdir(parents=True, exist_ok=True)
 
     if os_key == "windows":
         # Copiar DLLs VC runtime de Python para PHP se PHP existir
@@ -1037,43 +1044,44 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         setup_linux_executables(tools, kit_dir)
 
     # Pre-configuracao do settings.json do VS Code
-    shared_user_dir = kit_dir / "configuracoes" / "vscode" / "User"
-    shared_user_dir.mkdir(parents=True, exist_ok=True)
-    settings_file = shared_user_dir / "settings.json"
-    settings = {
-        "update.mode": "none",
-        "extensions.autoUpdate": False,
-        "extensions.autoCheckUpdates": False,
-        "telemetry.telemetryLevel": "off",
-        "workbench.enableExperiments": False,
-        "git.autofetch": False,
-        "editor.inlineSuggest.enabled": False,
-        "github.copilot.enable": {"*": False},
-        "chat.commandCenter.enabled": False,
-        "chat.disableAIFeatures": True,
-        "editor.bracketPairColorization.enabled": True,
-        "editor.guides.bracketPairs": "active",
-        "editor.wordWrap": "on",
-        "errorlens.enabled": True,
-        "locale": "pt-br",
-        "workbench.editorAssociations": {
-            "*.db": "sqlite-viewer.view"
+    if uses_vscode:
+        shared_user_dir = kit_dir / "configuracoes" / "vscode" / "User"
+        shared_user_dir.mkdir(parents=True, exist_ok=True)
+        settings_file = shared_user_dir / "settings.json"
+        settings = {
+            "update.mode": "none",
+            "extensions.autoUpdate": False,
+            "extensions.autoCheckUpdates": False,
+            "telemetry.telemetryLevel": "off",
+            "workbench.enableExperiments": False,
+            "git.autofetch": False,
+            "editor.inlineSuggest.enabled": False,
+            "github.copilot.enable": {"*": False},
+            "chat.commandCenter.enabled": False,
+            "chat.disableAIFeatures": True,
+            "editor.bracketPairColorization.enabled": True,
+            "editor.guides.bracketPairs": "active",
+            "editor.wordWrap": "on",
+            "errorlens.enabled": True,
+            "locale": "pt-br",
+            "workbench.editorAssociations": {
+                "*.db": "sqlite-viewer.view"
+            }
         }
-    }
-    if cfg["has_php"]:
-        settings["intelephense.environment.phpVersion"] = "8.4"
-    if cfg["has_java"]:
-        settings["java.import.maven.enabled"] = False
-        settings["java.import.gradle.enabled"] = False
-        settings["java.autobuild.enabled"] = False
-        settings["java.jdt.ls.vmargs"] = "-Xmx512m -Xms64m"
-    if cfg["has_python_dev"]:
-        settings["python.terminal.activateEnvironment"] = False
-        settings["python.experiments.enabled"] = False
+        if cfg["has_php"]:
+            settings["intelephense.environment.phpVersion"] = "8.4"
+        if cfg["has_java"]:
+            settings["java.import.maven.enabled"] = False
+            settings["java.import.gradle.enabled"] = False
+            settings["java.autobuild.enabled"] = False
+            settings["java.jdt.ls.vmargs"] = "-Xmx512m -Xms64m"
+        if cfg["has_python_dev"]:
+            settings["python.terminal.activateEnvironment"] = False
+            settings["python.experiments.enabled"] = False
 
-    settings_file.write_text(json.dumps(settings, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    argv_str = json.dumps({"locale": "pt-br"}, indent=2) + "\n"
-    (kit_dir / "configuracoes" / "vscode" / "argv.json").write_text(argv_str, encoding="utf-8")
+        settings_file.write_text(json.dumps(settings, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        argv_str = json.dumps({"locale": "pt-br"}, indent=2) + "\n"
+        (kit_dir / "configuracoes" / "vscode" / "argv.json").write_text(argv_str, encoding="utf-8")
 
     # Copiar lock reduzido para auditoria
     (kit_dir / "componentes.lock.json").write_text(json.dumps({"components": selected_items}, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

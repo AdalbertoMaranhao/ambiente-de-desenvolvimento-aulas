@@ -5,8 +5,10 @@ dist/
 preparacao/
 
 # Estado runtime do laboratório (senhas, PID, sockets, logs)
+configuracoes/
 estado/
 backups/
+kit-mac/configuracoes/
 kit-mac/estado/
 kit-mac/backups/
 *.pid

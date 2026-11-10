@@ -5,3 +5,6 @@ __pycache__/
 java/bin/
 *.class
 .env
+.idea/workspace.xml
+.idea/shelf/
+

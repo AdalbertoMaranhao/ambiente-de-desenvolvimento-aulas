@@ -141,6 +141,28 @@ class ProfileFilterTests(unittest.TestCase):
         self.assertIn("usernamehw.errorlens-windows-x64", names)
         self.assertIn("oderwat.indent-rainbow-windows-x64", names)
 
+    def test_java_profile_windows_excludes_vscode_extensions(self):
+        java_win = builder.get_needed_items(self.items, ["poo-java"], ["windows"])
+        names = {item["name"] for item in java_win}
+        self.assertIn("jdk-windows-x64", names)
+        self.assertIn("jdbc", names)
+        self.assertIn("python-windows-x64", names)
+        self.assertIn("git-windows-x64", names)
+        self.assertNotIn("redhat.java-windows-x64", names)
+        self.assertNotIn("vscjava.vscode-java-debug-windows-x64", names)
+        self.assertNotIn("usernamehw.errorlens-windows-x64", names)
+
+    def test_java_profile_linux_includes_vscode_extensions(self):
+        java_linux = builder.get_needed_items(self.items, ["poo-java"], ["linux"])
+        names = {item["name"] for item in java_linux}
+        self.assertIn("jdk-linux-x64", names)
+        self.assertIn("jdbc", names)
+        self.assertIn("python-linux-x64", names)
+        self.assertIn("linux-deb-git", names)
+        self.assertIn("redhat.java-linux-x64", names)
+        self.assertIn("vscjava.vscode-java-debug-linux-x64", names)
+        self.assertIn("usernamehw.errorlens-linux-x64", names)
+
 
 class LongPathTests(unittest.TestCase):
     def test_clean_path_str(self):
@@ -409,6 +431,126 @@ class VSCodeHostDetectionTests(unittest.TestCase):
                 lab = runtime.Lab()
                 res = lab.editor()
                 self.assertFalse(res)
+
+
+class IntelliJHostDetectionTests(unittest.TestCase):
+    def test_find_intellij_via_path(self):
+        with patch("shutil.which", return_value="C:\\custom\\bin\\idea64.exe"):
+            found = runtime.find_intellij()
+            self.assertEqual(found, Path("C:\\custom\\bin\\idea64.exe"))
+
+    def test_find_intellij_candidates(self):
+        with patch("shutil.which", return_value=None), \
+             patch.object(runtime, "WINDOWS", True), \
+             patch.object(runtime.sys, "platform", "win32"), \
+             patch.dict(runtime.os.environ, {"ProgramFiles": r"C:\Program Files"}), \
+             patch.object(Path, "glob", autospec=True) as mock_glob, \
+             patch.object(Path, "exists", autospec=True) as mock_exists:
+
+            mock_glob.return_value = [Path(r"C:\Program Files\JetBrains\IntelliJ IDEA 2024.3\bin\idea64.exe")]
+            mock_exists.return_value = True
+            found = runtime.find_intellij()
+            self.assertIsNotNone(found)
+            self.assertTrue(str(found).endswith("idea64.exe"))
+
+    def test_configure_intellij_jdk_creates_and_updates_jdk_table(self):
+        import xml.etree.ElementTree as ET
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            appdata = Path(tmp_dir) / "AppData"
+            jdk_dir = Path(tmp_dir) / "jdk"
+            jdk_dir.mkdir(parents=True)
+            (jdk_dir / "release").write_text('JAVA_VERSION="25"\nMODULES="java.base java.sql"\n', encoding="utf-8")
+            (jdk_dir / "lib").mkdir(parents=True)
+            (jdk_dir / "lib/src.zip").write_bytes(b"PK")
+
+            with patch.dict(runtime.os.environ, {"APPDATA": str(appdata)}), \
+                 patch.object(runtime, "find_intellij", return_value=None):
+                res = runtime.configure_intellij_jdk(jdk_dir)
+                self.assertTrue(res)
+
+                xml_file = appdata / "JetBrains" / "IdeaIC2024.3" / "options" / "jdk.table.xml"
+                self.assertTrue(xml_file.exists())
+
+                tree = ET.parse(xml_file)
+                root = tree.getroot()
+                component = root.find("component")
+                self.assertIsNotNone(component)
+                self.assertEqual(component.get("name"), "ProjectJdkTable")
+
+                jdk = component.find("jdk")
+                self.assertIsNotNone(jdk)
+                self.assertEqual(jdk.find("name").get("value"), "JDK-Kit")
+                self.assertEqual(jdk.find("version").get("value"), "25")
+                self.assertEqual(jdk.find("homePath").get("value"), jdk_dir.resolve().as_posix())
+
+                # Testar atualização idempotente (sem duplicar entradas)
+                runtime.configure_intellij_jdk(jdk_dir)
+                tree2 = ET.parse(xml_file)
+                jdks = tree2.getroot().find("component").findall("jdk")
+                self.assertEqual(len(jdks), 1)
+
+    def test_editor_intellij_missing_alert_and_returns_false(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "projetos/java").mkdir(parents=True)
+            (root / "tools/windows-x64/jdk").mkdir(parents=True)
+            with patch.object(runtime, "ROOT", root), \
+                 patch.object(runtime, "TOOLS", root / "tools/windows-x64"), \
+                 patch.object(runtime, "WINDOWS", True), \
+                 patch.object(runtime.sys, "platform", "win32"), \
+                 patch.object(runtime, "find_intellij", return_value=None), \
+                 patch("builtins.input", return_value="n"):
+                lab = runtime.Lab()
+                self.assertTrue(lab.use_intellij)
+                res = lab.editor()
+                self.assertFalse(res)
+
+    def test_editor_intellij_launches_popen(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "projetos/java").mkdir(parents=True)
+            (root / "tools/windows-x64/jdk").mkdir(parents=True)
+            fake_idea = Path(folder) / "idea64.exe"
+            fake_idea.write_text("")
+            with patch.object(runtime, "ROOT", root), \
+                 patch.object(runtime, "TOOLS", root / "tools/windows-x64"), \
+                 patch.object(runtime, "WINDOWS", True), \
+                 patch.object(runtime.sys, "platform", "win32"), \
+                 patch.object(runtime, "find_intellij", return_value=fake_idea), \
+                 patch.object(runtime, "configure_intellij_jdk", return_value=True), \
+                 patch("subprocess.Popen") as mock_popen:
+                lab = runtime.Lab()
+                self.assertTrue(lab.use_intellij)
+                res = lab.editor()
+                self.assertTrue(res)
+                mock_popen.assert_called_once()
+                args = mock_popen.call_args[0][0]
+                self.assertEqual(args[0], str(fake_idea))
+                self.assertIn("projetos", str(args[1]))
+
+    def test_editor_linux_java_uses_host_vscode(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "projetos/java").mkdir(parents=True)
+            (root / "tools/linux-x64/jdk").mkdir(parents=True)
+            (root / "tools/linux-x64/extensions").mkdir(parents=True)
+            fake_code = Path(folder) / "code"
+            fake_code.write_text("")
+            with patch.object(runtime, "ROOT", root), \
+                 patch.object(runtime, "TOOLS", root / "tools/linux-x64"), \
+                 patch.object(runtime, "WINDOWS", False), \
+                 patch.object(runtime.sys, "platform", "linux"), \
+                 patch.object(runtime, "find_vscode", return_value=fake_code), \
+                 patch("subprocess.Popen") as mock_popen:
+                lab = runtime.Lab()
+                self.assertFalse(lab.use_intellij)
+                res = lab.editor()
+                self.assertTrue(res)
+                mock_popen.assert_called_once()
+                args = mock_popen.call_args[0][0]
+                self.assertEqual(args[0], str(fake_code))
+                self.assertIn("--extensions-dir", args)
+                self.assertIn(str(root / "tools/linux-x64/extensions"), args)
 
 
 if __name__ == "__main__":
