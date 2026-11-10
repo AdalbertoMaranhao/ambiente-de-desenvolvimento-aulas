@@ -46,10 +46,10 @@ fi
 
 # Espaço em disco
 DISK_FREE=$(df -BG . 2>/dev/null | tail -1 | awk '{gsub(/G/,"",$4); print $4}')
-if [ -n "$DISK_FREE" ] && [ "$DISK_FREE" -ge 10 ] 2>/dev/null; then
-    check "disk" "0" "Espaço em disco: ${DISK_FREE}GB livres (mínimo: 10 GB)"
+if [ -n "$DISK_FREE" ] && [ "$DISK_FREE" -ge 5 ] 2>/dev/null; then
+    check "disk" "0" "Espaço em disco: ${DISK_FREE}GB livres (mínimo: 5 GB)"
 else
-    check "disk" "1" "Espaço em disco: ${DISK_FREE}GB livres (mínimo: 10 GB)"
+    check "disk" "1" "Espaço em disco: ${DISK_FREE}GB livres (mínimo: 5 GB)"
 fi
 
 # Python 3 (opcional, o kit já inclui)
@@ -63,9 +63,9 @@ if [ "$FAIL" -eq 0 ]; then
     echo "🎉 Seu computador é compatível com o laboratório!"
     echo ""
     echo "Para iniciar:"
-    echo "  1. Copie a pasta do kit para o seu computador"
-    echo "  2. Clique duas vezes em laboratorio.desktop"
-    echo "     ou abra um terminal e digite: sh iniciar-linux.sh"
+    echo "  1. Extraia o kit no pendrive ou copie a pasta para o seu computador"
+    echo "  2. Clique duas vezes em Iniciar <Disciplina>.desktop"
+    echo "     ou abra um terminal e execute: sh iniciar-linux.sh"
 else
     echo "⚠️  Foram encontrados $FAIL problema(s) de compatibilidade."
     echo "    Consulte o professor antes de usar o laboratório."

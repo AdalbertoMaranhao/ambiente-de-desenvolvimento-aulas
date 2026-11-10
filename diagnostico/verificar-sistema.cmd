@@ -56,11 +56,11 @@ for /f "tokens=3" %%a in ('wmic logicaldisk where "DeviceID='%SYSTEMDRIVE%' " ge
 )
 if defined DISK (
     set /a DISK_GB=DISK/1073741824
-    if %DISK_GB% GEQ 10 (
-        echo   ✅ Espaço em disco: %DISK_GB% GB livres (mínimo: 10 GB)
+    if %DISK_GB% GEQ 5 (
+        echo   ✅ Espaço em disco: %DISK_GB% GB livres (mínimo: 5 GB)
         set /a PASS+=1
     ) else (
-        echo   ❌ Espaço em disco: %DISK_GB% GB livres (mínimo: 10 GB)
+        echo   ❌ Espaço em disco: %DISK_GB% GB livres (mínimo: 5 GB)
         set /a FAIL+=1
     )
 )
@@ -75,8 +75,8 @@ if %FAIL% EQU 0 (
     echo 🎉 Seu computador é compatível com o laboratório!
     echo.
     echo Para iniciar:
-    echo   1. Copie a pasta do kit para o seu computador
-    echo   2. Clique duas vezes em iniciar-windows.cmd
+    echo   1. Extraia o kit no pendrive ou copie a pasta para o seu computador
+    echo   2. Clique duas vezes em Iniciar ^<Disciplina^>.cmd
 ) else (
     echo ⚠️  Foram encontrados %FAIL% problema(s) de compatibilidade.
     echo     Consulte o professor antes de usar o laboratório.
