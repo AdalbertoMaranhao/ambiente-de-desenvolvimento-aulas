@@ -323,6 +323,14 @@ class GravarPendriveTests(unittest.TestCase):
             self.assertEqual((dest_dir / "BEM-VINDO.html").read_text(), "<h1>Bem vindo</h1>")
             self.assertEqual((dest_dir / "projetos" / "ola.txt").read_text(), "Ola")
 
+    def test_obter_volumes_removiveis_retorna_lista(self):
+        import gravar_pendrive
+        vols = gravar_pendrive.obter_volumes_removiveis()
+        self.assertIsInstance(vols, list)
+        for v in vols:
+            self.assertIn("caminho", v)
+            self.assertIn("livre_gb", v)
+
 
 class VerifierTests(unittest.TestCase):
     def test_elf_needed_non_elf(self):

@@ -216,8 +216,23 @@ def main() -> int:
         action="store_true",
         help="Ignora a conferência de hash SHA-256 antes da gravação.",
     )
+    parser.add_argument(
+        "-l", "--listar",
+        action="store_true",
+        help="Apenas lista as unidades removíveis/pendrives conectados e sai.",
+    )
 
     args = parser.parse_args()
+
+    if args.listar:
+        vols = obter_volumes_removiveis()
+        if not vols:
+            print("Nenhuma unidade removível montada detectada.")
+            return 0
+        print(f"Unidades removíveis detectadas ({len(vols)}):")
+        for idx, v in enumerate(vols, 1):
+            print(f"  [{idx}] {v['nome']} ({v['caminho']}) — {v['livre_gb']} GB livres de {v['total_gb']} GB")
+        return 0
 
     print("=" * 65)
     print("  🚀 Gravador de Pendrive do Laboratório Portátil Universal")
