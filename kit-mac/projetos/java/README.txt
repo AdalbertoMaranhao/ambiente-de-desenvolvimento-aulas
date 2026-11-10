@@ -2,24 +2,31 @@
 
 Nesta pasta você desenvolve seus programas Java (.java).
 Coloque seus arquivos de código-fonte dentro da pasta "src/".
-O projeto já vem com a classe de demonstração em "src/OlaMundo.java".
+
+Exemplos incluídos:
+  1. src/OlaMundo.java     - Primeiro programa simples em Java (Olá, mundo!)
+  2. src/ExemploBanco.java - Demonstração de conexão e consulta com o banco SQLite
 
 Como executar:
   • No Windows (IntelliJ IDEA):
     Abra pelo menu do kit ("Iniciar Java.cmd").
-    O IntelliJ instalado na máquina abrirá este projeto já com o JDK portátil (JDK-Kit) e a biblioteca sqlite-jdbc.
-    Basta clicar no botão Run (▶) no canto superior direito para rodar a classe OlaMundo.
+    O IntelliJ abre com o JDK portátil (JDK-Kit) e a biblioteca sqlite-jdbc.
+    No menu de execução superior, escolha "OlaMundo" ou "ExemploBanco" e clique em Run (▶).
 
   • No Linux (VS Code):
     Abra pelo menu do kit ("iniciar-linux.sh").
-    O VS Code instalado na máquina abrirá com as extensões e configurações do kit carregadas.
-    Abra o arquivo src/OlaMundo.java e clique no botão "Run" acima de "public static void main".
+    Abra o arquivo src/OlaMundo.java (ou src/ExemploBanco.java) e clique no botão "Run" acima de main.
 
   • No terminal do kit (Windows ou Linux):
-    javac -cp "../../dependencias/java/sqlite-jdbc.jar;src" -d out src/OlaMundo.java   (Windows)
-    javac -cp "../../dependencias/java/sqlite-jdbc.jar:src" -d out src/OlaMundo.java   (Linux)
-    java -cp "../../dependencias/java/sqlite-jdbc.jar;out" OlaMundo                    (Windows)
-    java -cp "../../dependencias/java/sqlite-jdbc.jar:out" OlaMundo                    (Linux)
+    # Compilar e rodar OlaMundo simples:
+    javac -d out src/OlaMundo.java
+    java -cp out OlaMundo
+
+    # Compilar e rodar ExemploBanco com SQLite:
+    javac -cp "../../dependencias/java/sqlite-jdbc.jar;src" -d out src/ExemploBanco.java   (Windows)
+    javac -cp "../../dependencias/java/sqlite-jdbc.jar:src" -d out src/ExemploBanco.java   (Linux)
+    java -cp "../../dependencias/java/sqlite-jdbc.jar;out" ExemploBanco                    (Windows)
+    java -cp "../../dependencias/java/sqlite-jdbc.jar:out" ExemploBanco                    (Linux)
 
 Banco de Dados SQLite:
   Arquivo: banco.db (localizado nesta mesma pasta)
