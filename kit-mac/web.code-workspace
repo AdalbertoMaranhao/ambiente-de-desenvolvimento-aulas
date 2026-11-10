@@ -23,15 +23,9 @@
     "errorlens.enabled": true,
     "php.validate.executablePath": "/opt/homebrew/bin/php",
     "intelephense.environment.phpVersion": "8.4",
-    "sqltools.useNodeRuntime": true,
-    "sqltools.connections": [
-      {
-        "name": "Banco de Aulas (SQLite)",
-        "dialect": "SQLite",
-        "database": "${workspaceFolder}/banco.db",
-        "isActive": true
-      }
-    ],
+    "workbench.editorAssociations": {
+      "*.db": "sqlite-viewer.view"
+    },
     "terminal.integrated.env.osx": {
       "PATH": "/opt/homebrew/bin:${env:PATH}"
     }

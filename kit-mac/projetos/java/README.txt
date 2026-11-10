@@ -11,7 +11,7 @@ Como executar:
 
 Banco de Dados SQLite:
   Arquivo: banco.db (localizado nesta mesma pasta)
-  Conexão no VS Code: Já conectada automaticamente na barra lateral (ícone SQLTools)!
+  No VS Code: Basta clicar no arquivo banco.db para abrir o SQLite Viewer integrado!
   Driver JDBC: dependencias/java/sqlite-jdbc.jar (já configurado no projeto)
   Conexão em Java:
     import java.sql.Connection;

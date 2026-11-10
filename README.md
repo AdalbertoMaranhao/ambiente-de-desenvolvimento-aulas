@@ -1,6 +1,6 @@
 # Laboratórios Portáteis Universais (Kits Híbridos Dual-OS)
 
-Kits modulares e universais para aulas práticas de **Desenvolvimento Web** (PHP 8.5) e **Programação Orientada a Objetos** (Python 3.13 ou Java 25), integrados com **SQLite 3**, Git e VS Code (com extensão **SQLTools** offline).
+Kits modulares e universais para aulas práticas de **Desenvolvimento Web** (PHP 8.5) e **Programação Orientada a Objetos** (Python 3.13 ou Java 25), integrados com **SQLite 3**, Git e VS Code (com extensão **SQLite Viewer** offline).
 
 Projetados para rodar a partir do **mesmo pendrive** tanto em computadores com **Windows 11 x64** quanto com **Linux Mint 21/22 x64**, sem necessidade de reiniciar a máquina e sem transferências manuais de arquivos:
 * 🟢 **Zero Configuração & Zero Admin:** Funciona sem privilégios de administrador.
@@ -16,9 +16,9 @@ Cada kit é especializado por disciplina e contém os binários de **ambos os si
 
 | Kit Universal | Ferramentas Integradas (Win + Linux) | Foco Pedagógico | Tamanho Extraído | Tamanho do Pacote (.zip) |
 | :--- | :--- | :--- | :---: | :---: |
-| **`kit-web`** | PHP 8.5 (Win) / FrankenPHP (Lin), Composer, SQLite, Git, VS Code + Intelephense + SQLTools + Extensões Pedagógicas | Aulas de Web, páginas dinâmicas e persistência com PDO SQLite | ~3,4 GB | ~1,2 GB |
-| **`kit-poo-python`** | CPython 3.13, pip, SQLite nativo, Git, VS Code + Pylance + Debugpy + SQLTools + Extensões Pedagógicas | Aulas de POO em Python e persistência com `sqlite3` | ~3,4 GB | ~1,2 GB |
-| **`kit-poo-java`** | Adoptium JDK 25 Hotspot, driver SQLite JDBC, Git, VS Code + Red Hat Java + Debugger + SQLTools + Extensões Pedagógicas | Aulas de POO em Java e conexão JDBC | ~3,8 GB | ~1,5 GB |
+| **`kit-web`** | PHP 8.5 (Win) / FrankenPHP (Lin), Composer, SQLite, Git, VS Code + Intelephense + SQLite Viewer + Extensões Pedagógicas | Aulas de Web, páginas dinâmicas e persistência com PDO SQLite | ~3,4 GB | ~1,2 GB |
+| **`kit-poo-python`** | CPython 3.13, pip, SQLite nativo, Git, VS Code + Pylance + Debugpy + SQLite Viewer + Extensões Pedagógicas | Aulas de POO em Python e persistência com `sqlite3` | ~3,4 GB | ~1,2 GB |
+| **`kit-poo-java`** | Adoptium JDK 25 Hotspot, driver SQLite JDBC, Git, VS Code + Red Hat Java + Debugger + SQLite Viewer + Extensões Pedagógicas | Aulas de POO em Java e conexão JDBC | ~3,8 GB | ~1,5 GB |
 
 > [!NOTE]
 > * **Extensões Pedagógicas Incluídas em Todos os Kits:** *Error Lens* (diagnóstico inline imediato), *Indent Rainbow* (identação visual colorida), *Better Comments* (categorização visual de anotações), *Path Intellisense* (autocompletar caminhos de arquivos), *Auto Rename Tag* (fechamento automático de tags HTML/XML) e *Language Pack em Português (Brasil)*.
@@ -40,7 +40,7 @@ Consulte o [Guia Completo do Aluno](GUIA-DO-ALUNO.md) para imprimir ou compartil
 ### Banco de Dados (SQLite)
 * O banco de dados é um arquivo único chamado `banco.db` dentro da pasta do seu projeto.
 * Já vem com a tabela `alunos` criada e registros de exemplo.
-* No VS Code, use o ícone de banco na barra lateral esquerda (**SQLTools**); a conexão **"Banco de Aulas (SQLite)"** já está ativa para visualizar tabelas e rodar queries.
+* No VS Code, basta clicar diretamente no arquivo **`banco.db`** para abrir o **SQLite Viewer** integrado, visualizando tabelas e executando consultas SQL.
 
 ### Testando Códigos de Exemplo
 * **Web (PHP):** Pressione `Ctrl+Shift+B` (ou `Terminal -> Run Task`) e escolha **"🌐 Iniciar Servidor Web PHP"**. Acesse `http://127.0.0.1:8080/ola-mundo.php`.
