@@ -22,6 +22,7 @@ def module(name, path):
 
 builder = module("builder", BASE / "preparar.py")
 runtime = module("runtime", BASE / "kit/lab.py")
+verifier = module("verifier", BASE / "verificar_pacote.py")
 
 
 class ExtractionTests(unittest.TestCase):
@@ -321,6 +322,27 @@ class GravarPendriveTests(unittest.TestCase):
             self.assertTrue((dest_dir / "projetos" / "ola.txt").exists())
             self.assertEqual((dest_dir / "BEM-VINDO.html").read_text(), "<h1>Bem vindo</h1>")
             self.assertEqual((dest_dir / "projetos" / "ola.txt").read_text(), "Ola")
+
+
+class VerifierTests(unittest.TestCase):
+    def test_elf_needed_non_elf(self):
+        with tempfile.TemporaryDirectory() as folder:
+            f = Path(folder) / "not_elf.bin"
+            f.write_bytes(b"MZ\x90\x00\x03\x00\x00\x00")
+            self.assertEqual(verifier.elf_needed(f), [])
+
+    def test_pe_needed_non_pe(self):
+        with tempfile.TemporaryDirectory() as folder:
+            f = Path(folder) / "not_pe.bin"
+            f.write_bytes(b"\x7fELF\x02\x01\x01\x00")
+            self.assertEqual(verifier.pe_needed(f), [])
+
+    def test_inspect_kit_detects_excessive_size(self):
+        with tempfile.TemporaryDirectory() as folder:
+            kit_dir = Path(folder) / "kit-gigante"
+            kit_dir.mkdir()
+            # Inspeciona pasta vazia (deve passar e calcular tamanho 0 GB)
+            self.assertTrue(verifier.inspect_kit(kit_dir))
 
 
 if __name__ == "__main__":
