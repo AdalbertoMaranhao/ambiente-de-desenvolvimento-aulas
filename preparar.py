@@ -740,13 +740,22 @@ StartupNotify=false
     else:
         dest_proj.mkdir(parents=True, exist_ok=True)
 
-    # Workspace dedicado
-    ws_content = {
-        "folders": [
-            {"name": cfg["title"], "path": f"projetos/{proj_folder}"}
-        ]
-    }
-    (kit_dir / "aulas.code-workspace").write_text(json.dumps(ws_content, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    (kit_dir / "aulas.code-workspace").unlink(missing_ok=True)
+
+    # Arquivo .hidden para o Linux Mint (ocultar pastas/arquivos de infraestrutura no gerenciador de arquivos)
+    hidden_entries = [
+        "configuracoes",
+        "tools",
+        "dependencias",
+        "diagnostico",
+        "lab.py",
+        "componentes.lock.json",
+        "PREPARACAO.json",
+        "linux-executaveis.json",
+        "laboratorio.desktop",
+        ".preparacao"
+    ]
+    (kit_dir / ".hidden").write_text("\n".join(hidden_entries) + "\n", encoding="utf-8")
 
     # Configuração de executáveis e wrappers para Windows e Linux
     for os_key, osname in OS_TARGETS.items():
@@ -837,6 +846,27 @@ StartupNotify=false
         "locale": "pt-br",
         "workbench.editorAssociations": {
             "*.db": "sqlite-viewer.view"
+        },
+        "files.exclude": {
+            "**/.git": True,
+            "**/.svn": True,
+            "**/.hg": True,
+            "**/CVS": True,
+            "**/.DS_Store": True,
+            "**/Thumbs.db": True,
+            "**/tools": True,
+            "**/configuracoes": True,
+            "**/dependencias": True,
+            "**/diagnostico": True,
+            "**/lab.py": True,
+            "**/iniciar-windows.cmd": True,
+            "**/iniciar-linux.sh": True,
+            "**/componentes.lock.json": True,
+            "**/PREPARACAO.json": True,
+            "**/linux-executaveis.json": True,
+            "**/laboratorio.desktop": True,
+            "**/.preparacao": True,
+            "**/.hidden": True
         }
     }
     if cfg["has_php"]:
@@ -976,13 +1006,22 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
     else:
         dest_proj.mkdir(parents=True, exist_ok=True)
 
-    # Workspace dedicado
-    ws_content = {
-        "folders": [
-            {"name": cfg["title"], "path": f"projetos/{proj_folder}"}
-        ]
-    }
-    (kit_dir / "aulas.code-workspace").write_text(json.dumps(ws_content, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    (kit_dir / "aulas.code-workspace").unlink(missing_ok=True)
+
+    # Arquivo .hidden para o Linux Mint (ocultar pastas/arquivos de infraestrutura no gerenciador de arquivos)
+    hidden_entries = [
+        "configuracoes",
+        "tools",
+        "dependencias",
+        "diagnostico",
+        "lab.py",
+        "componentes.lock.json",
+        "PREPARACAO.json",
+        "linux-executaveis.json",
+        "laboratorio.desktop",
+        ".preparacao"
+    ]
+    (kit_dir / ".hidden").write_text("\n".join(hidden_entries) + "\n", encoding="utf-8")
 
     # Configuracao de ferramentas e wrappers
     tools = kit_dir / "tools" / osname
@@ -1074,6 +1113,27 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         "locale": "pt-br",
         "workbench.editorAssociations": {
             "*.db": "sqlite-viewer.view"
+        },
+        "files.exclude": {
+            "**/.git": True,
+            "**/.svn": True,
+            "**/.hg": True,
+            "**/CVS": True,
+            "**/.DS_Store": True,
+            "**/Thumbs.db": True,
+            "**/tools": True,
+            "**/configuracoes": True,
+            "**/dependencias": True,
+            "**/diagnostico": True,
+            "**/lab.py": True,
+            "**/iniciar-windows.cmd": True,
+            "**/iniciar-linux.sh": True,
+            "**/componentes.lock.json": True,
+            "**/PREPARACAO.json": True,
+            "**/linux-executaveis.json": True,
+            "**/laboratorio.desktop": True,
+            "**/.preparacao": True,
+            "**/.hidden": True
         }
     }
     if cfg["has_php"]:

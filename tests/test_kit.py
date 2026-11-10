@@ -110,6 +110,20 @@ class RuntimeTests(unittest.TestCase):
         config = json.loads((runtime.STATE / "composer-home/config.json").read_text())
         self.assertFalse(config["repositories"]["packagist.org"])
 
+    def test_editor_vscode_launches_with_target_dir(self):
+        (self.root / "projetos/web").mkdir(parents=True, exist_ok=True)
+        fake_code = self.root / "tools/linux-x64/vscode/bin/code"
+        fake_code.parent.mkdir(parents=True, exist_ok=True)
+        fake_code.touch(mode=0o755)
+        with patch.object(self.lab, "vscode", fake_code), \
+             patch("subprocess.Popen") as mock_popen:
+            res = self.lab.editor()
+            self.assertTrue(res)
+            mock_popen.assert_called_once()
+            args, _ = mock_popen.call_args
+            cmd = args[0]
+            self.assertEqual(cmd[-1], str(self.root / "projetos/web"))
+
 
 class ProfileFilterTests(unittest.TestCase):
     def setUp(self):

@@ -34,6 +34,14 @@ class Lab:
 
         STATE.mkdir(parents=True, exist_ok=True)
         VSCODE_USER.mkdir(parents=True, exist_ok=True)
+        if sys.platform == "win32":
+            try:
+                import ctypes
+                for p in [ROOT / "configuracoes", TOOLS]:
+                    if p.exists():
+                        ctypes.windll.kernel32.SetFileAttributesW(str(p), 2)
+            except Exception:
+                pass
 
         self.python = TOOLS / ("python/python.exe" if WINDOWS else "python/bin/python3")
         self.php = TOOLS / ("php/php.exe" if WINDOWS else "bin/php")
@@ -100,7 +108,6 @@ class Lab:
         (STATE / "composer-home/config.json").write_text(json.dumps(config), encoding="utf-8")
 
     def editor(self, **kwargs):
-        workspace = ROOT / "aulas.code-workspace"
         ext_dir = TOOLS / "vscode/data/extensions"
         user_dir = ROOT / "configuracoes/vscode"
 
@@ -144,10 +151,16 @@ class Lab:
             # Necessário no Linux quando executado sem SUID sandbox root (pendrive/ambiente portátil)
             cmd.append("--no-sandbox")
 
-        if workspace.exists():
-            cmd.append(str(workspace))
-        else:
-            cmd.append(str(ROOT / "projetos"))
+        target_dir = None
+        for sub in ["web", "python", "java"]:
+            candidate = ROOT / "projetos" / sub
+            if candidate.is_dir():
+                target_dir = candidate
+                break
+        if not target_dir or not target_dir.exists():
+            target_dir = ROOT / "projetos"
+
+        cmd.append(str(target_dir))
         try:
             subprocess.Popen(cmd, env=self.env)
             print("🚀 Editor VS Code iniciado!")
