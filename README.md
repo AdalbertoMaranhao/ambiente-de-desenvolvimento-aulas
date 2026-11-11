@@ -1,12 +1,13 @@
-# Laboratórios Portáteis Universais (Edição Leve — Sem Banco de Dados)
+# Laboratórios Portáteis Universais (Provisionamento Local & Isolamento de Alunos)
 
-Kits modulares e universais para aulas práticas de **Desenvolvimento Web** (PHP 8.5) e **Programação Orientada a Objetos** (Java 25 Adoptium), focados em lógica de programação pura, orientação a objetos e desenvolvimento web ágil, sem sobrecarga de serviços de banco de dados.
+Kits modulares e universais para aulas práticas de **Desenvolvimento Web** (PHP 8.5) e **Programação Orientada a Objetos** (Java 25 Adoptium), com arquitetura híbrida de alto desempenho: ferramentas provisionadas no SSD local, perfis individuais e isolados para cada aluno no VS Code da máquina e sincronização bidirecional inteligente (3-way sync) com preservação atômica do Git.
 
 Projetados para rodar a partir do **mesmo pendrive** tanto em computadores com **Windows 11 x64** quanto com **Linux Mint 21/22 x64**, sem necessidade de reiniciar a máquina e sem transferências manuais de arquivos:
+* 🟢 **Desempenho Nativo de SSD:** As ferramentas e o VS Code executam diretamente do armazenamento local da máquina (`%LOCALAPPDATA%\LaboratorioAulas` no Windows e `~/.local/share/laboratorio-aulas` no Linux Mint), eliminando lentidão de I/O de pendrives.
+* 🟢 **Identificação e Isolamento Individual do Aluno:** Cada aluno possui sua pasta e perfil exclusivo de dados no VS Code (`--user-data-dir`), garantindo que diferentes alunos possam usar o mesmo computador sem conflitos ou vazamento de dados.
+* 🟢 **Sincronização Inteligente de Projetos (3-Way Sync):** Sincronização automatizada entre o SSD local e o pendrive, com tolerância a falhas, gravação atômica, isolamento seguro de conflitos com timestamp e preservação integral de repositórios Git (`.git` completo: histórico, branches e tags).
 * 🟢 **Zero Configuração & Zero Admin:** Funciona sem privilégios de administrador.
-* 🟢 **Ultra Leve:** Menos de 800 MB por kit compactado e extração rápida em ~1,5 GB.
-* 🟢 **VS Code da Máquina com Extensões Portáteis:** Utiliza o executável do Visual Studio Code já instalado na máquina hospedeira do laboratório, carregando extensões e configurações de forma 100% portátil do pendrive (`tools/extensions`).
-* 🟢 **Pendrive Limpo e Organizado:** Gravação automática em subpastas dedicadas (`kit-web`, `kit-poo-java`), permitindo múltiplos kits e arquivos pessoais no mesmo pendrive.
+* 🟢 **Extensões VSIX Locais e Offline:** Extensões pedagógicas distribuídas pelo kit e instaladas no diretório local compartilhado da disciplina.
 * 🟢 **100% Offline:** Sem dependência de internet, Docker ou WSL.
 
 ---
@@ -15,10 +16,10 @@ Projetados para rodar a partir do **mesmo pendrive** tanto em computadores com *
 
 Este repositório está organizado em branches modulares para atender a diferentes necessidades pedagógicas:
 
-| Branch | Editor / IDE | Banco de Dados | Linguagens | Perfil de Uso |
+| Branch | Arquitetura / Editor | Banco de Dados | Linguagens | Perfil de Uso |
 | :--- | :--- | :---: | :--- | :--- |
-| **`main`** *(atual)* | VS Code da Máquina | *Nenhum* | PHP 8.5, Java 25 | **Recomendada:** Ultra leve, sem serviços de banco, ideal para lógica e POO pura |
-| **`feature/vscode-sem-banco`** | VS Code da Máquina | *Nenhum* | PHP 8.5, Java 25 | Espelho da `main` para referência |
+| **`feature/vscode-sem-banco`** *(atual)* | Provisionamento Local + Perfis Isolados | *Nenhum* | PHP 8.5, Java 25 | **Nova Arquitetura:** Execução ultra rápida no SSD local, perfil individual de aluno, 3-way sync com Git |
+| **`main`** | VS Code da Máquina (Execução Pendrive) | *Nenhum* | PHP 8.5, Java 25 | Execução portátil direta sem banco |
 | **`feature/vscode-da-maquina`** | VS Code da Máquina | SQLite 3 | PHP 8.5, Java 25 | Para aulas que exigem persistência SQL sem peso de SGBD servidor |
 | **`feature/intellij-java-windows`** | IntelliJ (Win) / VS Code (Lin) | SQLite 3 | PHP 8.5, Java 25 | Para turmas que utilizam a IDE IntelliJ IDEA Community no Windows |
 | **`feature/vscode-portatil`** | VS Code Embutido no Pendrive | SQLite 3 | PHP 8.5, Python 3.13, Java 25 | Ambiente 100% independente (não exige VS Code instalado na máquina) |
@@ -41,7 +42,16 @@ Cada kit é especializado por disciplina e contém os binários de **ambos os si
 
 ---
 
-## 2. Como Usar o Kit (Aluno)
+## 2. Nova Arquitetura de Quatro Camadas
+
+1. **Kit de Distribuição (Pendrive):** Transporte seguro e imutável das ferramentas, extensões `.vsix` e inicializadores.
+2. **Ferramentas Provisionadas Localmente (SSD):** No primeiro uso, o kit provisiona as ferramentas da disciplina no SSD do computador (`%LOCALAPPDATA%\LaboratorioAulas` ou `~/.local/share/laboratorio-aulas`), compartilhadas entre os alunos da máquina para evitar cópias duplicadas.
+3. **Perfil Pessoal do Aluno:** No primeiro uso, o aluno digita seu identificador (ex: `mariasilva` ou matrícula). Seu perfil do VS Code (tema, atalhos, snippets) fica isolado e apenas configurações permitidas (`User/settings.json`, `User/keybindings.json`, `snippets`) são sincronizadas com o pendrive (excluindo caches, logs e lixo de telemetria).
+4. **Projetos do Aluno & Sincronização:** Os códigos são executados e compilados no SSD local para máxima velocidade e sincronizados bidirecionalmente com o pendrive através do algoritmo de 3 vias, preservando 100% o versionamento Git (`.git`).
+
+---
+
+## 3. Como Usar o Kit (Aluno)
 
 Consulte o [Guia Completo do Aluno](GUIA-DO-ALUNO.md) para imprimir ou compartilhar no portal de aulas.
 
@@ -50,8 +60,10 @@ Consulte o [Guia Completo do Aluno](GUIA-DO-ALUNO.md) para imprimir ou compartil
    * **Java:** Abra a pasta `kit-poo-java\`
 2. Dê duplo clique no inicializador correspondente ao sistema:
    * **No Windows:** Abra `iniciar-windows.cmd`
-   * **No Linux Mint:** Abra `laboratorio.desktop` *(ou abra o terminal e execute `./iniciar-linux.sh`)*
-3. O VS Code da máquina abrirá automaticamente já em Português, com o projeto da disciplina carregado e todas as extensões e compiladores configurados a partir do pendrive.
+   * **No Linux Mint:** Abra `laboratorio.desktop` *(ou execute `./iniciar-linux.sh` no terminal)*
+3. Na primeira inicialização, informe seu identificador de aluno (ex: `maria-silva`). Nas próximas vezes, seu ambiente será carregado imediatamente.
+4. Escolha **1** para abrir o VS Code ou utilize o menu para sincronizar ou abrir o terminal.
+5. Ao terminar, escolha a opção **0** no menu para salvar todos os seus arquivos e configurações no pendrive automaticamente!
 
 ### Testando Códigos de Exemplo
 * **Web (PHP):** Pressione `Ctrl+Shift+B` (ou `Terminal -> Run Task`) e escolha **"🌐 Iniciar Servidor Web PHP"**. Acesse `http://127.0.0.1:8080/ola-mundo.php`.

@@ -704,12 +704,18 @@ def assemble_universal_kit(perfil, items, item_paths):
 
     # Copiar scripts de controle base
     shutil.copy2(BASE / "kit" / "lab.py", kit_dir / "lab.py")
+    for extra_mod in ["aluno.py", "extensoes.py", "sincronizacao.py"]:
+        if (BASE / "kit" / extra_mod).exists():
+            shutil.copy2(BASE / "kit" / extra_mod, kit_dir / extra_mod)
     shutil.copy2(BASE / "kit" / "BEM-VINDO.html", kit_dir / "BEM-VINDO.html")
     shutil.copy2(BASE / "kit" / "LEIA-ME.html", kit_dir / "LEIA-ME.html")
     shutil.copy2(BASE / "kit" / "iniciar-windows.cmd", kit_dir / "iniciar-windows.cmd")
     shutil.copy2(BASE / "kit" / "iniciar-linux.sh", kit_dir / "iniciar-linux.sh")
     (kit_dir / "iniciar-linux.sh").chmod(0o755)
     shutil.copy2(BASE / "kit" / "laboratorio.desktop", kit_dir / "laboratorio.desktop")
+
+    # Garante pasta de alunos no pendrive
+    (kit_dir / "alunos").mkdir(parents=True, exist_ok=True)
 
     # Atalhos raiz com o nome específico da disciplina
     launcher_name = cfg.get("launcher_name", "Laboratorio")
@@ -971,8 +977,14 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
 
     # Copiar scripts de controle base
     shutil.copy2(BASE / "kit" / "lab.py", kit_dir / "lab.py")
+    for extra_mod in ["aluno.py", "extensoes.py", "sincronizacao.py"]:
+        if (BASE / "kit" / extra_mod).exists():
+            shutil.copy2(BASE / "kit" / extra_mod, kit_dir / extra_mod)
     shutil.copy2(BASE / "kit" / "BEM-VINDO.html", kit_dir / "BEM-VINDO.html")
     shutil.copy2(BASE / "kit" / "LEIA-ME.html", kit_dir / "LEIA-ME.html")
+
+    # Garante pasta de alunos no pendrive
+    (kit_dir / "alunos").mkdir(parents=True, exist_ok=True)
 
     if os_key == "windows":
         shutil.copy2(BASE / "kit" / "iniciar-windows.cmd", kit_dir / "iniciar-windows.cmd")

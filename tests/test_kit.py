@@ -3,6 +3,7 @@ import importlib.util
 import io
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import tarfile
 import tempfile
@@ -109,6 +110,54 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(Path(self.lab.env["PIP_FIND_LINKS"]), self.root / "dependencias/python")
         config = json.loads((runtime.STATE / "composer-home/config.json").read_text())
         self.assertFalse(config["repositories"]["packagist.org"])
+
+    def test_obter_local_root_custom(self):
+        with patch.dict(runtime.os.environ, {"LAB_LOCAL_ROOT": "/tmp/custom_lab"}):
+            self.assertEqual(runtime.obter_local_root(), Path("/tmp/custom_lab"))
+
+    def test_obter_local_root_windows(self):
+        with patch.dict(runtime.os.environ, {"LAB_LOCAL_ROOT": "", "LOCALAPPDATA": r"C:\Users\Aluno\AppData\Local"}), \
+             patch.object(runtime, "WINDOWS", True):
+            res_str = str(runtime.obter_local_root()).replace("/", "\\")
+            self.assertEqual(res_str, r"C:\Users\Aluno\AppData\Local\LaboratorioAulas")
+
+    def test_obter_local_root_linux(self):
+        with patch.dict(runtime.os.environ, {"LAB_LOCAL_ROOT": "", "XDG_DATA_HOME": "/home/aluno/.local/share"}), \
+             patch.object(runtime, "WINDOWS", False), \
+             patch.object(runtime.sys, "platform", "linux"):
+            expected = Path("/home/aluno/.local/share/laboratorio-aulas")
+            self.assertEqual(runtime.obter_local_root(), expected)
+
+    def test_detectar_disciplina(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "projetos/web").mkdir(parents=True)
+            self.assertEqual(runtime.detectar_disciplina(root), "web")
+
+            shutil.rmtree(root / "projetos/web")
+            (root / "projetos/java").mkdir(parents=True)
+            self.assertEqual(runtime.detectar_disciplina(root), "java")
+
+    def test_provisionar_ferramentas_locais_incremental(self):
+        with tempfile.TemporaryDirectory() as d:
+            kit_root = Path(d) / "pendrive"
+            src_tools = kit_root / "tools/linux-x64"
+            (src_tools / "bin").mkdir(parents=True)
+            (src_tools / "bin/meu_bin").write_text("executavel")
+
+            local_tools = Path(d) / "local/kits/web/linux-x64/tools"
+
+            # 1. Primeira instalação
+            res = runtime.provisionar_ferramentas_locais(kit_root, local_tools, "linux-x64", "web")
+            self.assertEqual(res, local_tools)
+            self.assertTrue((local_tools / "bin/meu_bin").exists())
+            self.assertTrue((local_tools / "manifesto-instalacao.json").exists())
+
+            # 2. Rechamada sem alteração de hash (deve reutilizar)
+            mtime_antes = (local_tools / "manifesto-instalacao.json").stat().st_mtime
+            res2 = runtime.provisionar_ferramentas_locais(kit_root, local_tools, "linux-x64", "web")
+            self.assertEqual(res2, local_tools)
+            self.assertEqual((local_tools / "manifesto-instalacao.json").stat().st_mtime, mtime_antes)
 
 
 class ProfileFilterTests(unittest.TestCase):
@@ -544,6 +593,7 @@ class VSCodeHostDetectionTests(unittest.TestCase):
             fake_code.parent.mkdir(parents=True, exist_ok=True)
             fake_code.touch(mode=0o755)
             with patch.object(runtime, "ROOT", root), \
+                 patch.object(runtime, "LOCAL_ROOT", root / "local"), \
                  patch.object(runtime, "STATE", root / "configuracoes/linux-x64"), \
                  patch.object(runtime, "VSCODE_USER", root / "configuracoes/vscode"), \
                  patch.object(runtime, "find_vscode", return_value=fake_code), \
@@ -557,7 +607,10 @@ class VSCodeHostDetectionTests(unittest.TestCase):
                 mock_popen.assert_called_once()
                 args, kwargs = mock_popen.call_args
                 cmd = args[0]
-                self.assertEqual(cmd[-1], str(root / "projetos/web"))
+                self.assertEqual(cmd[-1], str(lab.aluno.local_projetos / "web"))
+                self.assertIn("--user-data-dir", cmd)
+                self.assertIn("--new-window", cmd)
+                self.assertEqual(cmd[cmd.index("--user-data-dir") + 1], str(lab.aluno.local_vscode_user_data))
 
     def test_editor_missing_vscode_prints_alert_and_returns_false(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -575,6 +628,288 @@ class VSCodeHostDetectionTests(unittest.TestCase):
                 lab = runtime.Lab()
                 res = lab.editor()
                 self.assertFalse(res)
+
+
+class AlunoTests(unittest.TestCase):
+    def test_validar_identificador(self):
+        from kit.aluno import validar_identificador
+        self.assertTrue(validar_identificador("joao-silva"))
+        self.assertTrue(validar_identificador("maria123"))
+        self.assertTrue(validar_identificador("aluno_1"))
+        self.assertTrue(validar_identificador("aluno"))
+
+        self.assertFalse(validar_identificador(""))
+        self.assertFalse(validar_identificador("a"))  # < 2 chars
+        self.assertFalse(validar_identificador("nome com espaco"))
+        self.assertFalse(validar_identificador("nome*invalido"))
+        self.assertFalse(validar_identificador("aluno@escola.edu.br"))
+
+    def test_aluno_pastas_e_identidade(self):
+        from kit.aluno import Aluno
+        with tempfile.TemporaryDirectory() as d:
+            kit_root = Path(d) / "pendrive"
+            local_root = Path(d) / "local"
+            aluno = Aluno("maria-dev", kit_root, local_root)
+            aluno.garantir_pastas()
+
+            self.assertTrue(aluno.pendrive_dir.exists())
+            self.assertTrue(aluno.local_dir.exists())
+            self.assertTrue(aluno.local_vscode_user_data.exists())
+            self.assertTrue((aluno.pendrive_dir / "identidade.json").exists())
+            self.assertTrue((aluno.local_dir / "identidade.json").exists())
+
+    def test_dois_alunos_na_mesma_maquina_isolados(self):
+        from kit.aluno import Aluno
+        with tempfile.TemporaryDirectory() as d:
+            kit_root = Path(d) / "pendrive"
+            local_root = Path(d) / "local"
+            aluno1 = Aluno("aluno-a", kit_root, local_root)
+            aluno2 = Aluno("aluno-b", kit_root, local_root)
+            aluno1.garantir_pastas()
+            aluno2.garantir_pastas()
+
+            self.assertNotEqual(aluno1.local_vscode_user_data, aluno2.local_vscode_user_data)
+            self.assertNotEqual(aluno1.local_gitconfig, aluno2.local_gitconfig)
+
+            aluno1.configurar_git("Aluno A", "a@escola.com")
+            aluno2.configurar_git("Aluno B", "b@escola.com")
+
+            self.assertIn("Aluno A", aluno1.local_gitconfig.read_text())
+            self.assertIn("Aluno B", aluno2.local_gitconfig.read_text())
+
+    def test_perfil_vscode_sincroniza_apenas_autorizados(self):
+        from kit.aluno import Aluno
+        with tempfile.TemporaryDirectory() as d:
+            kit_root = Path(d) / "pendrive"
+            local_root = Path(d) / "local"
+            aluno = Aluno("joao", kit_root, local_root)
+            aluno.garantir_pastas()
+            aluno.inicializar_perfil_vscode()
+
+            # 1. Arquivos autorizados
+            (aluno.local_vscode_user_data / "User" / "settings.json").write_text('{"editor.fontSize": 16}')
+            (aluno.local_vscode_user_data / "User" / "keybindings.json").write_text('[]')
+            (aluno.local_vscode_user_data / "User" / "snippets").mkdir(parents=True)
+            (aluno.local_vscode_user_data / "User" / "snippets" / "php.json").write_text('{}')
+
+            # 2. Arquivos de cache proibidos que NÃO devem ser sincronizados
+            (aluno.local_vscode_user_data / "Cache").mkdir()
+            (aluno.local_vscode_user_data / "Cache" / "lixo.bin").write_text('cache')
+            (aluno.local_vscode_user_data / "GPUCache").mkdir()
+            (aluno.local_vscode_user_data / "GPUCache" / "gpu.bin").write_text('gpu')
+            (aluno.local_vscode_user_data / "logs").mkdir()
+            (aluno.local_vscode_user_data / "logs" / "sessao.log").write_text('log')
+            (aluno.local_vscode_user_data / "workspaceStorage").mkdir()
+            (aluno.local_vscode_user_data / "workspaceStorage" / "db.vscdb").write_text('vscdb')
+
+            aluno.sincronizar_perfil_para_pendrive()
+
+            # No pendrive:
+            self.assertTrue((aluno.pendrive_vscode / "User/settings.json").exists())
+            self.assertTrue((aluno.pendrive_vscode / "User/keybindings.json").exists())
+            self.assertTrue((aluno.pendrive_vscode / "User/snippets/php.json").exists())
+
+            # Caches NÃO devem estar no pendrive:
+            self.assertFalse((aluno.pendrive_vscode / "Cache").exists())
+            self.assertFalse((aluno.pendrive_vscode / "GPUCache").exists())
+            self.assertFalse((aluno.pendrive_vscode / "logs").exists())
+            self.assertFalse((aluno.pendrive_vscode / "workspaceStorage").exists())
+
+
+class ExtensoesTests(unittest.TestCase):
+    def test_obter_extensoes_instaladas(self):
+        from kit.extensoes import obter_extensoes_instaladas
+        with tempfile.TemporaryDirectory() as d:
+            ext_dir = Path(d)
+            (ext_dir / "redhat.java-1.39.0").mkdir()
+            (ext_dir / "bmewburn.vscode-intelephense-client-1.12.0").mkdir()
+
+            instaladas = obter_extensoes_instaladas(ext_dir)
+            self.assertIn("redhat.java", instaladas)
+            self.assertIn("bmewburn.vscode-intelephense-client", instaladas)
+
+    def test_instalar_extensoes_locais_fallback(self):
+        from kit.extensoes import instalar_extensoes_locais
+        with tempfile.TemporaryDirectory() as d:
+            kit_root = Path(d) / "pendrive"
+            local_ext = Path(d) / "local_ext"
+            (kit_root / "tools/extensions/minha-ext-1.0").mkdir(parents=True)
+            (kit_root / "tools/extensions/minha-ext-1.0/package.json").write_text('{"name": "minha-ext"}')
+
+            res = instalar_extensoes_locais(kit_root, local_ext, "linux-x64", "web", code_bin=None)
+            self.assertIn("minha-ext-1.0", res)
+            self.assertTrue((local_ext / "minha-ext-1.0/package.json").exists())
+
+
+class SincronizacaoTests(unittest.TestCase):
+    def test_sincronizacao_criacao_bidirecional(self):
+        from kit.sincronizacao import sincronizar_projetos
+        with tempfile.TemporaryDirectory() as d:
+            pen = Path(d) / "pendrive/projetos"
+            loc = Path(d) / "local/projetos"
+            sync_dir = Path(d) / "pendrive/sincronizacao"
+
+            (pen / "web").mkdir(parents=True)
+            (loc / "web").mkdir(parents=True)
+
+            (pen / "web/index.php").write_text("echo 'ola';")
+            (loc / "web/estilo.css").write_text("body { color: red; }")
+
+            relatorio = sincronizar_projetos(pen, loc, sync_dir, disciplina="web")
+            self.assertTrue(relatorio.sucesso)
+            self.assertIn("index.php", relatorio.copiados_para_local)
+            self.assertIn("estilo.css", relatorio.copiados_para_pendrive)
+
+            self.assertEqual((loc / "web/index.php").read_text(), "echo 'ola';")
+            self.assertEqual((pen / "web/estilo.css").read_text(), "body { color: red; }")
+            self.assertTrue((sync_dir / "snapshot_web.json").exists())
+
+    def test_sincronizacao_modificacao_e_delecao(self):
+        from kit.sincronizacao import sincronizar_projetos
+        with tempfile.TemporaryDirectory() as d:
+            pen = Path(d) / "pendrive/projetos"
+            loc = Path(d) / "local/projetos"
+            sync_dir = Path(d) / "pendrive/sincronizacao"
+
+            (pen / "web").mkdir(parents=True)
+            (loc / "web").mkdir(parents=True)
+
+            # Estado inicial
+            (loc / "web/arquivo1.txt").write_text("v1")
+            (loc / "web/arquivo2.txt").write_text("remover")
+            sincronizar_projetos(pen, loc, sync_dir, disciplina="web")
+
+            # 1. Modificar arquivo1 no local
+            (loc / "web/arquivo1.txt").write_text("v2-modificado")
+            # 2. Deletar arquivo2 no local
+            (loc / "web/arquivo2.txt").unlink()
+
+            rel = sincronizar_projetos(pen, loc, sync_dir, disciplina="web")
+            self.assertTrue(rel.sucesso)
+            self.assertIn("arquivo1.txt", rel.copiados_para_pendrive)
+            self.assertIn("arquivo2.txt", rel.deletados_no_pendrive)
+
+            self.assertEqual((pen / "web/arquivo1.txt").read_text(), "v2-modificado")
+            self.assertFalse((pen / "web/arquivo2.txt").exists())
+
+    def test_sincronizacao_conflito_isolamento(self):
+        from kit.sincronizacao import sincronizar_projetos
+        with tempfile.TemporaryDirectory() as d:
+            pen = Path(d) / "pendrive/projetos"
+            loc = Path(d) / "local/projetos"
+            sync_dir = Path(d) / "pendrive/sincronizacao"
+
+            (loc / "web").mkdir(parents=True)
+            (loc / "web/codigo.js").write_text("versao original")
+            sincronizar_projetos(pen, loc, sync_dir, disciplina="web")
+
+            # Ambas as pontas modificam com conteúdos conflitantes
+            (loc / "web/codigo.js").write_text("versao do local (SSD)")
+            (pen / "web/codigo.js").write_text("versao do pendrive")
+
+            rel = sincronizar_projetos(pen, loc, sync_dir, disciplina="web")
+            self.assertTrue(rel.sucesso)
+            self.assertEqual(len(rel.conflitos), 1)
+            self.assertIn("codigo.js", rel.conflitos)
+
+            # Verifica pasta de conflitos criada
+            conflitos_pasta = sync_dir / "conflitos"
+            self.assertTrue(conflitos_pasta.exists())
+            subpastas = list(conflitos_pasta.iterdir())
+            self.assertEqual(len(subpastas), 1)
+
+            pasta_conflito = subpastas[0]
+            self.assertTrue((pasta_conflito / "codigo.js.local").exists())
+            self.assertTrue((pasta_conflito / "codigo.js.pendrive").exists())
+            self.assertTrue((pasta_conflito / "codigo.js.conflito.json").exists())
+
+    def test_sincronizacao_ignora_arquivos_volateis(self):
+        from kit.sincronizacao import sincronizar_projetos
+        with tempfile.TemporaryDirectory() as d:
+            pen = Path(d) / "pendrive/projetos"
+            loc = Path(d) / "local/projetos"
+            sync_dir = Path(d) / "pendrive/sincronizacao"
+
+            (loc / "java/node_modules/pacote").mkdir(parents=True)
+            (loc / "java/node_modules/pacote/lixo.js").write_text("lixo")
+            (loc / "java/target/classes").mkdir(parents=True)
+            (loc / "java/target/classes/Main.class").write_text("byte")
+            (loc / "java/.DS_Store").write_text("mac")
+            (loc / "java/temp.tmp").write_text("temp")
+            (loc / "java/App.java").write_text("class App {}")
+
+            rel = sincronizar_projetos(pen, loc, sync_dir, disciplina="java")
+            self.assertTrue(rel.sucesso)
+            self.assertIn("App.java", rel.copiados_para_pendrive)
+
+            # Voláteis NÃO devem ter ido para o pendrive
+            self.assertTrue((pen / "java/App.java").exists())
+            self.assertFalse((pen / "java/node_modules").exists())
+            self.assertFalse((pen / "java/target").exists())
+            self.assertFalse((pen / "java/.DS_Store").exists())
+            self.assertFalse((pen / "java/temp.tmp").exists())
+
+    def test_sincronizacao_preserva_repositorio_git(self):
+        from kit.sincronizacao import sincronizar_projetos
+        with tempfile.TemporaryDirectory() as d:
+            pen = Path(d) / "pendrive/projetos"
+            loc = Path(d) / "local/projetos"
+            sync_dir = Path(d) / "pendrive/sincronizacao"
+
+            repo_loc = loc / "web/meu-repo"
+            repo_loc.mkdir(parents=True)
+
+            # Inicializa repo Git real
+            subprocess.run(["git", "init", str(repo_loc)], check=True, capture_output=True)
+            (repo_loc / "index.php").write_text("<?php echo 'v1';")
+            subprocess.run(["git", "-C", str(repo_loc), "add", "."], check=True, capture_output=True)
+            subprocess.run([
+                "git", "-C", str(repo_loc),
+                "-c", "user.name=AlunoTeste", "-c", "user.email=aluno@teste.com",
+                "commit", "-m", "Commit inicial"
+            ], check=True, capture_output=True)
+
+            # Criar uma branch secundária
+            subprocess.run(["git", "-C", str(repo_loc), "branch", "feature-login"], check=True, capture_output=True)
+
+            # Sincronizar para o pendrive
+            rel = sincronizar_projetos(pen, loc, sync_dir, disciplina="web")
+            self.assertTrue(rel.sucesso)
+
+            # Simular um NOVO computador (loc2) onde o aluno conectou o pendrive
+            loc2 = Path(d) / "outro_computador/projetos"
+            rel2 = sincronizar_projetos(pen, loc2, sync_dir, disciplina="web")
+            self.assertTrue(rel2.sucesso)
+
+            repo_restaurado = loc2 / "web/meu-repo"
+            self.assertTrue((repo_restaurado / ".git").is_dir())
+            self.assertTrue((repo_restaurado / "index.php").exists())
+
+            # Verificar integridade Git no repositório restaurado
+            log_proc = subprocess.run(
+                ["git", "-C", str(repo_restaurado), "log", "--oneline"],
+                check=True, capture_output=True, text=True
+            )
+            self.assertIn("Commit inicial", log_proc.stdout)
+
+            branch_proc = subprocess.run(
+                ["git", "-C", str(repo_restaurado), "branch"],
+                check=True, capture_output=True, text=True
+            )
+            self.assertIn("feature-login", branch_proc.stdout)
+
+    def test_lock_concorrencia(self):
+        from kit.sincronizacao import LockSincronizacao
+        with tempfile.TemporaryDirectory() as d:
+            lock_file = Path(d) / "sync.lock"
+            with LockSincronizacao(lock_file):
+                self.assertTrue(lock_file.exists())
+                # Tentar adquirir novamente no mesmo processo
+                with self.assertRaises(RuntimeError):
+                    with LockSincronizacao(lock_file):
+                        pass
+            # Após o with, lock deve ter sido liberado
+            self.assertFalse(lock_file.exists())
 
 
 if __name__ == "__main__":

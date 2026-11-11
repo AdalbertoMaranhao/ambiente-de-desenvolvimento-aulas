@@ -31,12 +31,15 @@ BASE_DIR = Path(__file__).resolve().parent
 DIST_DIR = BASE_DIR / "dist"
 
 KITS_MAP = {
-    "web": ("kit-web.zip", "Desenvolvimento Web (PHP 8.5)"),
-    "poo-java": ("kit-poo-java.zip", "POO com Java 25 (Adoptium)"),
+    "web": ("kit-web.zip", "Desenvolvimento Web Universal (PHP 8.5)"),
+    "poo-java": ("kit-poo-java.zip", "POO com Java 25 Universal (Adoptium)"),
 }
-# Suporte dinâmico para kit Python em branches que o possuam
-if (DIST_DIR / "kit-poo-python.zip").exists() or (DIST_DIR / "kit-poo-python").exists():
-    KITS_MAP["poo-python"] = ("kit-poo-python.zip", "POO com Python 3.13")
+# Suporte dinâmico para distribuições específicas de sistema operacional
+for _perfil, _nome_base in [("web", "Desenvolvimento Web"), ("poo-java", "POO com Java 25")]:
+    for _os_k, _os_label in [("windows", "Windows 11"), ("linux", "Linux Mint")]:
+        _zip_name = f"kit-{_perfil}-{_os_k}.zip"
+        if (DIST_DIR / _zip_name).exists() or (DIST_DIR / f"kit-{_perfil}-{_os_k}").exists():
+            KITS_MAP[f"{_perfil}-{_os_k}"] = (_zip_name, f"{_nome_base} ({_os_label})")
 
 
 class ProgressBar:
@@ -320,6 +323,11 @@ def criar_leia_me_raiz(pendrive_raiz: Path, kit_key: str) -> None:
             "  2. No Windows : dê dois cliques no arquivo 'iniciar-windows.cmd'",
             "  3. No Linux   : dê dois cliques em 'laboratorio.desktop' ou",
             "                  abra o terminal na pasta e execute: ./iniciar-linux.sh",
+            "",
+            "Nova Arquitetura de Provisionamento Local:",
+            "  • Na primeira utilização, informe seu identificador de aluno.",
+            "  • As ferramentas e o VS Code executam no SSD local para máxima velocidade.",
+            "  • Seus projetos e configurações pessoais são salvos com segurança no pendrive.",
             "=================================================================",
         ])
         leia_me.write_text("\n".join(linhas) + "\n", encoding="utf-8")
@@ -855,6 +863,7 @@ def main() -> int:
         extrair_com_progresso(zip_path, kit_destino, forcar_python=forcar_py)
 
     ajustar_permissoes_pos_gravacao(kit_destino)
+    (kit_destino / "alunos").mkdir(parents=True, exist_ok=True)
 
     if kit_destino != destino:
         criar_leia_me_raiz(destino, kit_key)

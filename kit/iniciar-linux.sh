@@ -1,12 +1,24 @@
 #!/bin/sh
 set -eu
+
+# 1. Localizar o kit (diretorio deste script)
 TASK_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-TASK_PYTHON="$TASK_ROOT/ferramentas/linux-x64/python/bin/python3"
-if [ ! -f "$TASK_PYTHON" ]; then
+
+# 2. Localizar Python de bootstrap (primeiro no armazenamento local, depois no pendrive)
+LOCAL_BOOTSTRAP="${XDG_DATA_HOME:-$HOME/.local/share}/laboratorio-aulas/bootstrap/linux-x64/python/bin/python3"
+TASK_PYTHON=""
+if [ -f "$LOCAL_BOOTSTRAP" ]; then
+    TASK_PYTHON="$LOCAL_BOOTSTRAP"
+elif [ -f "$TASK_ROOT/ferramentas/linux-x64/python/bin/python3" ]; then
+    TASK_PYTHON="$TASK_ROOT/ferramentas/linux-x64/python/bin/python3"
+elif [ -f "$TASK_ROOT/tools/linux-x64/python/bin/python3" ]; then
     TASK_PYTHON="$TASK_ROOT/tools/linux-x64/python/bin/python3"
+elif command -v python3 >/dev/null 2>&1; then
+    TASK_PYTHON="$(command -v python3)"
 fi
-if [ ! -f "$TASK_PYTHON" ]; then
-    echo 'Kit incompleto. As ferramentas para Linux nao foram encontradas.' >&2
+
+if [ -z "$TASK_PYTHON" ]; then
+    echo 'Kit incompleto. Python de inicializacao nao encontrado.' >&2
     exit 1
 fi
 
