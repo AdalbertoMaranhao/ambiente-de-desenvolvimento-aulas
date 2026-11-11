@@ -6,7 +6,8 @@ Permite ao professor ou aluno gravar um Kit Universal de Programação
 diretamente em um pendrive (formatado em exFAT ou FAT32), validando integridade,
 espaço em disco e permissões de execução.
 
-Destaques de Desempenho:
+Destaques:
+  • Barra de progresso visual em tempo real (compatível com UTF-8 e ASCII).
   • Detecção de motor nativo compilado em C (tar.exe / libarchive) para extração ultra-rápida.
   • Cópia direta de pasta SSD montada via robocopy /MT:8 (Windows) ou rsync (Unix).
   • Fallback Python otimizado com cache de diretórios e buffers I/O de 1 MB.
@@ -22,6 +23,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import threading
 import time
 import zipfile
 
@@ -37,12 +39,85 @@ if (DIST_DIR / "kit-poo-python.zip").exists() or (DIST_DIR / "kit-poo-python").e
     KITS_MAP["poo-python"] = ("kit-poo-python.zip", "POO com Python 3.13")
 
 
-def calcular_sha256(arquivo: Path) -> str:
-    """Calcula o SHA-256 de um arquivo em chunks de 1 MB."""
+class ProgressBar:
+    """Barra de progresso sem dependências externas, compatível com UTF-8 e ASCII."""
+
+    def __init__(self, total: int, title: str = "Progresso", width: int = 25):
+        self.total = max(1, total)
+        self.current = 0
+        self.title = title
+        self.width = width
+        self.lock = threading.Lock()
+        self.is_tty = sys.stdout.isatty()
+        self.unicode = True
+        try:
+            "█░".encode(sys.stdout.encoding or "utf-8")
+        except (UnicodeEncodeError, LookupError):
+            self.unicode = False
+
+    def update(self, step: int = 1, detail: str = ""):
+        with self.lock:
+            self.current = min(self.total, self.current + step)
+            self._render(detail)
+
+    def set_current(self, current: int, detail: str = ""):
+        with self.lock:
+            self.current = min(self.total, current)
+            self._render(detail)
+
+    def _render(self, detail: str = ""):
+        fraction = self.current / self.total
+        percent = int(fraction * 100)
+        filled = int(fraction * self.width)
+        empty = self.width - filled
+
+        fill_char = "█" if self.unicode else "="
+        empty_char = "░" if self.unicode else "-"
+        bar = fill_char * filled + empty_char * empty
+
+        detail_str = f" - {detail}" if detail else ""
+        line = f"\r{self.title} [{bar}] {self.current}/{self.total} ({percent:3d}%){detail_str}"
+
+        try:
+            term_cols = shutil.get_terminal_size((80, 24)).columns
+            if len(line) > term_cols - 1:
+                line = line[: term_cols - 4] + "..."
+        except Exception:
+            pass
+
+        if self.is_tty:
+            sys.stdout.write(line + "\033[K")
+            sys.stdout.flush()
+        else:
+            if self.current == self.total or percent % 20 == 0:
+                sys.stdout.write(f"{self.title} [{bar}] {self.current}/{self.total} ({percent}%){detail_str}\n")
+                sys.stdout.flush()
+
+    def finish(self, message: str = ""):
+        with self.lock:
+            self.current = self.total
+            self._render(message)
+            sys.stdout.write("\n")
+            sys.stdout.flush()
+
+
+def calcular_sha256(arquivo: Path, exibir_progresso: bool = False) -> str:
+    """Calcula o SHA-256 de um arquivo em chunks de 1 MB exibindo barra de progresso."""
     hasher = hashlib.sha256()
+    size = arquivo.stat().st_size
+    total_mb = max(1, size // (1024 * 1024))
+    bar = ProgressBar(total_mb, title=f"⏳ SHA-256 {arquivo.name[:20]}") if (exibir_progresso and size > 5 * 1024 * 1024) else None
+
     with open(arquivo, "rb") as f:
+        mb_read = 0
         while chunk := f.read(1024 * 1024):
             hasher.update(chunk)
+            mb_read += 1
+            if bar:
+                bar.set_current(mb_read, f"{mb_read} MB")
+
+    if bar:
+        bar.finish("Concluído!")
     return hasher.hexdigest()
 
 
@@ -156,7 +231,7 @@ def validar_integridade_pacote(zip_path: Path) -> bool:
 
     esperado = sha_file.read_text().strip().split()[0]
     print(f"⏳ Verificando integridade de {zip_path.name}...")
-    obtido = calcular_sha256(zip_path)
+    obtido = calcular_sha256(zip_path, exibir_progresso=True)
 
     if obtido.lower() == esperado.lower():
         print("  ✅ Verificação SHA-256 aprovada.")
@@ -181,16 +256,40 @@ def testar_suporte_nativo_tar(zip_path: Path) -> bool:
 
 
 def extrair_nativo_tar(zip_path: Path, destino: Path) -> bool:
-    """Extrai o arquivo .zip usando o tar nativo do SO em alta velocidade (libarchive compilado)."""
+    """Extrai o arquivo .zip usando o tar nativo do SO com barra de progresso em tempo real."""
     try:
-        print(f"⚡ Utilizando motor de alta performance (tar nativo)...")
-        print(f"📦 Descompactando {zip_path.name} para {destino}...")
+        total_files = 0
+        try:
+            with zipfile.ZipFile(zip_path, "r") as zf:
+                total_files = len(zf.infolist())
+        except Exception:
+            pass
+
+        bar = ProgressBar(total_files if total_files > 0 else 100, title=f"⚡ {zip_path.name} (tar)")
         t0 = time.time()
-        cmd = ["tar", "-xf", str(zip_path), "--strip-components=1", "-C", str(destino)]
-        res = subprocess.run(cmd)
-        if res.returncode == 0:
+
+        proc = subprocess.Popen(
+            ["tar", "-xvf", str(zip_path), "--strip-components=1", "-C", str(destino)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            text=True,
+            bufsize=1
+        )
+
+        count = 0
+        if proc.stderr:
+            for line in proc.stderr:
+                count += 1
+                parts = line.strip().split()
+                fname = parts[-1].split("/")[-1] if parts else ""
+                if count % 15 == 0 or (total_files > 0 and count == total_files):
+                    bar.set_current(min(total_files or count, count), fname[:25])
+            proc.stderr.close()
+
+        proc.wait()
+        if proc.returncode == 0:
             elapsed = time.time() - t0
-            print(f"  ✅ Extração nativa finalizada em {elapsed:.1f}s!")
+            bar.finish(f"Concluído em {elapsed:.1f}s!")
             return True
     except Exception as e:
         print(f"⚠️  Falha ao executar extração nativa ({e}). Alternando para extrator otimizado em Python...")
@@ -209,7 +308,6 @@ def copiar_pasta_direta(origem: Path, destino: Path) -> bool:
             print("⚡ Executando cópia acelerada via robocopy (8 threads paralelas)...")
             cmd = ["robocopy", str(origem), str(destino), "/E", "/MT:8", "/R:1", "/W:1", "/NFL", "/NDL", "/NP"]
             res = subprocess.run(cmd)
-            # Robocopy retorna códigos < 8 para cópias bem sucedidas
             if res.returncode < 8:
                 elapsed = time.time() - t0
                 print(f"  ✅ Cópia direta finalizada em {elapsed:.1f}s!")
@@ -231,15 +329,15 @@ def copiar_pasta_direta(origem: Path, destino: Path) -> bool:
             except Exception:
                 pass
 
-    # Fallback em Python com buffer de 1 MB
-    print("⏳ Copiando arquivos via buffer otimizado...")
+    # Fallback em Python com barra de progresso e buffer de 1 MB
     return copiar_pasta_python(origem, destino)
 
 
 def copiar_pasta_python(origem: Path, destino: Path) -> bool:
-    """Cópia recursiva em Python com cache de diretórios e buffers de 1 MB."""
-    dirs_criados = set()
+    """Cópia recursiva em Python com cache de diretórios, buffers de 1 MB e barra de progresso."""
+    dirs_criados = set([destino])
     total_files = sum(1 for _ in origem.rglob("*") if _.is_file())
+    bar = ProgressBar(total_files, title=f"🚀 {origem.name}")
     count = 0
 
     for root, _, files in os.walk(origem):
@@ -257,17 +355,15 @@ def copiar_pasta_python(origem: Path, destino: Path) -> bool:
                 while chunk := s.read(1024 * 1024):
                     d.write(chunk)
             count += 1
-            if count % 250 == 0 or count == total_files:
-                pct = int((count / total_files) * 100)
-                sys.stdout.write(f"\r  Progresso: [{pct:3d}%] ({count}/{total_files} arquivos)")
-                sys.stdout.flush()
+            if count % 15 == 0 or count == total_files:
+                bar.set_current(count, f[:25])
 
-    print("\n  ✅ Cópia finalizada com sucesso!")
+    bar.finish("Concluído!")
     return True
 
 
 def extrair_com_progresso(zip_path: Path, destino: Path, forcar_python: bool = False) -> None:
-    """Extrai o arquivo .zip no destino utilizando o melhor motor disponível."""
+    """Extrai o arquivo .zip no destino utilizando o melhor motor disponível com barra de progresso."""
     destino.mkdir(parents=True, exist_ok=True)
 
     # 1. Tentar motor nativo tar (se disponível e não forçado Python)
@@ -275,11 +371,11 @@ def extrair_com_progresso(zip_path: Path, destino: Path, forcar_python: bool = F
         if extrair_nativo_tar(zip_path, destino):
             return
 
-    # 2. Motor Python Otimizado (Cache de diretórios + buffer de 1 MB)
+    # 2. Motor Python Otimizado (Cache de diretórios + buffer de 1 MB + ProgressBar)
     with zipfile.ZipFile(zip_path, "r") as zf:
         infolist = zf.infolist()
         total = len(infolist)
-        print(f"📦 Extraindo {total} itens para {destino} (buffer otimizado)...")
+        bar = ProgressBar(total, title=f"📦 {zip_path.name}")
 
         primeiro_segmento = infolist[0].filename.split("/")[0] if infolist else ""
         tem_prefixo_comum = bool(primeiro_segmento) and all(
@@ -324,12 +420,11 @@ def extrair_com_progresso(zip_path: Path, destino: Path, forcar_python: bool = F
                         except OSError:
                             pass
 
-            if i % 250 == 0 or i == total:
-                pct = int((i / total) * 100)
-                sys.stdout.write(f"\r  Progresso: [{pct:3d}%] ({i}/{total} itens)")
-                sys.stdout.flush()
+            if i % 15 == 0 or i == total:
+                fname = rel_path.split("/")[-1]
+                bar.set_current(i, fname[:25])
 
-        print("\n  ✅ Extração finalizada com sucesso!")
+        bar.finish("Concluído!")
 
 
 def ajustar_permissoes_pos_gravacao(destino: Path) -> None:
