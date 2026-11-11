@@ -345,6 +345,77 @@ class GravarPendriveTests(unittest.TestCase):
             self.assertIn("caminho", v)
             self.assertIn("livre_gb", v)
 
+    def test_extrair_com_progresso_python_forcado(self):
+        import gravar_pendrive
+        with tempfile.TemporaryDirectory() as folder:
+            zip_path = Path(folder) / "kit-py.zip"
+            dest_dir = Path(folder) / "pendrive"
+
+            with zipfile.ZipFile(zip_path, "w") as zf:
+                zf.writestr("kit-web/sub/arquivo.txt", "conteudo teste")
+
+            gravar_pendrive.extrair_com_progresso(zip_path, dest_dir, forcar_python=True)
+            self.assertTrue((dest_dir / "sub" / "arquivo.txt").exists())
+            self.assertEqual((dest_dir / "sub" / "arquivo.txt").read_text(), "conteudo teste")
+
+    def test_copiar_pasta_direta(self):
+        import gravar_pendrive
+        with tempfile.TemporaryDirectory() as folder:
+            origem = Path(folder) / "ssd_kit"
+            (origem / "sub").mkdir(parents=True)
+            (origem / "sub" / "teste.txt").write_text("direto ssd")
+            destino = Path(folder) / "pendrive"
+
+            gravar_pendrive.copiar_pasta_direta(origem, destino)
+            self.assertTrue((destino / "sub" / "teste.txt").exists())
+            self.assertEqual((destino / "sub" / "teste.txt").read_text(), "direto ssd")
+
+    def test_resolve_kit_target_unifica_extensions(self):
+        import preparar
+        kit_dir = Path("/tmp/teste_kit")
+        item_win = {
+            "name": "ext-teste-windows",
+            "kind": "vsix",
+            "target": "tools/windows-x64/extensions/minha-ext-1.0",
+        }
+        item_linux = {
+            "name": "ext-teste-linux",
+            "kind": "vsix",
+            "target": "tools/linux-x64/extensions/minha-ext-1.0",
+        }
+        res_win = preparar.resolve_kit_target(item_win, kit_dir)
+        res_linux = preparar.resolve_kit_target(item_linux, kit_dir)
+        self.assertEqual(res_win, res_linux)
+        self.assertTrue(str(res_win).endswith("tools/extensions/minha-ext-1.0"))
+
+    def test_prune_kit_dead_weight(self):
+        import preparar
+        with tempfile.TemporaryDirectory() as folder:
+            kit_dir = Path(folder)
+            # Criar arquivos que devem ser podados
+            terminfo = kit_dir / "tools" / "linux-x64" / "python" / "share" / "terminfo" / "x" / "xterm"
+            terminfo.parent.mkdir(parents=True)
+            terminfo.write_text("info")
+
+            tcl = kit_dir / "tools" / "windows-x64" / "python" / "tcl" / "init.tcl"
+            tcl.parent.mkdir(parents=True)
+            tcl.write_text("tcl")
+
+            inc = kit_dir / "tools" / "windows-x64" / "python" / "include" / "Python.h"
+            inc.parent.mkdir(parents=True)
+            inc.write_text("h")
+
+            doc = kit_dir / "tools" / "linux-x64" / "sysroot" / "usr" / "share" / "doc" / "copyright"
+            doc.parent.mkdir(parents=True)
+            doc.write_text("doc")
+
+            preparar.prune_kit_dead_weight(kit_dir)
+
+            self.assertFalse(terminfo.exists())
+            self.assertFalse(tcl.exists())
+            self.assertFalse(inc.exists())
+            self.assertFalse(doc.exists())
+
 
 class VerifierTests(unittest.TestCase):
     def test_elf_needed_non_elf(self):

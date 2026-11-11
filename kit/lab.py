@@ -108,7 +108,11 @@ class Lab:
         (STATE / "composer-home/config.json").write_text(json.dumps(config), encoding="utf-8")
 
     def editor(self, **kwargs):
-        ext_dir = TOOLS / "vscode/data/extensions"
+        ext_dir = ROOT / "tools" / "extensions"
+        if not ext_dir.exists():
+            ext_dir = TOOLS / "extensions"
+        if not ext_dir.exists() and (TOOLS / "vscode/data/extensions").exists():
+            ext_dir = TOOLS / "vscode/data/extensions"
         user_dir = ROOT / "configuracoes/vscode"
 
         vscode_exe = self.vscode
