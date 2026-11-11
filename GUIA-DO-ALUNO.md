@@ -6,34 +6,34 @@ Este guia contém tudo o que você precisa saber para utilizar seu ambiente de d
 
 ## 1. Preparação do Pendrive
 
-* **Capacidade recomendada:** Pendrive de **8 GB** ou superior.
+* **Capacidade recomendada:** Pendrive de **8 GB** ou superior (o kit utiliza menos de 2 GB, deixando mais de 6 GB livres para seus arquivos).
 * **Formatação recomendada:** **exFAT** (suporta arquivos grandes e funciona nativamente em Windows, Linux e Mac) ou **FAT32**.
 * **Rótulo do pendrive (opcional):** `AULAS`.
 
 > [!TIP]
-> Deixe os arquivos do kit descompactados diretamente na **raiz** do seu pendrive.
+> Os kits ficam organizados em pastas dedicadas no pendrive (ex: `kit-web` ou `kit-poo-java`). Você pode ter ambos no mesmo pendrive sem conflitos!
 
 ---
 
 ## 2. Como Abrir o Ambiente no Laboratório
 
-Conecte o pendrive no computador e abra a pasta da unidade:
+Conecte o pendrive no computador, abra a pasta do kit da sua disciplina (ex: `kit-web` ou `kit-poo-java`) e dê duplo clique no inicializador:
 
 | Sistema Operacional | O que fazer |
 | :--- | :--- |
-| **Windows 11** | Dê duplo clique no atalho: <br> `Iniciar <Sua-Disciplina>.cmd` (ex: `Iniciar Web.cmd`) |
-| **Linux Mint** | Dê duplo clique no atalho: <br> `Iniciar <Sua-Disciplina>.desktop` *(ou abra o terminal na pasta e execute `./iniciar-linux.sh`)* |
+| **Windows 11** | Dê duplo clique no atalho: <br> `iniciar-windows.cmd` |
+| **Linux Mint** | Dê duplo clique no atalho: <br> `laboratorio.desktop` *(ou abra o terminal na pasta e execute `./iniciar-linux.sh`)* |
 
-O **Visual Studio Code** abrirá automaticamente já em **Português (Brasil)**, com o seu projeto carregado, compilador/interpretador configurado e o banco de dados conectado.
+O **Visual Studio Code** da máquina abrirá automaticamente já em **Português (Brasil)**, com o seu projeto carregado, compilador/interpretador configurado e as extensões pedagógicas prontas para uso a partir do pendrive.
 
 ---
 
 ## 3. Onde Ficam seus Códigos?
 
-Seus trabalhos ficam sempre dentro da pasta `projetos/`:
+Seus trabalhos ficam sempre dentro da pasta `projetos/` dentro da pasta do kit:
 
-* **Desenvolvimento Web:** `projetos/web/` (`.php`, `.html`, `.css`, `.js`)
-* **POO com Java:** `projetos/java/` (`.java`)
+* **Desenvolvimento Web:** `kit-web/projetos/` (`.php`, `.html`, `.css`, `.js`)
+* **POO com Java:** `kit-poo-java/projetos/` (`.java`)
 
 ---
 
@@ -47,12 +47,12 @@ Cada kit vem com um arquivo de teste pronto:
 3. Abra seu navegador em: `http://127.0.0.1:8080/ola-mundo.php`.
 
 ### ☕ Java (POO)
-1. Abra o arquivo `src/OlaMundo.java` (ou clique no botão ▶ no canto superior direito do IntelliJ).
+1. Abra o arquivo `projetos/OlaMundo.java`.
 2. Clique no botão **`Run`** que aparece logo acima do método `public static void main`.
 
 ---
 
-## 6. Recursos Visuais Pedagógicos no VS Code
+## 5. Recursos Visuais Pedagógicos no VS Code
 
 Para ajudar você a aprender a programar e encontrar erros com rapidez:
 
@@ -69,7 +69,7 @@ Para ajudar você a aprender a programar e encontrar erros com rapidez:
 
 ---
 
-## 7. Regra de Ouro ao Final da Aula
+## 6. Regra de Ouro ao Final da Aula
 
 1. Salve todos os seus arquivos abertos no VS Code (`Ctrl + S`).
 2. Feche o VS Code normalmente.
@@ -77,7 +77,7 @@ Para ajudar você a aprender a programar e encontrar erros com rapidez:
 
 ---
 
-## 8. Dúvidas Frequentes
+## 7. Dúvidas Frequentes
 
 * **O Linux Mint diz que o arquivo não tem permissão para executar:**  
   O atalho `iniciar-linux.sh` ajusta as permissões automaticamente. Caso o pendrive tenha sido montado com a opção restritiva `noexec`, copie a pasta do kit para a sua pasta pessoal (`~/aulas`) e execute de lá.
