@@ -616,6 +616,42 @@ def setup_linux_executables(tools_dir, kit_dir):
     (kit_dir / "linux-executaveis.json").write_text(manifest_data, encoding="utf-8")
 
 
+def resolve_kit_target(item: dict, kit_dir: Path) -> Path:
+    """Resolve o caminho de destino no kit, unificando extensões compartilhadas."""
+    target_rel = item["target"]
+    if item.get("kind") == "vsix" and "extensions/" in target_rel:
+        ext_folder = target_rel.split("extensions/", 1)[1]
+        target_rel = f"tools/extensions/{ext_folder}"
+    return to_long_path(kit_dir / target_rel)
+
+
+def prune_kit_dead_weight(kit_dir: Path) -> None:
+    """Remove arquivos legados, documentações e resíduos não utilizados para acelerar a transferência para pendrive."""
+    # 1. Poda de terminfo e man no Python do Linux (~2.850 arquivos)
+    terminfo_dir = kit_dir / "tools" / "linux-x64" / "python" / "share" / "terminfo"
+    if terminfo_dir.exists():
+        shutil.rmtree(terminfo_dir, ignore_errors=True)
+    man_dir = kit_dir / "tools" / "linux-x64" / "python" / "share" / "man"
+    if man_dir.exists():
+        shutil.rmtree(man_dir, ignore_errors=True)
+
+    # 2. Poda de Tcl/Tk no Python do Windows (~1.270 arquivos)
+    tcl_dir = kit_dir / "tools" / "windows-x64" / "python" / "tcl"
+    if tcl_dir.exists():
+        shutil.rmtree(tcl_dir, ignore_errors=True)
+
+    # 3. Poda de cabeçalhos C (.h) nos runtimes Python (~528 arquivos)
+    for os_dir in ["windows-x64", "linux-x64"]:
+        inc_dir = kit_dir / "tools" / os_dir / "python" / "include"
+        if inc_dir.exists():
+            shutil.rmtree(inc_dir, ignore_errors=True)
+
+    # 4. Poda de documentação em pacotes debian extraídos (~666 arquivos)
+    doc_dir = kit_dir / "tools" / "linux-x64" / "sysroot" / "usr" / "share" / "doc"
+    if doc_dir.exists():
+        shutil.rmtree(doc_dir, ignore_errors=True)
+
+
 def assemble_universal_kit(perfil, items, item_paths):
     cfg = PROFILES[perfil]
     kit_name = f"kit-{perfil}"
@@ -643,10 +679,15 @@ def assemble_universal_kit(perfil, items, item_paths):
         path = paths_dict.get(item["name"])
         if path is None:
             path = acquire(item)
-        target = to_long_path(kit_dir / item["target"])
+        target = resolve_kit_target(item, kit_dir)
         marker = to_long_path(kit_dir / ".preparacao" / (item["name"] + ".sha256"))
         if item["kind"] != "deb" and marker.exists() and marker.read_text() == item["sha256"] and target.exists():
             bar.set_current(idx, f"Cache {item['name']}")
+            continue
+        if item["kind"] == "vsix" and target.exists():
+            marker.parent.mkdir(parents=True, exist_ok=True)
+            marker.write_text(item["sha256"])
+            bar.set_current(idx, f"Compartilhada {item['name']}")
             continue
         if item["kind"] == "file":
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -659,6 +700,7 @@ def assemble_universal_kit(perfil, items, item_paths):
 
     bar.finish("Extração concluída!")
     materialize_links(DEFERRED_LINKS)
+    prune_kit_dead_weight(kit_dir)
 
     # Copiar scripts de controle base
     shutil.copy2(BASE / "kit" / "lab.py", kit_dir / "lab.py")
@@ -718,6 +760,7 @@ StartupNotify=false
     ]
     (kit_dir / ".hidden").write_text("\n".join(hidden_entries) + "\n", encoding="utf-8")
 
+    (kit_dir / "tools" / "extensions").mkdir(parents=True, exist_ok=True)
     # Configuração de executáveis e wrappers para Windows e Linux
     for os_key, osname in OS_TARGETS.items():
         tools = kit_dir / "tools" / osname
@@ -902,10 +945,15 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         path = paths_dict.get(item["name"])
         if path is None:
             path = acquire(item)
-        target = to_long_path(kit_dir / item["target"])
+        target = resolve_kit_target(item, kit_dir)
         marker = to_long_path(kit_dir / ".preparacao" / (item["name"] + ".sha256"))
         if item["kind"] != "deb" and marker.exists() and marker.read_text() == item["sha256"] and target.exists():
             bar.set_current(idx, f"Cache {item['name']}")
+            continue
+        if item["kind"] == "vsix" and target.exists():
+            marker.parent.mkdir(parents=True, exist_ok=True)
+            marker.write_text(item["sha256"])
+            bar.set_current(idx, f"Compartilhada {item['name']}")
             continue
         if item["kind"] == "file":
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -919,6 +967,7 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
     bar.finish("Extração concluída!")
 
     materialize_links(DEFERRED_LINKS)
+    prune_kit_dead_weight(kit_dir)
 
     # Copiar scripts de controle base
     shutil.copy2(BASE / "kit" / "lab.py", kit_dir / "lab.py")
