@@ -33,36 +33,20 @@ O **Visual Studio Code** abrirá automaticamente já em **Português (Brasil)**,
 Seus trabalhos ficam sempre dentro da pasta `projetos/`:
 
 * **Desenvolvimento Web:** `projetos/web/` (`.php`, `.html`, `.css`, `.js`)
-* **POO com Python:** `projetos/python/` (`.py`)
 * **POO com Java:** `projetos/java/` (`.java`)
 
 ---
 
-## 4. Banco de Dados (SQLite Integrado)
-
-Seu laboratório utiliza **SQLite**, o que significa que o banco de dados é um arquivo único chamado **`banco.db`** dentro da pasta do seu projeto.
-
-### Vantagens para você:
-* **Sem servidores para ligar:** Não precisa iniciar serviços nem se preocupar com portas ocupadas.
-* **100% Portátil:** Modificações feitas no Windows aparecem de imediato no Linux e vice-versa.
-* **Painel Visual:** No VS Code, basta clicar diretamente no arquivo **`banco.db`** na barra lateral de arquivos para abrir o **SQLite Viewer** integrado. Ele permite navegar pelas tabelas, visualizar dados e rodar consultas SQL facilmente.
-
----
-
-## 5. Como Testar seu Primeiro Programa
+## 4. Como Testar seu Primeiro Programa
 
 Cada kit vem com um arquivo de teste pronto:
 
-### 🌐 Web (PHP & SQLite)
+### 🌐 Web (PHP)
 1. Pressione `Ctrl + Shift + B` (ou menu `Terminal -> Run Task`).
 2. Selecione **"🌐 Iniciar Servidor Web PHP"**.
 3. Abra seu navegador em: `http://127.0.0.1:8080/ola-mundo.php`.
 
-### 🐍 Python (POO & SQLite)
-1. Abra o arquivo `ola-mundo.py`.
-2. Pressione a tecla `F5` ou clique no botão de Play no canto superior direito.
-
-### ☕ Java (POO & SQLite)
+### ☕ Java (POO)
 1. Abra o arquivo `src/OlaMundo.java` (ou clique no botão ▶ no canto superior direito do IntelliJ).
 2. Clique no botão **`Run`** que aparece logo acima do método `public static void main`.
 

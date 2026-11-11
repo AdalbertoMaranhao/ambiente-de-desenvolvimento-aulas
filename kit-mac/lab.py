@@ -25,16 +25,14 @@ class MacLab:
     def open_editor(self):
         print("""
 Qual workspace deseja abrir no VS Code?
-  [1] Web (PHP 8.5 & SQLite)
-  [2] POO Python (CPython 3.13 & SQLite)
-  [3] POO Java (Adoptium JDK 25 & SQLite)
-  [4] Todos os projetos""")
-        choice = input("👉 Escolha (1-4) [1]: ").strip()
+  [1] Web (PHP 8.5)
+  [2] POO Java (Adoptium JDK 25)
+  [3] Todos os projetos""")
+        choice = input("👉 Escolha (1-3) [1]: ").strip()
         workspaces = {
             "1": ROOT / "web.code-workspace",
-            "2": ROOT / "poo-python.code-workspace",
-            "3": ROOT / "poo-java.code-workspace",
-            "4": ROOT / "projetos"
+            "2": ROOT / "poo-java.code-workspace",
+            "3": ROOT / "projetos"
         }
         target = workspaces.get(choice, ROOT / "web.code-workspace")
         print(f"🚀 Abrindo VS Code: {target.name}...")
@@ -77,29 +75,8 @@ Qual workspace deseja abrir no VS Code?
                 print(f"  ❌ {name:<12}: {e}")
                 failures += 1
 
-        # Verificar SQLite nativo
-        try:
-            with sqlite3.connect(":memory:") as conn:
-                conn.execute("CREATE TABLE t (id INT);")
-            print("  ✅ SQLite      : Driver nativo operacional")
-        except Exception as e:
-            print(f"  ❌ SQLite      : {e}")
-            failures += 1
-
-        # Verificar banco.db nos projetos
-        for p in (ROOT / "projetos").glob("*/banco.db"):
-            try:
-                with sqlite3.connect(p) as conn:
-                    cur = conn.cursor()
-                    cur.execute("SELECT count(*) FROM sqlite_master WHERE type='table';")
-                    qtd = cur.fetchone()[0]
-                print(f"  ✅ Banco SQLite: {p.relative_to(ROOT)} ({qtd} tabelas)")
-            except Exception as e:
-                print(f"  ❌ Banco SQLite: {p} — {e}")
-                failures += 1
-
         if failures == 0:
-            print("\n🎉 Ambiente macOS 100% configurado e pronto para aulas com SQLite!")
+            print("\n🎉 Ambiente macOS 100% configurado e pronto para aulas!")
         else:
             print(f"\n⚠️  {failures} ferramenta(s) precisam de atenção.")
 

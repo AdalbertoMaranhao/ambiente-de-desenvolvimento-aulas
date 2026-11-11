@@ -35,16 +35,10 @@ Consulte o [Guia Completo do Aluno](GUIA-DO-ALUNO.md) para imprimir ou compartil
 2. Dê duplo clique no lançador correspondente ao sistema da máquina:
    * **No Windows:** Abra `Iniciar <Disciplina>.cmd` (ex: `Iniciar Web.cmd`).
    * **No Linux Mint:** Abra `Iniciar <Disciplina>.desktop` (ou execute `./iniciar-linux.sh`).
-3. O VS Code abrirá com seu projeto carregado, o banco de dados conectado e extensões prontas.
-
-### Banco de Dados (SQLite)
-* O banco de dados é um arquivo único chamado `banco.db` dentro da pasta do seu projeto.
-* Já vem com a tabela `alunos` criada e registros de exemplo.
-* No VS Code, basta clicar diretamente no arquivo **`banco.db`** para abrir o **SQLite Viewer** integrado, visualizando tabelas e executando consultas SQL.
+3. O VS Code abrirá com seu projeto carregado e as extensões prontas.
 
 ### Testando Códigos de Exemplo
 * **Web (PHP):** Pressione `Ctrl+Shift+B` (ou `Terminal -> Run Task`) e escolha **"🌐 Iniciar Servidor Web PHP"**. Acesse `http://127.0.0.1:8080/ola-mundo.php`.
-* **Python:** Abra `ola-mundo.py` e pressione `F5`.
 * **Java:** Abra `src/OlaMundo.java` e clique no botão `Run` acima de `main` (ou ▶ no IntelliJ).
 
 ---
@@ -54,10 +48,10 @@ Consulte o [Guia Completo do Aluno](GUIA-DO-ALUNO.md) para imprimir ou compartil
 O script [`preparar.py`](file:///Users/adalberto/ambiente_de_desenvolvimento_portatil/preparar.py) automatiza a montagem dos kits universais:
 
 ```sh
-# Montar os 3 kits universais em dist/
+# Montar os kits universais em dist/
 python3 preparar.py montar
 
-# Compactar os 3 kits em arquivos .zip universais
+# Compactar os kits em arquivos .zip universais
 python3 preparar.py zip
 
 # Ou fazer tudo em um comando só
@@ -66,7 +60,6 @@ python3 preparar.py tudo
 
 Os pacotes gerados ficam na pasta `dist/`:
 * `dist/kit-web.zip`
-* `dist/kit-poo-python.zip`
 * `dist/kit-poo-java.zip`
 
 ---

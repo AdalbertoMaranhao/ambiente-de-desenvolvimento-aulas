@@ -41,18 +41,13 @@ PEDAGOGICAL_EXTENSIONS = [
 ALL_KNOWN_EXTENSIONS = [
     "redhat.java",
     "vscjava.vscode-java-debug",
-    "ms-python.python",
-    "ms-python.vscode-pylance",
-    "ms-python.debugpy",
-    "ms-python.vscode-python-envs",
     "bmewburn.vscode-intelephense-client",
-    "qwtel.sqlite-viewer",
     *PEDAGOGICAL_EXTENSIONS
 ]
 
 PROFILES = {
     "web": {
-        "title": "Desenvolvimento Web (PHP 8.5 & SQLite)",
+        "title": "Desenvolvimento Web (PHP 8.5)",
         "launcher_name": "Web",
         "project_folder": "web",
         "has_php": True,
@@ -62,30 +57,11 @@ PROFILES = {
         "has_java": False,
         "extensions": [
             "bmewburn.vscode-intelephense-client",
-            "qwtel.sqlite-viewer",
-            *PEDAGOGICAL_EXTENSIONS
-        ]
-    },
-    "poo-python": {
-        "title": "POO com Python (CPython 3.13 & SQLite)",
-        "launcher_name": "Python",
-        "project_folder": "python",
-        "has_php": False,
-        "has_composer": False,
-        "has_python": True,
-        "has_python_dev": True,
-        "has_java": False,
-        "extensions": [
-            "ms-python.python",
-            "ms-python.vscode-pylance",
-            "ms-python.debugpy",
-            "ms-python.vscode-python-envs",
-            "qwtel.sqlite-viewer",
             *PEDAGOGICAL_EXTENSIONS
         ]
     },
     "poo-java": {
-        "title": "POO com Java (Adoptium JDK 25 & SQLite)",
+        "title": "POO com Java (Adoptium JDK 25)",
         "launcher_name": "Java",
         "project_folder": "java",
         "has_php": False,
@@ -96,7 +72,6 @@ PROFILES = {
         "extensions": [
             "redhat.java",
             "vscjava.vscode-java-debug",
-            "qwtel.sqlite-viewer",
             *PEDAGOGICAL_EXTENSIONS
         ]
     }
@@ -386,14 +361,6 @@ def resolve():
         fetch("https://getcomposer.org" + comp["path"] + ".sha256sum", checksum)
     add("composer", comp["version"], "https://getcomposer.org" + comp["path"], "dependencias/composer/composer.phar", "file", checksum.read_text().split()[0])
 
-    jdbc = CAT / "jdbc.xml"
-    if not jdbc.exists():
-        fetch("https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/maven-metadata.xml", jdbc)
-    tree = ET.fromstring(jdbc.read_text())
-    version = (tree.find("./versioning/release") or tree.find("./versioning/latest")).text
-    url = "https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/" + version + "/sqlite-jdbc-" + version + ".jar"
-    add("jdbc", version, url, "dependencias/java/sqlite-jdbc.jar", "file")
-
     extensions = ALL_KNOWN_EXTENSIONS
     for ext in extensions:
         data = metadata("ext-" + ext, "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery",
@@ -402,7 +369,7 @@ def resolve():
         for platform in ["windows-x64", "linux-x64"]:
             target = "win32-x64" if platform.startswith("windows") else "linux-x64"
             choices = [v for v in versions if not any(p["key"] == "Microsoft.VisualStudio.Code.PreRelease" and p["value"] == "true" for p in v.get("properties", []))]
-            v = next((v for v in choices if v.get("targetPlatform") == (None if ext not in ("redhat.java", "vscjava.vscode-java-debug", "ms-python.python", "ms-python.vscode-pylance", "ms-python.debugpy", "ms-python.vscode-python-envs") else target)), None)
+            v = next((v for v in choices if v.get("targetPlatform") == (None if ext not in ("redhat.java", "vscjava.vscode-java-debug") else target)), None)
             if v is None:
                 v = next(v for v in choices if not v.get("targetPlatform"))
             url = next(f["source"] for f in v["files"] if f["assetType"] == "Microsoft.VisualStudio.Services.VSIXPackage")
@@ -590,8 +557,6 @@ def filter_items_for_profile(items, perfil, osname):
         if name.startswith("jdk-"):
             if not cfg["has_java"] or not name.endswith(osname):
                 continue
-        if name == "jdbc" and not cfg["has_java"]:
-            continue
 
         # Filtragem de extensoes
         is_extension = any(name.startswith(ext + "-") for ext in ALL_KNOWN_EXTENSIONS)
@@ -771,8 +736,6 @@ StartupNotify=false
                 "python3": '"%~dp0..\\python\\python.exe" %*',
                 "lab": '"%~dp0..\\python\\python.exe" "%~dp0..\\..\\..\\lab.py" %*'
             }
-            if cfg["has_python_dev"]:
-                commands["pip"] = '"%~dp0..\\python\\python.exe" -m pip %*'
             if cfg["has_php"]:
                 commands["php"] = '"%~dp0..\\php\\php.exe" %*'
                 commands["composer"] = '"%~dp0..\\php\\php.exe" "%~dp0..\\..\\..\\dependencias\\composer\\composer.phar" %*'
@@ -785,8 +748,6 @@ StartupNotify=false
                     "error_reporting = E_ALL\n"
                     "memory_limit = 256M\n\n"
                     "extension_dir = \"ext\"\n"
-                    "extension = pdo_sqlite\n"
-                    "extension = sqlite3\n"
                     "extension = mbstring\n"
                     "extension = openssl\n"
                     "extension = curl\n"
@@ -804,8 +765,6 @@ StartupNotify=false
                 "lab": 'exec "$TASK_DIR/python/bin/python3" "$TASK_DIR/../../lab.py" "$@"',
                 "git": 'export LD_LIBRARY_PATH="$TASK_DIR/sysroot/usr/lib/x86_64-linux-gnu:$TASK_DIR/sysroot/lib/x86_64-linux-gnu"\nexport GIT_EXEC_PATH="$TASK_DIR/sysroot/usr/lib/git-core"\nexport GIT_TEMPLATE_DIR="$TASK_DIR/sysroot/usr/share/git-core/templates"\nexec "$TASK_DIR/sysroot/usr/bin/git" "$@"'
             }
-            if cfg["has_python_dev"]:
-                commands["pip"] = 'exec "$TASK_DIR/python/bin/python3" -m pip "$@"'
             if cfg["has_php"]:
                 commands["php"] = 'exec "$TASK_DIR/php/frankenphp" php-cli "$@"'
                 commands["composer"] = 'exec "$TASK_DIR/bin/php" "$TASK_DIR/../../dependencias/composer/composer.phar" "$@"'
@@ -837,9 +796,6 @@ StartupNotify=false
         "editor.wordWrap": "on",
         "errorlens.enabled": True,
         "locale": "pt-br",
-        "workbench.editorAssociations": {
-            "*.db": "sqlite-viewer.view"
-        },
         "files.exclude": {
             "**/.git": True,
             "**/.svn": True,
@@ -869,9 +825,6 @@ StartupNotify=false
         settings["java.import.gradle.enabled"] = False
         settings["java.autobuild.enabled"] = False
         settings["java.jdt.ls.vmargs"] = "-Xmx512m -Xms64m"
-    if cfg["has_python_dev"]:
-        settings["python.terminal.activateEnvironment"] = False
-        settings["python.experiments.enabled"] = False
 
     settings_json_str = json.dumps(settings, indent=2, ensure_ascii=False) + "\n"
     (shared_user_dir / "settings.json").write_text(settings_json_str, encoding="utf-8")
@@ -1025,8 +978,6 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
             "python3": '"%~dp0..\\python\\python.exe" %*',
             "lab": '"%~dp0..\\python\\python.exe" "%~dp0..\\..\\..\\lab.py" %*'
         }
-        if cfg["has_python_dev"]:
-            commands["pip"] = '"%~dp0..\\python\\python.exe" -m pip %*'
         if cfg["has_php"]:
             commands["php"] = '"%~dp0..\\php\\php.exe" %*'
             commands["composer"] = '"%~dp0..\\php\\php.exe" "%~dp0..\\..\\..\\dependencias\\composer\\composer.phar" %*'
@@ -1039,8 +990,6 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
                 "error_reporting = E_ALL\n"
                 "memory_limit = 256M\n\n"
                 "extension_dir = \"ext\"\n"
-                "extension = pdo_sqlite\n"
-                "extension = sqlite3\n"
                 "extension = mbstring\n"
                 "extension = openssl\n"
                 "extension = curl\n"
@@ -1060,8 +1009,6 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
             "lab": 'exec "$TASK_DIR/python/bin/python3" "$TASK_DIR/../../lab.py" "$@"',
             "git": 'export LD_LIBRARY_PATH="$TASK_DIR/sysroot/usr/lib/x86_64-linux-gnu:$TASK_DIR/sysroot/lib/x86_64-linux-gnu"\nexport GIT_EXEC_PATH="$TASK_DIR/sysroot/usr/lib/git-core"\nexport GIT_TEMPLATE_DIR="$TASK_DIR/sysroot/usr/share/git-core/templates"\nexec "$TASK_DIR/sysroot/usr/bin/git" "$@"'
         }
-        if cfg["has_python_dev"]:
-            commands["pip"] = 'exec "$TASK_DIR/python/bin/python3" -m pip "$@"'
         if cfg["has_php"]:
             commands["php"] = 'exec "$TASK_DIR/php/frankenphp" php-cli "$@"'
             commands["composer"] = 'exec "$TASK_DIR/bin/php" "$TASK_DIR/../../dependencias/composer/composer.phar" "$@"'
@@ -1095,9 +1042,6 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         "editor.wordWrap": "on",
         "errorlens.enabled": True,
         "locale": "pt-br",
-        "workbench.editorAssociations": {
-            "*.db": "sqlite-viewer.view"
-        },
         "files.exclude": {
             "**/.git": True,
             "**/.svn": True,
@@ -1127,9 +1071,6 @@ def assemble_single_kit(perfil, os_key, items, item_paths):
         settings["java.import.gradle.enabled"] = False
         settings["java.autobuild.enabled"] = False
         settings["java.jdt.ls.vmargs"] = "-Xmx512m -Xms64m"
-    if cfg["has_python_dev"]:
-        settings["python.terminal.activateEnvironment"] = False
-        settings["python.experiments.enabled"] = False
 
     settings_file.write_text(json.dumps(settings, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     argv_str = json.dumps({"locale": "pt-br"}, indent=2) + "\n"
@@ -1220,12 +1161,11 @@ def interactive_menu():
 
     print("""
 Perfis disponíveis:
-  [1] web         - Desenvolvimento Web (PHP 8.5 & SQLite)
-  [2] poo-python  - POO com Python (CPython 3.13 & SQLite)
-  [3] poo-java    - POO com Java (JDK 25 & SQLite)
-  [4] todos       - Gerar os 3 perfis""")
-    perfil_choice = input("👉 Escolha o perfil (1-4) [todos]: ").strip()
-    perfil_map = {"1": "web", "2": "poo-python", "3": "poo-java", "4": "todos", "": "todos"}
+  [1] web         - Desenvolvimento Web (PHP 8.5)
+  [2] poo-java    - POO com Java (JDK 25)
+  [3] todos       - Gerar os 2 perfis""")
+    perfil_choice = input("👉 Escolha o perfil (1-3) [todos]: ").strip()
+    perfil_map = {"1": "web", "2": "poo-java", "3": "todos", "": "todos"}
     perfil = perfil_map.get(perfil_choice, "todos")
 
     print("""
@@ -1243,7 +1183,7 @@ Modalidade do Kit:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("acao", choices=["resolver", "baixar", "montar", "zip", "tudo", "menu", "gravar"], nargs="?", default=None)
-    parser.add_argument("--perfil", choices=["web", "poo-python", "poo-java", "todos"], default=None)
+    parser.add_argument("--perfil", choices=["web", "poo-java", "todos"], default=None)
     parser.add_argument("--so", choices=["windows", "linux", "ambos"], default=None)
     args = parser.parse_args()
 

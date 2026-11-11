@@ -138,14 +138,14 @@ class Lab:
         for key in ["TMP", "TEMP", "TMPDIR"]:
             self.env[key] = str(STATE / "tmp")
 
-        # Configuração do PHP com SQLite
+        # Configuração do PHP
         self.env["PHPRC"] = str(STATE / "php-conf")
         self.env["PHP_INI_SCAN_DIR"] = str(STATE / "php-conf/extra")
         (STATE / "php-conf/extra").mkdir(exist_ok=True)
         ini = 'date.timezone=America/Fortaleza\ndefault_charset=UTF-8\ndisplay_errors=On\nerror_reporting=E_ALL\nmemory_limit=256M\n'
         if WINDOWS:
             ini += 'extension_dir="ext"\n'
-            ini += 'extension=pdo_sqlite\nextension=sqlite3\nextension=mbstring\nextension=openssl\nextension=curl\nextension=fileinfo\nextension=zip\n'
+            ini += 'extension=mbstring\nextension=openssl\nextension=curl\nextension=fileinfo\nextension=zip\n'
             if (TOOLS / "php").exists():
                 try:
                     (TOOLS / "php/php.ini").write_text(ini, encoding="utf-8")
@@ -190,7 +190,7 @@ class Lab:
             cmd.append("--no-sandbox")
 
         target_dir = None
-        for sub in ["web", "python", "java"]:
+        for sub in ["web", "java"]:
             candidate = ROOT / "projetos" / sub
             if candidate.is_dir():
                 target_dir = candidate
@@ -235,15 +235,6 @@ class Lab:
             failures.append("Python")
             print(f"  ❌ Python — {e}")
 
-        # SQLite no Python
-        try:
-            with sqlite3.connect(":memory:") as conn:
-                conn.execute("CREATE TABLE t (id INT);")
-            print("  ✅ SQLite nativo (memória e arquivo)")
-        except Exception as e:
-            failures.append("SQLite")
-            print(f"  ❌ SQLite — {e}")
-
         # Git
         try:
             with tempfile.TemporaryDirectory() as d:
@@ -264,8 +255,7 @@ class Lab:
             try:
                 res = run([self.php, "-v"], capture_output=True, text=True, env=self.env)
                 ver = res.stdout.splitlines()[0]
-                run([self.php, "-r", "new PDO('sqlite::memory:');"], capture_output=True, env=self.env)
-                print(f"  ✅ PHP ({ver}) com PDO SQLite")
+                print(f"  ✅ PHP ({ver})")
             except Exception as e:
                 failures.append("PHP")
                 print(f"  ❌ PHP — {e}")
@@ -279,18 +269,6 @@ class Lab:
             except Exception as e:
                 failures.append("Java")
                 print(f"  ❌ Java — {e}")
-
-        # Bancos de dados dos projetos
-        for p in (ROOT / "projetos").glob("*/banco.db"):
-            try:
-                with sqlite3.connect(p) as conn:
-                    cur = conn.cursor()
-                    cur.execute("SELECT count(*) FROM sqlite_master WHERE type='table';")
-                    qtd = cur.fetchone()[0]
-                print(f"  ✅ Banco de dados: {p.relative_to(ROOT)} ({qtd} tabelas)")
-            except Exception as e:
-                failures.append(str(p))
-                print(f"  ❌ Banco {p} — {e}")
 
         # VS Code na máquina
         code_bin = self.vscode or find_vscode()
@@ -335,16 +313,16 @@ class Lab:
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
 ║  1  📝 Abrir editor de código (VS Code)                      ║
-║     Abre o VS Code portátil com seu projeto e banco SQLite.  ║
+║     Abre o editor de código com a pasta do seu projeto.      ║
 ║                                                              ║
 ║  2  💻 Abrir terminal do laboratório                         ║
 ║     Abre um terminal com todas as ferramentas prontas.       ║
 ║                                                              ║
 ║  3  🔍 Verificar integridade (Doctor)                        ║
-║     Testa compiladores, git, banco SQLite e caminhos.        ║
+║     Testa compiladores, git e caminhos do sistema.           ║
 ║                                                              ║
 ║  4  💾 Fazer cópia de segurança (Backup dos projetos)        ║
-║     Gera um .zip em backups/ com todos os códigos e bancos.  ║
+║     Gera um .zip em backups/ com todos os seus códigos.      ║
 ║                                                              ║
 ║  5  🌐 Iniciar servidor web PHP                              ║
 ║     Disponibiliza o servidor local em http://127.0.0.1:8080  ║

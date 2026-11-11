@@ -24,6 +24,7 @@ credenciais.json
 Thumbs.db
 desktop.ini
 .junie/
+.agents/
 
 # Python
 __pycache__/

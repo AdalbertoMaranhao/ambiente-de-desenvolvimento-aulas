@@ -551,16 +551,6 @@
       "hash_origin": "upstream"
     },
     {
-      "name": "jdbc",
-      "version": "3.54.1.0",
-      "url": "https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.54.1.0/sqlite-jdbc-3.54.1.0.jar",
-      "target": "dependencias/java/sqlite-jdbc.jar",
-      "kind": "file",
-      "sha256": "f8dce420a6016278497f4f0560f65602b9db858de141b541cf91a4644ebe4639",
-      "prefix": "",
-      "hash_origin": "upstream"
-    },
-    {
       "name": "redhat.java-windows-x64",
       "version": "1.58.0",
       "url": "https://redhat.gallerycdn.vsassets.io/extensions/redhat/java/1.58.0/1792413314207/Microsoft.VisualStudio.Services.VSIXPackage",
@@ -601,86 +591,6 @@
       "hash_origin": "HTTPS-primeiro-download"
     },
     {
-      "name": "ms-python.python-windows-x64",
-      "version": "2026.10.0",
-      "url": "https://ms-python.gallerycdn.vsassets.io/extensions/ms-python/python/2026.10.0/1792013847058/Microsoft.VisualStudio.Services.VSIXPackage",
-      "target": "tools/windows-x64/extensions/ms-python.python-2026.10.0",
-      "kind": "vsix",
-      "sha256": "ab1c1bf0f5ab273118ca3218e62934a4030203cce2e4b24bb86f0f416de05768",
-      "prefix": "extension/",
-      "hash_origin": "HTTPS-primeiro-download"
-    },
-    {
-      "name": "ms-python.python-linux-x64",
-      "version": "2026.10.0",
-      "url": "https://ms-python.gallerycdn.vsassets.io/extensions/ms-python/python/2026.10.0/1792013795961/Microsoft.VisualStudio.Services.VSIXPackage",
-      "target": "tools/linux-x64/extensions/ms-python.python-2026.10.0",
-      "kind": "vsix",
-      "sha256": "9a84de731b622ee440e0bd979965f6a7577afa48bea6c3d4257d8865efc74780",
-      "prefix": "extension/",
-      "hash_origin": "HTTPS-primeiro-download"
-    },
-    {
-      "name": "ms-python.vscode-pylance-windows-x64",
-      "version": "2026.4.1",
-      "url": "https://ms-python.gallerycdn.vsassets.io/extensions/ms-python/vscode-pylance/2026.4.1/1790193667864/Microsoft.VisualStudio.Services.VSIXPackage",
-      "target": "tools/windows-x64/extensions/ms-python.vscode-pylance-2026.4.1",
-      "kind": "vsix",
-      "sha256": "3e6c9d0ba0c6680e6ef28d1af5c6e13844e39a871e5404cbfaaaedb5cd0d8cfb",
-      "prefix": "extension/",
-      "hash_origin": "HTTPS-primeiro-download"
-    },
-    {
-      "name": "ms-python.vscode-pylance-linux-x64",
-      "version": "2026.4.1",
-      "url": "https://ms-python.gallerycdn.vsassets.io/extensions/ms-python/vscode-pylance/2026.4.1/1790193667864/Microsoft.VisualStudio.Services.VSIXPackage",
-      "target": "tools/linux-x64/extensions/ms-python.vscode-pylance-2026.4.1",
-      "kind": "vsix",
-      "sha256": "3e6c9d0ba0c6680e6ef28d1af5c6e13844e39a871e5404cbfaaaedb5cd0d8cfb",
-      "prefix": "extension/",
-      "hash_origin": "HTTPS-primeiro-download"
-    },
-    {
-      "name": "ms-python.debugpy-windows-x64",
-      "version": "2026.6.0",
-      "url": "https://ms-python.gallerycdn.vsassets.io/extensions/ms-python/debugpy/2026.6.0/1777574601242/Microsoft.VisualStudio.Services.VSIXPackage",
-      "target": "tools/windows-x64/extensions/ms-python.debugpy-2026.6.0",
-      "kind": "vsix",
-      "sha256": "f38c4fd6fe801274c0be4df5d3451607bca4d839aaebf66022aa0a6481f7686e",
-      "prefix": "extension/",
-      "hash_origin": "HTTPS-primeiro-download"
-    },
-    {
-      "name": "ms-python.debugpy-linux-x64",
-      "version": "2026.6.0",
-      "url": "https://ms-python.gallerycdn.vsassets.io/extensions/ms-python/debugpy/2026.6.0/1777574573357/Microsoft.VisualStudio.Services.VSIXPackage",
-      "target": "tools/linux-x64/extensions/ms-python.debugpy-2026.6.0",
-      "kind": "vsix",
-      "sha256": "3ae417f78bce17992b9e0efba160a43a85a8b695bd387e150d4df24e366c7b01",
-      "prefix": "extension/",
-      "hash_origin": "HTTPS-primeiro-download"
-    },
-    {
-      "name": "ms-python.vscode-python-envs-windows-x64",
-      "version": "1.40.0",
-      "url": "https://ms-python.gallerycdn.vsassets.io/extensions/ms-python/vscode-python-envs/1.40.0/1792013777208/Microsoft.VisualStudio.Services.VSIXPackage",
-      "target": "tools/windows-x64/extensions/ms-python.vscode-python-envs-1.40.0",
-      "kind": "vsix",
-      "sha256": "bd9ebdb339a336c532c3a2ecfbad8a53c98c148531d914fadaadd609581dddf0",
-      "prefix": "extension/",
-      "hash_origin": "HTTPS-primeiro-download"
-    },
-    {
-      "name": "ms-python.vscode-python-envs-linux-x64",
-      "version": "1.40.0",
-      "url": "https://ms-python.gallerycdn.vsassets.io/extensions/ms-python/vscode-python-envs/1.40.0/1792013727143/Microsoft.VisualStudio.Services.VSIXPackage",
-      "target": "tools/linux-x64/extensions/ms-python.vscode-python-envs-1.40.0",
-      "kind": "vsix",
-      "sha256": "7063f179ee29a6a2a639d44b921601897bfa6023fb21c11f2ae02ba1f38f4f78",
-      "prefix": "extension/",
-      "hash_origin": "HTTPS-primeiro-download"
-    },
-    {
       "name": "frankenphp-license",
       "version": "v1.13.4",
       "url": "https://raw.githubusercontent.com/php/frankenphp/v1.13.4/LICENSE",
@@ -709,26 +619,6 @@
       "sha256": "c8ba7b9415a3747f8ab415259232d6cf93a602f11058914854256c06df414de1",
       "prefix": "extension/",
       "hash_origin": "HTTPS-primeiro-download"
-    },
-    {
-      "name": "qwtel.sqlite-viewer-windows-x64",
-      "version": "26.9.1",
-      "url": "https://qwtel.gallerycdn.vsassets.io/extensions/qwtel/sqlite-viewer/26.9.1/1790252037234/Microsoft.VisualStudio.Services.VSIXPackage",
-      "target": "tools/windows-x64/extensions/qwtel.sqlite-viewer-26.9.1",
-      "kind": "vsix",
-      "sha256": "d3f116efa3ded0b63ac3b91f597d0a6b492f3db32f3724ac523da97dd7c7add0",
-      "prefix": "extension/",
-      "hash_origin": "upstream"
-    },
-    {
-      "name": "qwtel.sqlite-viewer-linux-x64",
-      "version": "26.9.1",
-      "url": "https://qwtel.gallerycdn.vsassets.io/extensions/qwtel/sqlite-viewer/26.9.1/1790252037234/Microsoft.VisualStudio.Services.VSIXPackage",
-      "target": "tools/linux-x64/extensions/qwtel.sqlite-viewer-26.9.1",
-      "kind": "vsix",
-      "sha256": "d3f116efa3ded0b63ac3b91f597d0a6b492f3db32f3724ac523da97dd7c7add0",
-      "prefix": "extension/",
-      "hash_origin": "upstream"
     },
     {
       "name": "usernamehw.errorlens-windows-x64",

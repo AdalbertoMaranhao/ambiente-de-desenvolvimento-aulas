@@ -17,10 +17,10 @@
   .badge{display:inline-block;background:#e2e8f0;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:0.9em}
 </style>
 <h1>🧪 Laboratório Portátil Universal (Dual-OS)</h1>
-<p>Ambiente portátil completo de desenvolvimento contendo VS Code, Git, interpretadores/compiladores e banco de dados SQLite. Funciona de forma 100% offline e independente do sistema operacional da máquina (Windows 11 ou Linux Mint x64).</p>
+<p>Ambiente portátil completo de desenvolvimento contendo Git, interpretadores/compiladores e configurações para o editor. Funciona de forma 100% offline e independente do sistema operacional da máquina (Windows 11 ou Linux Mint x64).</p>
 
 <div class="success">
-  <strong>✓ Totalmente Interoperável:</strong> Você pode iniciar seus trabalhos no Windows, salvar, plugar o pendrive em um computador com Linux Mint e continuar de onde parou. Seus códigos, banco de dados (<code>banco.db</code>) e abas abertas no VS Code são sincronizados automaticamente!
+  <strong>✓ Totalmente Interoperável:</strong> Você pode iniciar seus trabalhos no Windows, salvar, plugar o pendrive em um computador com Linux Mint e continuar de onde parou. Seus códigos e preferências são sincronizados automaticamente!
 </div>
 
 <h2>1. Como Iniciar o Ambiente</h2>
@@ -29,39 +29,30 @@
   <li><strong>No Windows:</strong> Clique duas vezes em <code>Iniciar &lt;Disciplina&gt;.cmd</code>. Não requer direitos de administrador.</li>
   <li><strong>No Linux Mint:</strong> Clique duas vezes no atalho <code>Iniciar &lt;Disciplina&gt;.desktop</code> (ou execute via terminal <code>./iniciar-linux.sh</code>).</li>
 </ul>
-<p>O VS Code abrirá automaticamente com seu projeto carregado, extensões ativadas e o banco de dados pronto para uso.</p>
+<p>O VS Code abrirá automaticamente com seu projeto carregado e as extensões ativadas.</p>
 
-<h2>2. Banco de Dados (SQLite)</h2>
-<p>Para evitar conflitos de portas de rede e falhas de serviços em segundo plano, este laboratório utiliza <strong>SQLite</strong>:</p>
-<ul>
-  <li>O banco de dados é um arquivo físico chamado <code>banco.db</code> localizado dentro da sua pasta de projetos.</li>
-  <li>No VS Code, basta clicar diretamente no arquivo <code>banco.db</code> para abrir o visualizador interativo (<strong>SQLite Viewer</strong>), explorar tabelas e rodar scripts SQL.</li>
-  <li><strong>Sem transferências manuais:</strong> O arquivo <code>banco.db</code> é binário e idêntico em Windows e Linux.</li>
-</ul>
-
-<h2>3. Pastas de Projetos</h2>
+<h2>2. Pastas de Projetos</h2>
 <table>
   <tr><th>Disciplina / Kit</th><th>Pasta de Código</th><th>Como Testar</th></tr>
   <tr><td>Desenvolvimento Web</td><td><code>projetos/web/</code></td><td>Pressione <code>Ctrl+Shift+B</code> no VS Code para iniciar o servidor PHP e acesse <code>http://127.0.0.1:8080/ola-mundo.php</code></td></tr>
-  <tr><td>POO com Python</td><td><code>projetos/python/</code></td><td>Abra o arquivo <code>ola-mundo.py</code> e pressione <code>F5</code></td></tr>
   <tr><td>POO com Java</td><td><code>projetos/java/</code></td><td>Abra <code>src/OlaMundo.java</code> e clique no botão <code>Run</code> (ou ▶ no IntelliJ)</td></tr>
 </table>
 
-<h2>4. Recursos Pedagógicos Integrados</h2>
+<h2>3. Recursos Pedagógicos Integrados</h2>
 <p>Todos os perfis incluem extensões visuais selecionadas para apoiar o aprendizado prático e a resolução autônoma de problemas:</p>
 <ul>
   <li><strong>Error Lens:</strong> Mostra a descrição do erro e aviso diretamente ao lado da linha com falha no editor.</li>
-  <li><strong>Indent Rainbow:</strong> Facilita a visualização de blocos de chaves, classes e indentação em Python/HTML/PHP/Java através de cores suaves.</li>
+  <li><strong>Indent Rainbow:</strong> Facilita a visualização de blocos de chaves, classes e indentação em HTML/PHP/Java através de cores suaves.</li>
   <li><strong>Better Comments:</strong> Destaque para comentários e anotações explicativas no código.</li>
   <li><strong>Path Intellisense:</strong> Sugere e completa caminhos de arquivos em includes, requires e links.</li>
   <li><strong>Auto Rename Tag:</strong> Mantém tags HTML de abertura e fechamento sincronizadas automaticamente.</li>
   <li><strong>Português (Brasil):</strong> Toda a interface do editor está traduzida.</li>
 </ul>
 
-<h2>5. Salvando e Transportando seu Trabalho</h2>
-<p>Basta fechar o VS Code normalmente. Como o SQLite grava as alterações diretamente no arquivo <code>banco.db</code> e o VS Code salva suas preferências em <code>configuracoes/vscode</code>, basta ejetar com segurança o pendrive e você estará pronto para levar seus trabalhos para casa ou outro laboratório.</p>
+<h2>4. Salvando e Transportando seu Trabalho</h2>
+<p>Basta fechar o editor normalmente. O VS Code salva suas preferências em <code>configuracoes/vscode</code>. Depois, basta ejetar com segurança o pendrive e você estará pronto para levar seus trabalhos para casa ou outro laboratório.</p>
 
-<h2>6. Solução de Dúvidas Comuns</h2>
+<h2>5. Solução de Dúvidas Comuns</h2>
 <ul>
   <li><strong>O iniciador avisa que o VS Code não foi encontrado:</strong> O kit utiliza o Visual Studio Code instalado no computador para garantir leveza e máxima performance, mantendo todas as extensões e preferências isoladas no pendrive. Caso a máquina não possua o VS Code instalado, instale a versão oficial gratuita em <a href="https://code.visualstudio.com/">code.visualstudio.com</a>.</li>
   <li><strong>O Linux Mint não deixa executar o arquivo:</strong> O iniciador <code>iniciar-linux.sh</code> restaura as permissões de execução dos binários automaticamente. Se o pendrive estiver montado com a opção restritiva <code>noexec</code>, copie a pasta para sua pasta pessoal (ex: <code>~/aulas</code>) e execute dali.</li>
