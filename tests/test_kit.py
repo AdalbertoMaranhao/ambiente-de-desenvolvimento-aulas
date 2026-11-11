@@ -356,6 +356,77 @@ class GravarPendriveTests(unittest.TestCase):
             self.assertTrue((destino / "sub" / "teste.txt").exists())
             self.assertEqual((destino / "sub" / "teste.txt").read_text(), "direto ssd")
 
+    def test_calcular_pasta_destino(self):
+        import gravar_pendrive
+        base = Path("/Volumes/AULAS")
+        self.assertEqual(gravar_pendrive.calcular_pasta_destino(base, "web"), base / "kit-web")
+        self.assertEqual(gravar_pendrive.calcular_pasta_destino(base, "poo-java"), base / "kit-poo-java")
+        self.assertEqual(gravar_pendrive.calcular_pasta_destino(base / "kit-web", "web"), base / "kit-web")
+        self.assertEqual(gravar_pendrive.calcular_pasta_destino(base, "web", subpasta="meu-kit"), base / "meu-kit")
+        self.assertEqual(gravar_pendrive.calcular_pasta_destino(base, "web", na_raiz=True), base)
+
+    def test_eh_sistema_ideal(self):
+        import gravar_pendrive
+        self.assertTrue(gravar_pendrive.eh_sistema_ideal("exFAT"))
+        self.assertTrue(gravar_pendrive.eh_sistema_ideal("ExFAT"))
+        self.assertFalse(gravar_pendrive.eh_sistema_ideal("FAT32"))
+        self.assertFalse(gravar_pendrive.eh_sistema_ideal("MS-DOS FAT32"))
+        self.assertFalse(gravar_pendrive.eh_sistema_ideal("NTFS"))
+        self.assertFalse(gravar_pendrive.eh_sistema_ideal(""))
+
+    def test_confirmar_formatacao_segura(self):
+        import gravar_pendrive
+        with patch("builtins.input", return_value="FORMATAR"):
+            self.assertTrue(gravar_pendrive.confirmar_formatacao_segura(Path("/Volumes/TESTE"), "FAT32"))
+        with patch("builtins.input", return_value="formatar"):
+            self.assertTrue(gravar_pendrive.confirmar_formatacao_segura(Path("/Volumes/TESTE"), "FAT32"))
+        with patch("builtins.input", return_value="s"):
+            self.assertFalse(gravar_pendrive.confirmar_formatacao_segura(Path("/Volumes/TESTE"), "FAT32"))
+        with patch("builtins.input", return_value=""):
+            self.assertFalse(gravar_pendrive.confirmar_formatacao_segura(Path("/Volumes/TESTE"), "FAT32"))
+
+    def test_formatar_pendrive_macos(self):
+        import gravar_pendrive
+        import sys
+        with patch.object(sys, "platform", "darwin"), \
+             patch("subprocess.run") as mock_run, \
+             patch.object(Path, "exists", return_value=True):
+            mock_run.return_value.returncode = 0
+            mock_run.return_value.stdout = ""
+            mock_run.return_value.stderr = ""
+            res = gravar_pendrive.formatar_pendrive(Path("/Volumes/MEUPENDRIVE"), rotulo="AULAS")
+            mock_run.assert_called_once()
+            args, _ = mock_run.call_args
+            self.assertEqual(args[0], ["diskutil", "eraseVolume", "ExFAT", "AULAS", "/Volumes/MEUPENDRIVE"])
+            self.assertEqual(res, Path("/Volumes/AULAS"))
+
+    def test_formatar_pendrive_windows(self):
+        import gravar_pendrive
+        import sys
+        with patch.object(sys, "platform", "win32"), \
+             patch("subprocess.run") as mock_run:
+            mock_run.return_value.returncode = 0
+            mock_run.return_value.stdout = ""
+            mock_run.return_value.stderr = ""
+            res = gravar_pendrive.formatar_pendrive(Path(r"E:\lab"), rotulo="AULAS")
+            mock_run.assert_called_once()
+            args, _ = mock_run.call_args
+            self.assertEqual(args[0][:5], ["format", "E:", "/FS:exFAT", "/Q", "/A:128K"])
+            self.assertEqual(str(res), "E:\\")
+
+    def test_criar_leia_me_raiz(self):
+        import gravar_pendrive
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "kit-web").mkdir()
+            gravar_pendrive.criar_leia_me_raiz(root, "web")
+            leia_me = root / "LEIA-ME.txt"
+            self.assertTrue(leia_me.exists())
+            conteudo = leia_me.read_text(encoding="utf-8")
+            self.assertIn("kit-web/", conteudo)
+            self.assertIn("iniciar-windows.cmd", conteudo)
+            self.assertIn("laboratorio.desktop", conteudo)
+
     def test_resolve_kit_target_unifica_extensions(self):
         import preparar
         kit_dir = Path("/tmp/teste_kit")
