@@ -394,7 +394,9 @@ class Lab:
                 pass
             return False
 
-        ext_dir = TOOLS / "extensions"
+        ext_dir = ROOT / "tools" / "extensions"
+        if not ext_dir.exists():
+            ext_dir = TOOLS / "extensions"
         if not ext_dir.exists() and (TOOLS / "vscode/data/extensions").exists():
             ext_dir = TOOLS / "vscode/data/extensions"
         user_dir = ROOT / "configuracoes/vscode"
