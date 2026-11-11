@@ -3,13 +3,11 @@ FROM php:8.4-cli
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Instalar dependências de sistema, sqlite e utilitários
+# Instalar dependências de sistema e utilitários
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
     unzip \
-    sqlite3 \
-    libsqlite3-dev \
     libzip-dev \
     libonig-dev \
     ca-certificates \
@@ -17,8 +15,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Instalar extensões essenciais do PHP
 RUN docker-php-ext-install -j$(nproc) \
-    pdo \
-    pdo_sqlite \
     zip \
     mbstring
 

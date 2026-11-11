@@ -1,5 +1,5 @@
 {
-  "name": "🌐 Web (PHP 8.4 & SQLite)",
+  "name": "🌐 Web (PHP 8.4)",
   "build": {
     "dockerfile": "Dockerfile"
   },
@@ -7,7 +7,6 @@
     "vscode": {
       "extensions": [
         "bmewburn.vscode-intelephense-client",
-        "qwtel.sqlite-viewer",
         "usernamehw.errorlens",
         "oderwat.indent-rainbow",
         "aaron-bond.better-comments",
@@ -27,10 +26,7 @@
         "editor.wordWrap": "on",
         "errorlens.enabled": true,
         "php.validate.executablePath": "/usr/local/bin/php",
-        "intelephense.environment.phpVersion": "8.4",
-        "workbench.editorAssociations": {
-          "*.db": "sqlite-viewer.view"
-        }
+        "intelephense.environment.phpVersion": "8.4"
       }
     }
   },

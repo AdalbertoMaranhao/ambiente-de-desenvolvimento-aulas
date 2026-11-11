@@ -1,5 +1,5 @@
 {
-  "name": "☕ POO com Java (Adoptium JDK & SQLite)",
+  "name": "☕ POO com Java (Adoptium JDK)",
   "build": {
     "dockerfile": "Dockerfile"
   },
@@ -8,7 +8,6 @@
       "extensions": [
         "redhat.java",
         "vscjava.vscode-java-debug",
-        "qwtel.sqlite-viewer",
         "usernamehw.errorlens",
         "oderwat.indent-rainbow",
         "aaron-bond.better-comments",
@@ -32,12 +31,8 @@
         ],
         "java.project.outputPath": "bin",
         "java.project.referencedLibraries": [
-          "/opt/jdbc/*.jar",
           "dependencias/java/*.jar"
-        ],
-        "workbench.editorAssociations": {
-          "*.db": "sqlite-viewer.view"
-        }
+        ]
       }
     }
   },
